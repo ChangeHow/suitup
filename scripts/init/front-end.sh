@@ -12,8 +12,21 @@ else
 fi
 
 # init node@16 & pnpm
+echo "[fe] install node@16 and pnpm@7..."
 volta install node@16
 volta install pnpm@7
+
+if [[ $* == *--no-tools* ]]; then
+  echo "[fe] skip installing tools chain"
+else
+  echo "[fe] install tools chain..."
+  volta install eslint
+  volta install prettier
+  volta install stylelint
+  volta install typescript@4.8
+  volta install ts-node
+  volta install husky
+fi
 
 # git commitizen
 echo "[fe] init git commitizen..."
@@ -21,3 +34,5 @@ volta install commitizen
 volta install cz-conventional-changelog
 touch ~/.czrc
 echo '{ "path": "cz-conventional-changelog" }' > ~/.czrc
+
+echo "[fe] done!"
