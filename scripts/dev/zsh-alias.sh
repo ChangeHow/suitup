@@ -27,6 +27,12 @@ echo "alias gpl=\"git pull --rebase\"" >> $aliases_file
 prefix_log "you can use \"gcz\" to commit with commitizen" $prefix
 echo "alias gcz=\"git cz\"" >> $aliases_file
 
+prefix_log "you can use \"gst\" to print git status" $prefix
+echo "alias gst=\"git status\"" >> $aliases_file
+
+prefix_log "you can use \"glg\" to output formatted git logs" $prefix
+echo "alias glg=\"git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit\"" >> $aliases_file
+
 prefix_log "you can use \"ss\" to search file with preview" $prefix
 echo "alias ss=\"fzf --preview 'bat --style=numbers {}'\"" >> $aliases_file
 
