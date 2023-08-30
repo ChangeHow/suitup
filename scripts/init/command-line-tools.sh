@@ -3,7 +3,6 @@ source $(pwd)/scripts/utils/log.sh
 source $(pwd)/scripts/init/init-configs.sh
 
 prefix="cli"
-aliases_file=$HOME/.config/zsh/aliaes
 
 # 检查 brew 是否安装
 prefix_log "checking homebrew installation status" $prefix
@@ -62,7 +61,6 @@ if brew list exa &>/dev/null; then
 else
     brew install exa
     prefix_log "replace ls with exa" $prefix
-    echo "alias ls=\"exa -abghHliS\"" >>$aliases_file
 fi
 
 prefix_log "install atuin..." $prefix
