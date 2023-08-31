@@ -1,4 +1,11 @@
-# dev-config
+# Suit up!
+<p align="center">
+    <img src="https://github.com/ChangeHow/suitup/blob/main/suitup.mini.png?raw=true"
+        height="120">
+</p>
+
+## About name
+This name is inspired by Barney's catchphrase, Barney is a character in my favorite TV series: [How I met your mother](https://www.themoviedb.org/tv/1100-how-i-met-your-mother).
 
 ## About this repositery
 This repositery contains my personal development configurations like zsh, shell scripts... 🙌 very welcome to try it out~
