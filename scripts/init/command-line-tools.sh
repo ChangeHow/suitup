@@ -14,7 +14,7 @@ fi
 prefix_log "checking git installation status" $prefix
 # 检查 git 是否安装
 if ! command -v git &>/dev/null; then
-    prefix "git could not be found. Please install git." $prefix
+    prefix_log "git could not be found. Please install git." $prefix
     exit
 fi
 
