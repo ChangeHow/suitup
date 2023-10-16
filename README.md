@@ -30,7 +30,7 @@ Please follow the steps below to init your development environment:
    - postman, sorry, it's not a command line tool, but I still install it in this step. :sad
    - exa, a ls clone with syntax highlight.
    - atuin, a tool to power your shell history.
-5. Run `sh ./scripts/init/init-zsh-plugins.sh` to init zplug and add plugins to it. There are the plugins:
+5. Run `sh ./scripts/init/install-zsh-plugins.sh` to init zplug and add plugins to it. There are the plugins:
    - zsh-autosuggestions, to suggest commands when you type.
    - zsh-syntax-highlighting, to highlight commands when you type.
 6. Okay, as a frontend developer, I create a script to init the development environment. They are:
