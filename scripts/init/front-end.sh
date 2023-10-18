@@ -1,25 +1,26 @@
 #!/bin/bash
+source $(pwd)/scripts/utils/log.sh
 
 # 检查 'volta' 命令是否存在
 if ! command -v volta &> /dev/null
 then
-    echo "[fe] Volta could not be found"
-    echo "[fe] Installing Volta..."
+    color_echo GREEN "[fe] Volta could not be found"
+    color_echo YELLOW "[fe] Installing Volta..."
     # 在这里添加安装 Volta 的命令，比如：
     curl https://get.volta.sh | bash
 else
-    echo "[fe] Volta is already installed"
+    color_echo GREEN "[fe] Volta is already installed"
 fi
 
 # init node@16 & pnpm
-echo "[fe] install node@16 and pnpm@7..."
+color_echo YELLOW "[fe] install node@16 and pnpm@7..."
 volta install node@16
 volta install pnpm@7
 
 if [[ $* == *--no-tools* ]]; then
-  echo "[fe] skip installing tools chain"
+  color_echo GREEN "[fe] skip installing tools chain"
 else
-  echo "[fe] install tools chain..."
+  color_echo YELLOW "[fe] install tools chain..."
   volta install eslint
   volta install prettier
   volta install stylelint
@@ -29,10 +30,10 @@ else
 fi
 
 # git commitizen
-echo "[fe] init git commitizen..."
+color_echo YELLOW "[fe] init git commitizen..."
 volta install commitizen
 volta install cz-conventional-changelog
 touch ~/.czrc
-echo '{ "path": "cz-conventional-changelog" }' > ~/.czrc
+color_echo YELLOW '{ "path": "cz-conventional-changelog" }' > ~/.czrc
 
-echo "[fe] done!"
+color_echo GREEN "[fe] done!"
