@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/bin/bash
 source $(pwd)/scripts/utils/log.sh
 source $(pwd)/scripts/init/init-configs.sh
 
@@ -23,8 +23,11 @@ if brew list autojump &>/dev/null; then
     prefix_log "autojump is already installed." $prefix
 else
     brew install autojump
-    echo "[ -f /opt/homebrew/etc/profile.d/autojump.sh ] && . /opt/homebrew/etc/profile.d/autojump.sh" >>~/.zshrc
 fi
+# 检查内容并添加配置
+color_echo BLUE ">>> checking and append the init script for autojump to ~/.zshrc"
+append_to_zshrc "[ -f /opt/homebrew/etc/profile.d/autojump.sh ] && . /opt/homebrew/etc/profile.d/autojump.sh"
+color_echo GREEN "You can use 'j' and jump to whatever dir you've visited"
 
 prefix_log "bat..." $prefix
 # 使用 brew 安装 bat
@@ -68,8 +71,11 @@ if brew list atuin &>/dev/null; then
     prefix_log "atuin is already installed." $prefix
 else
     brew install atuin
-    echo 'eval "$(atuin init zsh --disable-ctrl-r)"' >>$HOME/.zshrc
 fi
+# 检查内容并添加配置
+color_echo BLUE ">>> checking and append the init script for atuin o ~/.zshrc"
+append_to_zshrc 'eval "$(atuin init zsh --disable-ctrl-r)"'
+color_echo GREEN "You can use '<C-r>' to browser history with fuzzy search and using '<C-j>/<C-k>' to navigate."
 
 prefix_log "install fzf..." $prefix
 if brew list fzf &>/dev/null; then
@@ -77,11 +83,12 @@ if brew list fzf &>/dev/null; then
 else
     brew install fzf
     brew install ripgrep
-    # To install useful key bindings and fuzzy completion:
-    $(brew --prefix)/opt/fzf/install
-    echo "export FZF_DEFAULT_COMMAND='rg --files --no-ignore --hidden --follow --glob \"!{**/node_modules/*,.git/*,*/tmp/*}\"'" >>$HOME/.zshrc
-    prefix_log "you can use <C-r> to search file fuzzyly" $prefix
 fi
+# 检查内容并添加配置
+color_echo BLUE ">>> checking and append the init script for fzf o ~/.zshrc"
+# To install useful key bindings and fuzzy completion:
+$(brew --prefix)/opt/fzf/install
+append_to_zshrc "export FZF_DEFAULT_COMMAND='rg --files --no-ignore --hidden --follow --glob \"!{**/node_modules/*,.git/*,*/tmp/*}\"'"
 
 prefix_log "install volta..." $prefix
 curl https://get.volta.sh | bash
@@ -91,4 +98,4 @@ prefix_log "finished installation!" $prefix
 prefix_log "reload zsh" $prefix
 exec zsh
 
-echo "Done."
+color_echo GREEN "Done."
