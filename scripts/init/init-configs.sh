@@ -32,6 +32,13 @@ append_to() {
 }
 
 # 检查内容是否存在并插入 .zshrc
+# 两个参数用于关键字匹配，确定是否要新增配置
 append_to_zshrc() {
-    append_to $1 "$HOME/.zshrc"
+    if [ "$#" -eq 2 ]; then
+        if [ ! -f "$HOME/.zshrc"] || ! grep -q "$2" "$HOME/.zshrc"; then
+            echo "$1" >>"$HOME/.zshrc"
+        fi
+    else
+        append_to "$1" "$HOME/.zshrc"
+    fi
 }
