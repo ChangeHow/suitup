@@ -88,10 +88,11 @@ fi
 color_echo BLUE ">>> checking and append the init script for fzf o ~/.zshrc"
 # To install useful key bindings and fuzzy completion:
 $(brew --prefix)/opt/fzf/install
-append_to_zshrc "export FZF_DEFAULT_COMMAND='rg --files --no-ignore --hidden --follow --glob \"!{**/node_modules/*,.git/*,*/tmp/*}\"'"
+append_to_zshrc "export FZF_DEFAULT_COMMAND='rg --files --no-ignore --hidden --follow --glob \"!{**/node_modules/*,.git/*,*/tmp/*}\"'" "FZF_DEFAULT_COMMAND"
 
 prefix_log "install volta..." $prefix
 curl https://get.volta.sh | bash
+append_to_zshrc "export VOLTA_FEATURE_PNPM=1" "VOLTA_FEATURE_PNPM" # support pnpm
 
 prefix_log "finished installation!" $prefix
 
