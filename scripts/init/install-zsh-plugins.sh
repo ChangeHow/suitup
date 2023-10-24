@@ -3,7 +3,7 @@ source $(pwd)/scripts/utils/log.sh
 source $(pwd)/scripts/init/init-configs.sh
 
 prefix="zsh"
-plugin_file=$HOME/.config/zsh/plugins
+plugin_file=$HOME/.config/suitup/plugins
 
 # 检查 .zshrc 文件是否存在
 if [ -f "$HOME/.zshrc" ]; then

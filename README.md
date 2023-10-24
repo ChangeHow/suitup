@@ -21,22 +21,22 @@ Please follow the steps below to init your development environment:
 
 1. Clone this repositery to your local machine.
 2. Before running the scripts and if you living in China mainland, please ensure you can visit [google](https://www.google.com) and [github](https://github.com) at least.
-3. Run `sh ./bootstrap.sh` to install homebrew, zsh and oh-my-zsh.
-4. Run `sh ./scripts/init/command-line-tools.sh` to install command line tools that I suggest. They are:
-   - autojump, a tool to jump to your favorite directory.
+3. Run `sh ./bootstrap.sh` to install **homebrew**, **zsh** and **oh-my-zsh**.
+4. Run `sh ./scripts/init/command-line-tools.sh` to install CLIs that I suggest. They are:
+   - autojump, a tool to jump to your favorite directory, it supports fuzzy matching.
    - bat, a cat clone with syntax highlight.
    - htop, to monitor your system.
    - neofetch, to insignt your system information.
-   - postman, sorry, it's not a command line tool, but I still install it in this step. :sad
+   - postman, sorry, it's not a CLI, but I still install it in this step. :sad
    - exa, a ls clone with syntax highlight.
    - atuin, a tool to power your shell history.
 5. Run `sh ./scripts/init/install-zsh-plugins.sh` to init zplug and add plugins to it. There are the plugins:
    - zsh-autosuggestions, to suggest commands when you type.
    - zsh-syntax-highlighting, to highlight commands when you type.
 6. Okay, as a frontend developer, I create a script to init the development environment. They are:
-   - volta, a tool to manage node versions.
-   - node and pnpm, installed them by volta.
-   - some tools like eslint, prettier, stylelint...
+   - volta, a tool to manage node versions. **And I will open VOLTA_FEATURE_PNPM to enable auto switching for pnpm(https://github.com/volta-cli/volta/issues/737#issuecomment-1336261992,https://github.com/volta-cli/volta/pull/1273)**
+     - node and pnpm, installed them by volta.
+     - some tools like eslint, prettier, stylelint...
    - commitzen, a tool to help you write commit message.
 7. Actually, those tools seems enough to start developping. But I still have some customize configrations, you can keep following the steps if you want.
 
@@ -57,7 +57,7 @@ Running this script to install useful apps like:
 - orbstack, a tool to manage your docker containers.
 - itsycal, a tool to show your calendar.
 
-### My dotfile
+### My dotfiles
 
 You can init `.vimrc` by running:
 
@@ -65,11 +65,46 @@ You can init `.vimrc` by running:
 sh ./scripts/dev/vim-config.sh
 ```
 
-And add some useful zsh aliases by running:
+_You can edit it in `~/.vimrc`_
+
+And add some useful `zsh aliases` by running:
 
 ```shell
 sh ./scripts/dev/zsh-alias.sh
 ```
+
+_You can edit it in `~/.config/zsh/aliases`_
+
+## Other sources
+
+In `/sources`, there are some sources you can use.
+
+### Setup iTerm
+
+You can import `Best!.json` to setup the color schema for [iTerm2 - macOS Terminal Replacement](https://iterm2.com/).
+
+### OMZ theme
+
+if you don't want pay much time in theme, you can use `[romkatv/powerlevel10k: A Zsh theme](https://github.com/romkatv/powerlevel10k)`.
+
+### Font
+
+`cascadia` is a nerd font for `[romkatv/powerlevel10k: A Zsh theme](https://github.com/romkatv/powerlevel10k)`.
+
+# How to reset/reinstall
+
+Run this command and reset to default zsh config(`.zshrc`)
+
+```shell
+sh ./clean.sh
+```
+
+This script will do:
+
+1. remove `~/.config/suitup`
+2. remove `~/.oh-my-zsh`
+3. remove `~/.zshrc`
+4. switch to `bash`, _or you can keep `zsh` if you macOS has changed the default shell to zsh_.
 
 # In the end
 
