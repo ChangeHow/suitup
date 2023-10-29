@@ -9,9 +9,9 @@
 
 This name is inspired by Barney's catchphrase, Barney is a character in my favorite TV series: [How I met your mother](https://www.themoviedb.org/tv/1100-how-i-met-your-mother).
 
-## About this repositery
+## About this repository 
 
-This repositery contains my personal development configurations like zsh, shell scripts... 🙌 very welcome to try it out~
+This  repository contains my personal development configurations like zsh, shell scripts... 🙌 very welcome to try it out~
 
 ## Easy to get started
 
@@ -19,7 +19,7 @@ _I don't know how to use single one script to install everything_, so I seperate
 
 Please follow the steps below to init your development environment:
 
-1. Clone this repositery to your local machine.
+1. Clone this  repository to your local machine.
 2. Before running the scripts and if you living in China mainland, please ensure you can visit [google](https://www.google.com) and [github](https://github.com) at least.
 3. Run `sh ./bootstrap.sh` to install **homebrew**, **zsh** and **oh-my-zsh**.
 4. Run `sh ./scripts/init/command-line-tools.sh` to install CLIs that I suggest. They are:
@@ -40,7 +40,7 @@ Please follow the steps below to init your development environment:
    - commitzen, a tool to help you write commit message.
 7. Actually, those tools seems enough to start developping. But I still have some customize configrations, you can keep following the steps if you want.
 
-## Customize configrations
+## Customize configurations 
 
 ### Apps
 
@@ -57,7 +57,7 @@ Running this script to install useful apps like:
 - orbstack, a tool to manage your docker containers.
 - itsycal, a tool to show your calendar.
 
-### My dotfiles
+### My dot files
 
 You can init `.vimrc` by running:
 
@@ -85,11 +85,11 @@ You can import `Best!.json` to setup the color schema for [iTerm2 - macOS Termin
 
 ### OMZ theme
 
-if you don't want pay much time in theme, you can use `[romkatv/powerlevel10k: A Zsh theme](https://github.com/romkatv/powerlevel10k)`.
+if you don't want pay much time in theme, you can use [`romkatv/powerlevel10k: A Zsh theme`](https://github.com/romkatv/powerlevel10k).
 
 ### Font
 
-`cascadia` is a nerd font for `[romkatv/powerlevel10k: A Zsh theme](https://github.com/romkatv/powerlevel10k)`.
+`cascadia` is a nerd font for [`romkatv/powerlevel10k: A Zsh theme`](https://github.com/romkatv/powerlevel10k).
 
 # How to reset/reinstall
 
