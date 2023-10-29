@@ -73,7 +73,7 @@ And add some useful `zsh aliases` by running:
 sh ./scripts/dev/zsh-alias.sh
 ```
 
-_You can edit it in `~/.config/zsh/aliases`_
+_You can edit it in `~/.config/suitup/aliases`_
 
 ## Other sources
 
@@ -86,6 +86,13 @@ You can import `Best!.json` to setup the color schema for [iTerm2 - macOS Termin
 ### OMZ theme
 
 if you don't want pay much time in theme, you can use [`romkatv/powerlevel10k: A Zsh theme`](https://github.com/romkatv/powerlevel10k).
+
+or you can install `p10k` by zplug:
+1. run this command to add `p10k` to plugin
+   ```shell
+   echo "zplug romkatv/powerlevel10k, as:theme, depth:1" >> ~/.config/suitup/plugins
+   ```
+2. run `reload-zsh` to reload zsh config if you have run `sh ./scripts/dev/zsh-alias.sh` before.
 
 ### Font
 
