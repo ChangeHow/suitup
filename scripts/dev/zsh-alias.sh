@@ -4,12 +4,27 @@ source $(pwd)/scripts/init/init-configs.sh
 
 prefix="zsh alias"
 aliases_file=$HOME/.config/suitup/aliases
+plugins_file=$HOME/.config/suitup/plugins
 # this script will add some alias to .config/zsh/aliases
 
 prefix_log "add aliases to .config/zsh/alias" $prefix
 
 append_to "alias reload-zsh=\"exec zsh\"" $aliases_file
+
+# edit zsh
+prefix_log "you can use \"edit-zsh\" to edit zshrc file" $prefix
 append_to "alias edit-zsh=\"vi $HOME/.zshrc\"" $aliases_file
+color_echo YELLOW "You can use 'edit-zsh' to edit zshrc file"
+
+# edit aliases
+prefix_log "you can use \"edit-aliases\" to edit aliases file" $prefix
+append_to "alias edit-aliases=\"vi $aliases_file\"" $aliases_file
+color_echo YELLOW "You can use 'edit-aliases' to edit aliases file"
+
+# edit plugins
+prefix_log "you can use \"edit-plugins\" to edit plugins file" $prefix
+append_to "alias edit-plugins=\"vi $plugins_file\"" $aliases_file
+color_echo YELLOW "You can use 'edit-plugins' to edit plugins file"
 
 prefix_log "display colorful file tree with ll command" $prefix
 append_to "alias ll=\"exa -abghlS\"" $aliases_file
