@@ -2,7 +2,7 @@
 
 set -e
 
-# 定义一些颜色代码
+# define some colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -25,7 +25,7 @@ if ! command -v brew &> /dev/null
 then
     color_echo BLUE "Homebrew is not installed, installing now..."
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    (echo; echo 'eval "$(/opt/homebrew/bin/brew shellenv)"') >> /Users/changehow/.zprofile
+    (echo; echo 'eval "$(/opt/homebrew/bin/brew shellenv)"') >> ~/.zprofile
     eval "$(/opt/homebrew/bin/brew shellenv)"
 else
     color_echo GREEN "Homebrew is already installed"
@@ -59,6 +59,9 @@ else
 fi
 
 color_echo YELLOW "You can use 'exec zsh' to reload zsh"
+
+# notice user to clone respository changehow/suitupt
+color_echo YELLOW "Don't forget to clone the repository https://github.com/ChangeHow/suitup"
 
 # Restart shell
 exec zsh

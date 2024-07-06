@@ -51,13 +51,6 @@ else
     brew install neofetch
 fi
 
-prefix_log "postman..." $prefix
-if brew list postman &>/dev/null; then
-    prefix_log "postman is already installed." $prefix
-else
-    brew install --cask postman
-fi
-
 prefix_log "exa..., a replacement of ls" $prefix
 if brew list exa &>/dev/null; then
     prefix_log "exa is already installed." $prefix
@@ -90,9 +83,12 @@ color_echo BLUE ">>> checking and append the init script for fzf o ~/.zshrc"
 $(brew --prefix)/opt/fzf/install
 append_to_zshrc "export FZF_DEFAULT_COMMAND='rg --files --no-ignore --hidden --follow --glob \"!{**/node_modules/*,.git/*,*/tmp/*}\"'" "FZF_DEFAULT_COMMAND"
 
-prefix_log "install volta..." $prefix
-curl https://get.volta.sh | bash
-append_to_zshrc "export VOLTA_FEATURE_PNPM=1" "VOLTA_FEATURE_PNPM" # support pnpm
+prefix_log "install tree..." $prefix
+if brew list tree &>/dev/null; then
+    prefix_log "tree is already installed." $prefix
+else
+    brew install tree
+fi
 
 prefix_log "finished installation!" $prefix
 
