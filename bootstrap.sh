@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # 定义一些颜色代码
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -17,8 +19,6 @@ prefix_log() {
   local prefix=${2:-log}
   color_echo BLUE "[$prefix] $1"
 }
-
-set -e
 
 # Check if Homebrew is installed
 if ! command -v brew &> /dev/null
