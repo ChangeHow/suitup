@@ -8,7 +8,7 @@ NC='\033[0m' # No Color
 color_echo() {
   COLOR=$1
   shift
-  echo "${!COLOR}$@${NC}"
+  echo -e "${!COLOR}$@${NC}"
 }
 
 prefix_log() {

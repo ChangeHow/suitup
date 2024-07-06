@@ -9,94 +9,52 @@
 
 This name is inspired by Barney's catchphrase, Barney is a character in my favorite TV series: [How I met your mother](https://www.themoviedb.org/tv/1100-how-i-met-your-mother).
 
-## About this repository 
+## About this repository
 
-This  repository contains my personal development configurations like zsh, shell scripts... 🙌 very welcome to try it out~
+This preset will hold every thing in `~/.config/suitup` folder.
 
-## Easy to get started
+## Getting started
 
-_I don't know how to use single one script to install everything_, so I seperate them into different scripts.
+1. run bootstrap in a very first step.
 
-Please follow the steps below to init your development environment:
-
-1. Clone this  repository to your local machine.
-2. Before running the scripts and if you living in China mainland, please ensure you can visit [google](https://www.google.com) and [github](https://github.com) at least.
-3. Run `sh ./bootstrap.sh` to install **homebrew**, **zsh** and **oh-my-zsh**.
-4. Run `sh ./scripts/init/command-line-tools.sh` to install CLIs that I suggest. They are:
-   - autojump, a tool to jump to your favorite directory, it supports fuzzy matching.
-   - bat, a cat clone with syntax highlight.
-   - htop, to monitor your system.
-   - neofetch, to insignt your system information.
-   - postman, sorry, it's not a CLI, but I still install it in this step. :sad
-   - exa, a ls clone with syntax highlight.
-   - atuin, a tool to power your shell history.
-5. Run `sh ./scripts/init/install-zsh-plugins.sh` to init zplug and add plugins to it. There are the plugins:
-   - zsh-autosuggestions, to suggest commands when you type.
-   - zsh-syntax-highlighting, to highlight commands when you type.
-6. Okay, as a frontend developer, I create a script to init the development environment. They are:
-   - volta, a tool to manage node versions. **And I will open VOLTA_FEATURE_PNPM to enable auto switching for pnpm(https://github.com/volta-cli/volta/issues/737#issuecomment-1336261992,https://github.com/volta-cli/volta/pull/1273)**
-     - node and pnpm, installed them by volta.
-     - some tools like eslint, prettier, stylelint...
-   - commitzen, a tool to help you write commit message.
-7. Actually, those tools seems enough to start developping. But I still have some customize configrations, you can keep following the steps if you want.
-
-## Customize configurations 
-
-### Apps
-
-```shell
-sh ./scripts/init/apps.sh
-```
-
-Running this script to install useful apps like:
-
-- google chrome
-- visual studio code
-- iterm2
-- raycast, alternative to alfred, a powerful tool to help you improve your productivity.
-- orbstack, a tool to manage your docker containers.
-- itsycal, a tool to show your calendar.
-
-### My dot files
-
-You can init `.vimrc` by running:
-
-```shell
-sh ./scripts/dev/vim-config.sh
-```
-
-_You can edit it in `~/.vimrc`_
-
-And add some useful `zsh aliases` by running:
-
-```shell
-sh ./scripts/dev/zsh-alias.sh
-```
-
-_You can edit it in `~/.config/suitup/aliases`_
-
-## Other sources
-
-In `/sources`, there are some sources you can use.
-
-### Setup iTerm
-
-You can import `Best!.json` to setup the color schema for [iTerm2 - macOS Terminal Replacement](https://iterm2.com/).
-
-### OMZ theme
-
-if you don't want pay much time in theme, you can use [`romkatv/powerlevel10k: A Zsh theme`](https://github.com/romkatv/powerlevel10k).
-
-or you can install `p10k` by zplug:
-1. run this command to add `p10k` to plugin
    ```shell
-   echo "zplug romkatv/powerlevel10k, as:theme, depth:1" >> ~/.config/suitup/plugins
+   curl -sL https://raw.githubusercontent.com/changehow/suitup/master/bootstrap.sh | bash
    ```
-2. run `reload-zsh` to reload zsh config if you have run `sh ./scripts/dev/zsh-alias.sh` before.
 
-### Font
+2. after initial step, you need run `./scripts/init/init-config.sh` to init configuration folder.
+3. run `./scripts/init/install-zsh-plugins.sh` to install zsh plugins.
+4. run `./scripts/init/apps.sh` to install apps.
+5. run `./scripts/init/command-line-tools.sh` to install command line tools.
+6. run `./scripts/init/front-end.sh` to install front-end tools.
 
-`cascadia` is a nerd font for [`romkatv/powerlevel10k: A Zsh theme`](https://github.com/romkatv/powerlevel10k).
+## Apps & Fonts
+
+1. [Homebrew](https://brew.sh/)
+2. [Oh My Zsh](https://ohmyz.sh/)
+3. [iTerm2](https://iterm2.com/)
+4. [Visual Studio Code](https://code.visualstudio.com/)
+5. [Itsycal](https://www.mowglii.com/itsycal/) A cute calendar for macOS, I really like it.
+6. [Raycast](https://raycast.com/) A powerful tool for macOS, I use it to replace [Alfred](https://www.alfredapp.com/).
+7. [Monaspace](https://monaspace.githubnext.com)
+
+## Zsh plugins
+
+1. [zplug](https://github.com/zplug/zplug)
+2. [zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions)
+3. [zsh-syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting)
+
+## CLI tools
+1. [autojump](https://github.com/wting/autojump)
+2. [fzf](https://github.com/junegunn/fzf) and [atuin](https://github.com/atuinsh/atuin)
+3. [bat](https://github.com/sharkdp/bat) a cat clone with wings.
+4. [eza](https://github.com/eza-community/eza) a modern replacement for `ls`.
+
+## Vim & Aliases
+We also provide vim configuration and some aliases:
+1. using `jk` to replace `ESC` in vim.
+2. using `<C-j/k/e/b>` to quick navigating in vim.
+3. add some base settings to vim.
+4. add some aliases like `gph:git push`, `gpl:git pull --rebase`, `gco:git checkout`...
 
 # How to reset/reinstall
 

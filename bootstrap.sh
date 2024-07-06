@@ -1,14 +1,31 @@
 #!/bin/bash
-source $(pwd)/scripts/utils/log.sh
 
 set -e
+
+# define some colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+color_echo() {
+  COLOR=$1
+  shift
+  echo -e "${!COLOR}$@${NC}"
+}
+
+prefix_log() {
+  local prefix=${2:-log}
+  color_echo BLUE "[$prefix] $1"
+}
 
 # Check if Homebrew is installed
 if ! command -v brew &> /dev/null
 then
     color_echo BLUE "Homebrew is not installed, installing now..."
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    (echo; echo 'eval "$(/opt/homebrew/bin/brew shellenv)"') >> /Users/changehow/.zprofile
+    (echo; echo 'eval "$(/opt/homebrew/bin/brew shellenv)"') >> ~/.zprofile
     eval "$(/opt/homebrew/bin/brew shellenv)"
 else
     color_echo GREEN "Homebrew is already installed"
@@ -42,6 +59,9 @@ else
 fi
 
 color_echo YELLOW "You can use 'exec zsh' to reload zsh"
+
+# notice user to clone respository changehow/suitupt
+color_echo YELLOW "Don't forget to clone the repository https://github.com/ChangeHow/suitup"
 
 # Restart shell
 exec zsh

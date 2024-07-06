@@ -1,4 +1,5 @@
 #!/bin/bash
+source $(pwd)/scripts/utils/log.sh
 
 # 创建配置文件目录
 mkdir -p $HOME/.config/suitup
@@ -13,7 +14,7 @@ append_to() {
 # 两个参数用于关键字匹配，确定是否要新增配置
 append_to_zshrc() {
     if [ "$#" -eq 2 ]; then
-        if [ ! -f "$HOME/.zshrc"] || ! grep -q "$2" "$HOME/.zshrc"; then
+        if [ ! -f "$HOME/.zshrc" ] || ! grep -q "$2" "$HOME/.zshrc"; then
             echo "$1" >>"$HOME/.zshrc"
         fi
     else
