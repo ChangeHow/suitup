@@ -47,7 +47,7 @@ This preset will hold every thing in `~/.config/suitup` folder.
 1. [autojump](https://github.com/wting/autojump)
 2. [fzf](https://github.com/junegunn/fzf) and [atuin](https://github.com/atuinsh/atuin)
 3. [bat](https://github.com/sharkdp/bat) a cat clone with wings.
-4. [exa](https://github.com/ogham/exa) a modern replacement for `ls`.
+4. [eza](https://github.com/eza-community/eza) a modern replacement for `ls`.
 
 ## Vim & Aliases
 We also provide vim configuration and some aliases:

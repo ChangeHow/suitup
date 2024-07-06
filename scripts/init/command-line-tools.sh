@@ -51,12 +51,12 @@ else
     brew install neofetch
 fi
 
-prefix_log "exa..., a replacement of ls" $prefix
-if brew list exa &>/dev/null; then
-    prefix_log "exa is already installed." $prefix
+prefix_log "eza..., a replacement of ls" $prefix
+if brew list eza &>/dev/null; then
+    prefix_log "eza is already installed." $prefix
 else
-    brew install exa
-    prefix_log "replace ls with exa" $prefix
+    brew install eza
+    prefix_log "replace ls with eza" $prefix
 fi
 
 prefix_log "install atuin..." $prefix

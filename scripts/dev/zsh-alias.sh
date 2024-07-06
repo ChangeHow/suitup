@@ -27,7 +27,8 @@ append_to "alias edit-plugins=\"vi $plugins_file\"" $aliases_file
 color_echo YELLOW "You can use 'edit-plugins' to edit plugins file"
 
 prefix_log "display colorful file tree with ll command" $prefix
-append_to "alias ll=\"exa -abghlS\"" $aliases_file
+append_to "alias ll=\"eza -abghlS\"" $aliases_file
+append_to "alias ltree=\"eza -T\"" $aliases_file
 
 prefix_log "using bat instead of cat" $prefix
 append_to_zshrc "export BAT_THEME=\"TwoDark\""
