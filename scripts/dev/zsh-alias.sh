@@ -50,8 +50,4 @@ append_to "alias gst=\"git status\"" $aliases_file
 prefix_log "you can use \"glg\" to output formatted git logs" $prefix
 append_to "alias glg=\"git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit\"" $aliases_file
 
-prefix_log "you can use \"ss\" to search file with preview" $prefix
-append_to "alias ss=\"fzf --preview 'bat --style=numbers {}'\"" $aliases_file
-color_echo YELLOW "You can use 'ss' to search file in current dir"
-
 prefix_log "completed" $prefix
