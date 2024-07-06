@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/bin/bash
 source $(pwd)/scripts/utils/log.sh
 source $(pwd)/scripts/init/init-configs.sh
 

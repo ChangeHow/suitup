@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/bin/bash
 source $(pwd)/scripts/utils/log.sh
 source $(pwd)/scripts/init/init-configs.sh
 
@@ -27,7 +27,8 @@ append_to "alias edit-plugins=\"vi $plugins_file\"" $aliases_file
 color_echo YELLOW "You can use 'edit-plugins' to edit plugins file"
 
 prefix_log "display colorful file tree with ll command" $prefix
-append_to "alias ll=\"exa -abghlS\"" $aliases_file
+append_to "alias ll=\"eza -abghlS\"" $aliases_file
+append_to "alias ltree=\"eza -T\"" $aliases_file
 
 prefix_log "using bat instead of cat" $prefix
 append_to_zshrc "export BAT_THEME=\"TwoDark\""
@@ -48,9 +49,5 @@ append_to "alias gst=\"git status\"" $aliases_file
 
 prefix_log "you can use \"glg\" to output formatted git logs" $prefix
 append_to "alias glg=\"git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit\"" $aliases_file
-
-prefix_log "you can use \"ss\" to search file with preview" $prefix
-append_to "alias ss=\"fzf --preview 'bat --style=numbers {}'\"" $aliases_file
-color_echo YELLOW "You can use 'ss' to search file in current dir"
 
 prefix_log "completed" $prefix

@@ -51,19 +51,12 @@ else
     brew install neofetch
 fi
 
-prefix_log "postman..." $prefix
-if brew list postman &>/dev/null; then
-    prefix_log "postman is already installed." $prefix
+prefix_log "eza..., a replacement of ls" $prefix
+if brew list eza &>/dev/null; then
+    prefix_log "eza is already installed." $prefix
 else
-    brew install --cask postman
-fi
-
-prefix_log "exa..., a replacement of ls" $prefix
-if brew list exa &>/dev/null; then
-    prefix_log "exa is already installed." $prefix
-else
-    brew install exa
-    prefix_log "replace ls with exa" $prefix
+    brew install eza
+    prefix_log "replace ls with eza" $prefix
 fi
 
 prefix_log "install atuin..." $prefix
@@ -75,7 +68,7 @@ fi
 # 检查内容并添加配置
 color_echo BLUE ">>> checking and append the init script for atuin o ~/.zshrc"
 append_to_zshrc 'eval "$(atuin init zsh --disable-ctrl-r)"'
-color_echo GREEN "You can use '<C-r>' to browser history with fuzzy search and using '<C-j>/<C-k>' to navigate."
+color_echo GREEN "You can use '↑(Arrow up)' to browser history with fuzzy search and using '<C-j>/<C-k>' to navigate."
 
 prefix_log "install fzf..." $prefix
 if brew list fzf &>/dev/null; then
@@ -88,11 +81,15 @@ fi
 color_echo BLUE ">>> checking and append the init script for fzf o ~/.zshrc"
 # To install useful key bindings and fuzzy completion:
 $(brew --prefix)/opt/fzf/install
-append_to_zshrc "export FZF_DEFAULT_COMMAND='rg --files --no-ignore --hidden --follow --glob \"!{**/node_modules/*,.git/*,*/tmp/*}\"'" "FZF_DEFAULT_COMMAND"
+append_to_zshrc "export FZF_CTRL_T_OPTS=\"--ansi --preview-window 'right:60%' --preview '[[ -d {} ]] && echo 'Directory' || bat --color=always --style=header,grid --line-range :300 {}'\"" "FZF_CTRL_T_OPTS"
+append_to_zshrc "export FZF_DEFAULT_COMMAND=\"rg --files --no-ignore --hidden --follow --glob '!.git/*'\"" "FZF_DEFAULT_COMMAND"
 
-prefix_log "install volta..." $prefix
-curl https://get.volta.sh | bash
-append_to_zshrc "export VOLTA_FEATURE_PNPM=1" "VOLTA_FEATURE_PNPM" # support pnpm
+prefix_log "install tree..." $prefix
+if brew list tree &>/dev/null; then
+    prefix_log "tree is already installed." $prefix
+else
+    brew install tree
+fi
 
 prefix_log "finished installation!" $prefix
 
