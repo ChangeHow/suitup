@@ -65,8 +65,8 @@ case $choice in
         ;;
 esac
 
-# 安装 node 和 pnpm
-color_echo YELLOW "[fe] Installing node@16 and pnpm@7..."
+# 安装 pnpm
+color_echo YELLOW "[fe] Installing pnpm@7..."
 eval "$NODE_INSTALL_CMD"
 $INSTALL_CMD pnpm@7
 
