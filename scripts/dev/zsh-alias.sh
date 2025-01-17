@@ -41,7 +41,7 @@ prefix_log "you can use \"gpl\" to pull branch" $prefix
 append_to "alias gpl=\"git pull --rebase\"" $aliases_file
 
 prefix_log "you can use \"gcz\" to commit with commitizen" $prefix
-append_to "alias gcz=\"git cz\"" $aliases_file
+append_to "alias gcz=\"git-cz\"" $aliases_file
 color_echo YELLOW "Using 'gcz' to call a interactive interface to submit you commits"
 
 prefix_log "you can use \"gst\" to print git status" $prefix

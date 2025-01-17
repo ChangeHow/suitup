@@ -79,18 +79,16 @@ else
 fi
 
 # git commitizen
-color_echo YELLOW "[fe] Checking git commitizen..."
+color_echo YELLOW "[fe] Checking git commitizen(git-cz)..."
 if ! command -v git-cz &> /dev/null; then
-    color_echo YELLOW "[fe] Installing git commitizen..."
-    $INSTALL_CMD git-cz commitizen
+    color_echo YELLOW "[fe] Installing git commitizen(git-cz)..."
+    $INSTALL_CMD git-cz
 else
     color_echo GREEN "[fe] git-cz is already installed"
 fi
 
-# init commitizen with git-cz
+# init git-cz config
 if [ ! -f ~/.git-cz.json ]; then
-    color_echo YELLOW "[fe] Initializing git commitizen config..."
-    commitizen init git-cz
     echo '{
       "disableEmoji": true
     }' > ~/.git-cz.json
