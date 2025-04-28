@@ -21,7 +21,7 @@ This preset will hold every thing in `~/.config/suitup` folder.
    curl -sL https://raw.githubusercontent.com/changehow/suitup/master/bootstrap.sh | bash
    ```
 
-2. after initial step, you need run `./scripts/init/init-config.sh` to init configuration folder.
+2. after initial step, you need run `./scripts/init/init-configs.sh` to init configuration folder.
 3. run `./scripts/init/install-zsh-plugins.sh` to install zsh plugins.
 4. run `./scripts/init/apps.sh` to install apps.
 5. run `./scripts/init/command-line-tools.sh` to install command line tools.
