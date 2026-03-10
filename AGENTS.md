@@ -32,7 +32,7 @@ The actual config lives under `~/.config/zsh/`.
 ### Local files
 
 - `configs/local/machine.zsh`: machine-specific overrides placeholder
-- `local/secrets.zsh` is user-managed and intentionally not shipped by suitup
+- `~/.config/zsh/local/secrets.zsh` is user-managed and intentionally not shipped by suitup
 
 ## Templates
 
