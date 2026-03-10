@@ -52,10 +52,14 @@ export function brewInstall(name, { cask = false } = {}) {
 /**
  * Run a shell command and stream output to stdout/stderr in real-time.
  * Returns a promise that resolves with the exit code.
+ * @param {string} cmd
+ * @param {{ env?: Record<string,string> }} [opts]
  */
-export function runStream(cmd) {
+export function runStream(cmd, opts = {}) {
   return new Promise((resolve, reject) => {
-    const child = spawn("bash", ["-c", cmd], { stdio: "inherit" });
+    const spawnOpts = { stdio: "inherit" };
+    if (opts.env) spawnOpts.env = opts.env;
+    const child = spawn("bash", ["-c", cmd], spawnOpts);
     child.on("close", (code) => resolve(code));
     child.on("error", reject);
   });
