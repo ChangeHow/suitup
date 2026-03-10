@@ -29,9 +29,21 @@ export async function setupSsh({ home } = {}) {
 
   if (p.isCancel(email)) return;
 
+  const passphrase = await p.password({
+    message: "Enter a passphrase for the SSH key (leave blank for no passphrase):",
+    validate(value) {
+      if (value.length > 0 && value.length < 8) {
+        return "Passphrase must be at least 8 characters, or leave blank";
+      }
+    },
+  });
+
+  if (p.isCancel(passphrase)) return;
+
   p.log.step("Generating SSH key...");
   await runStream(
-    `ssh-keygen -t rsa -b 4096 -C "${email}" -f "${keyFile}" -N ""`
+    `ssh-keygen -t rsa -b 4096 -C "${email}" -f "${keyFile}" -N "$SSH_KEYGEN_PASSPHRASE"`,
+    { env: { ...process.env, SSH_KEYGEN_PASSPHRASE: passphrase } }
   );
 
   // Copy public key to clipboard
