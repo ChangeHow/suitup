@@ -10,8 +10,7 @@
     "verify": "node src/cli.js verify",
     "clean": "node src/cli.js clean",
     "test": "vitest run",
-    "test:watch": "vitest",
-    "test:shell": "zsh tests/perf.zsh"
+    "test:watch": "zsh tests/perf.zsh && vitest"
   },
   "keywords": ["dotfiles", "macos", "setup", "zsh", "cli"],
   "author": "ChangeHow",
