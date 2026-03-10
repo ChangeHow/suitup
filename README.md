@@ -5,72 +5,171 @@
         height="120">
 </p>
 
-## About name
+<p align="center">
+    <a href="README.zh-CN.md">简体中文</a> | English
+</p>
 
-This name is inspired by Barney's catchphrase, Barney is a character in my favorite TV series: [How I met your mother](https://www.themoviedb.org/tv/1100-how-i-met-your-mother).
+Named after Barney's catchphrase from [How I Met Your Mother](https://www.themoviedb.org/tv/1100-how-i-met-your-mother).
 
-## About this repository
+## Features
 
-This preset will hold every thing in `~/.config/suitup` folder.
+- Interactive TUI powered by [@clack/prompts](https://github.com/bombshell-dev/clack)
+- Modular step selection — install only what you need
+- **Append mode** — add recommended configs to an existing `.zshrc` without replacing it
+- **Verify mode** — check your installation integrity
+- **Clean mode** — remove suitup config files
+- Idempotent — safe to run multiple times
+- No private/company-specific content — clean, generic configs
 
-## Getting started
+## Usage First
 
-1. run bootstrap in a very first step.
+### Install and run
 
-   ```shell
-   curl -sL https://raw.githubusercontent.com/changehow/suitup/master/bootstrap.sh | bash
-   ```
-
-2. after initial step, you need run `./scripts/init/init-configs.sh` to init configuration folder.
-3. run `./scripts/init/install-zsh-plugins.sh` to install zsh plugins.
-4. run `./scripts/init/apps.sh` to install apps.
-5. run `./scripts/init/command-line-tools.sh` to install command line tools.
-6. run `./scripts/init/front-end.sh` to install front-end tools.
-
-## Apps & Fonts
-
-1. [Homebrew](https://brew.sh/)
-2. [Oh My Zsh](https://ohmyz.sh/)
-3. [iTerm2](https://iterm2.com/)
-4. [Visual Studio Code](https://code.visualstudio.com/)
-5. [Itsycal](https://www.mowglii.com/itsycal/) A cute calendar for macOS, I really like it.
-6. [Raycast](https://raycast.com/) A powerful tool for macOS, I use it to replace [Alfred](https://www.alfredapp.com/).
-7. [Monaspace](https://monaspace.githubnext.com)
-
-## Zsh plugins
-
-1. [zplug](https://github.com/zplug/zplug)
-2. [zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions)
-3. [zsh-syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting)
-
-## CLI tools
-1. [autojump](https://github.com/wting/autojump)
-2. [fzf](https://github.com/junegunn/fzf) and [atuin](https://github.com/atuinsh/atuin)
-3. [bat](https://github.com/sharkdp/bat) a cat clone with wings.
-4. [eza](https://github.com/eza-community/eza) a modern replacement for `ls`.
-
-## Vim & Aliases
-We also provide vim configuration and some aliases:
-1. using `jk` to replace `ESC` in vim.
-2. using `<C-j/k/e/b>` to quick navigating in vim.
-3. add some base settings to vim.
-4. add some aliases like `gph:git push`, `gpl:git pull --rebase`, `gco:git checkout`...
-
-# How to reset/reinstall
-
-Run this command and reset to default zsh config(`.zshrc`)
-
-```shell
-sh ./clean.sh
+```bash
+git clone https://github.com/ChangeHow/suitup.git
+cd suitup
+npm install
+node src/cli.js
 ```
 
-This script will do:
+### Commands
 
-1. remove `~/.config/suitup`
-2. remove `~/.oh-my-zsh`
-3. remove `~/.zshrc`
-4. switch to `bash`, _or you can keep `zsh` if you macOS has changed the default shell to zsh_.
+| Command | Description |
+|---------|-------------|
+| `node src/cli.js` | Full interactive setup (default) |
+| `node src/cli.js setup` | Same as above |
+| `node src/cli.js append` | Append configs to existing `.zshrc` |
+| `node src/cli.js verify` | Verify installation integrity |
+| `node src/cli.js clean` | Remove suitup config files |
 
-# In the end
+### What each mode does
 
-After doing this, you can enjoy your development journey. 🎉
+### Setup (default)
+
+Interactive step-by-step setup with selectable steps:
+
+1. **Bootstrap** — package manager + Zsh
+2. **Zsh Config** — creates `~/.config/zsh/` with layered config architecture
+3. **Plugin Manager** — zinit (recommended) or Oh My Zsh
+4. **CLI Tools** — bat, eza, fzf, fd, zoxide, atuin, ripgrep...
+5. **GUI Apps** — iTerm2, Raycast, VS Code, fonts...
+6. **Frontend Tools** — fnm, pnpm, git-cz
+7. **Shell Aliases** — git, eza, fzf shortcuts
+8. **SSH Key** — generate GitHub SSH key
+9. **Vim Config** — basic vim setup
+10. **Dock Cleanup** — clean macOS Dock
+
+Bootstrap details:
+
+- macOS: install Homebrew or skip package manager setup
+- Linux: choose `apt-get`, `dnf`, `yum`, `brew`, or skip
+
+### Append
+
+For users who already have a `.zshrc` and want to cherry-pick suitup configs:
+
+```bash
+node src/cli.js append
+```
+
+Uses idempotent marker blocks (`# >>> suitup/... >>>`) to safely append selected configs:
+
+- Suitup aliases
+- Zinit plugins
+- Tool initialization (atuin, fzf, zoxide, fnm)
+- Zsh options (history, completion)
+- Environment variables
+- Startup performance monitor
+- FZF configuration
+
+### Verify
+
+```bash
+node src/cli.js verify
+```
+
+Checks config files, CLI tool availability, and shell syntax validity.
+
+### Clean
+
+```bash
+node src/cli.js clean
+```
+
+Removes `~/.config/suitup/`. Does NOT remove `~/.zshrc` or `~/.config/zsh/` — remove those manually if needed.
+
+## What suitup installs
+
+### CLI tools
+
+| Tool | Replaces | Description |
+|------|----------|-------------|
+| [bat](https://github.com/sharkdp/bat) | `cat` | Syntax-highlighted file viewer |
+| [eza](https://github.com/eza-community/eza) | `ls` | Modern file listing |
+| [fzf](https://github.com/junegunn/fzf) | — | Fuzzy finder |
+| [fd](https://github.com/sharkdp/fd) | `find` | Fast file search |
+| [atuin](https://github.com/atuinsh/atuin) | `ctrl-r` | Shell history search |
+| [zoxide](https://github.com/ajeetdsouza/zoxide) | `cd` | Smart directory jumping |
+| [ripgrep](https://github.com/BurntSushi/ripgrep) | `grep` | Fast content search |
+
+### Zsh plugins
+
+- [zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions)
+- [zsh-syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting)
+- [powerlevel10k](https://github.com/romkatv/powerlevel10k) theme
+
+### GUI apps
+
+Selectable during setup: iTerm2, Raycast, VS Code, Itsycal, Monaspace font, and more.
+
+### Frontend toolchain
+
+- [fnm](https://github.com/Schniz/fnm) — Fast Node Manager
+- [pnpm](https://pnpm.io/) — Fast, disk-efficient package manager
+- [git-cz](https://github.com/streamich/git-cz) — Conventional commits CLI
+
+## Installed file layout
+
+After setup, your shell config looks like:
+
+```
+~/.zshrc                          # Thin orchestrator
+~/.config/zsh/
+  core/
+    perf.zsh                      # Startup timing
+    env.zsh                       # Environment variables
+    paths.zsh                     # PATH placeholder
+    options.zsh                   # Zsh shell options
+  shared/
+    tools.zsh                     # Tool init (fzf, atuin, zoxide, fnm)
+    prompt.zsh                    # Prompt/theme (p10k)
+  local/
+    machine.zsh                   # Machine-specific overrides
+    secrets.zsh                   # API keys (create manually, gitignored)
+~/.config/suitup/
+  aliases                         # Shell aliases
+  zinit-plugins                   # Zinit plugin config
+  config.vim                      # Vim config
+```
+
+## Testing
+
+```bash
+npm test           # Run all tests
+npm run test:watch # Watch mode
+```
+
+Tests run in sandboxed temp directories.
+
+Implementation details and architecture notes live in `AGENTS.md`.
+
+## Requirements
+
+- macOS (full support, tested on Sonoma+)
+- Linux (bootstrap package-manager selection supported; most install steps still target Homebrew ecosystem)
+- Node.js >= 18
+- Zsh (default shell on macOS)
+
+## License
+
+[Apache-2.0](LICENSE)
