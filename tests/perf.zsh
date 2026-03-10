@@ -140,7 +140,7 @@ else
   _run "_zsh_report is idempotent (second call produces no extra output)" "
     source '$PERF_ZSH'
     _stage 'env'
-    first=\$(_zsh_report 2>&1)
+    _zsh_report >/dev/null 2>&1
     second=\$(_zsh_report 2>&1)
     [[ -z \"\$second\" ]]
   "
