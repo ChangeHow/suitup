@@ -3,8 +3,9 @@ import { mkdirSync, existsSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { createSandbox } from "./helpers.js";
 
-const { mockText } = vi.hoisted(() => ({
+const { mockText, mockPassword } = vi.hoisted(() => ({
   mockText: vi.fn(),
+  mockPassword: vi.fn(),
 }));
 
 vi.mock("@clack/prompts", () => ({
@@ -12,6 +13,7 @@ vi.mock("@clack/prompts", () => ({
   spinner: vi.fn(() => ({ start: vi.fn(), stop: vi.fn() })),
   confirm: vi.fn(),
   text: mockText,
+  password: mockPassword,
   isCancel: vi.fn(() => false),
 }));
 
@@ -33,6 +35,7 @@ describe("ssh step", () => {
     vi.clearAllMocks();
     sandbox = createSandbox();
     mockText.mockResolvedValue("test@example.com");
+    mockPassword.mockResolvedValue("");
   });
 
   afterEach(() => {
@@ -54,12 +57,9 @@ describe("ssh step", () => {
     await setupSsh({ home: sandbox.path });
 
     expect(mockText).toHaveBeenCalled();
-    expect(runStream).toHaveBeenCalledWith(
-      expect.stringContaining("ssh-keygen")
-    );
-    expect(runStream).toHaveBeenCalledWith(
-      expect.stringContaining("test@example.com")
-    );
+    const sshKeygenCall = runStream.mock.calls.find((c) => c[0].includes("ssh-keygen"));
+    expect(sshKeygenCall).toBeDefined();
+    expect(sshKeygenCall[0]).toContain("test@example.com");
   });
 
   test("uses sandbox path for key file location", async () => {
@@ -68,5 +68,46 @@ describe("ssh step", () => {
     const sshKeygenCall = runStream.mock.calls.find((c) => c[0].includes("ssh-keygen"));
     expect(sshKeygenCall).toBeDefined();
     expect(sshKeygenCall[0]).toContain(sandbox.path);
+  });
+
+  test("generates key without passphrase when left blank", async () => {
+    mockPassword.mockResolvedValue("");
+
+    await setupSsh({ home: sandbox.path });
+
+    const sshKeygenCall = runStream.mock.calls.find((c) => c[0].includes("ssh-keygen"));
+    expect(sshKeygenCall).toBeDefined();
+    expect(sshKeygenCall[0]).toContain('-N "$SSH_KEYGEN_PASSPHRASE"');
+    expect(sshKeygenCall[1]).toEqual({ env: expect.objectContaining({ SSH_KEYGEN_PASSPHRASE: "" }) });
+  });
+
+  test("generates key with passphrase when provided", async () => {
+    mockPassword.mockResolvedValue("s3cr3tPass");
+
+    await setupSsh({ home: sandbox.path });
+
+    const sshKeygenCall = runStream.mock.calls.find((c) => c[0].includes("ssh-keygen"));
+    expect(sshKeygenCall).toBeDefined();
+    expect(sshKeygenCall[0]).toContain('-N "$SSH_KEYGEN_PASSPHRASE"');
+    expect(sshKeygenCall[1]).toEqual({ env: expect.objectContaining({ SSH_KEYGEN_PASSPHRASE: "s3cr3tPass" }) });
+  });
+
+  test("aborts when passphrase prompt is cancelled", async () => {
+    const { isCancel } = await import("@clack/prompts");
+    isCancel.mockImplementationOnce(() => false); // email not cancelled
+    isCancel.mockImplementationOnce(() => true);  // passphrase is cancelled
+    mockPassword.mockResolvedValue("s3cr3tPass");
+
+    await setupSsh({ home: sandbox.path });
+
+    expect(runStream).not.toHaveBeenCalled();
+  });
+
+  test("prompts for passphrase after email", async () => {
+    await setupSsh({ home: sandbox.path });
+
+    expect(mockPassword).toHaveBeenCalledWith(
+      expect.objectContaining({ message: expect.stringContaining("passphrase") })
+    );
   });
 });
