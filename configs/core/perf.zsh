@@ -4,6 +4,13 @@
 
 zmodload zsh/datetime 2>/dev/null
 
+if (( ! ${+EPOCHREALTIME} )); then
+  # zsh/datetime unavailable; define no-op stubs so _stage/_zsh_report calls still succeed
+  _stage() { :; }
+  _zsh_report() { :; }
+  return
+fi
+
 typeset -ga _zsh_stage_names
 typeset -ga _zsh_stage_durations
 typeset -g _zsh_report_called
