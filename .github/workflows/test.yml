@@ -18,4 +18,5 @@ jobs:
       - name: Install zsh
         run: sudo apt-get update && sudo apt-get install -y zsh
       - run: npm ci
+      - run: zsh tests/perf.zsh
       - run: npm test
