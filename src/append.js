@@ -108,10 +108,8 @@ const BLOCKS = [
     group: "Advanced",
     marker: "suitup/fzf-config",
     apply() {
-      const toolsContent = readFileSync(join(CONFIGS_DIR, "shared", "tools.zsh"), "utf-8");
-      // Extract only FZF-related config (everything before "# Tool initialization")
-      const fzfPart = toolsContent.split("# Tool initialization")[0].trim();
-      const block = `\n# >>> suitup/fzf-config >>>\n${fzfPart}\n# <<< suitup/fzf-config <<<\n`;
+      const fzfContent = readFileSync(join(CONFIGS_DIR, "shared", "fzf.zsh"), "utf-8");
+      const block = `\n# >>> suitup/fzf-config >>>\n${fzfContent.trim()}\n# <<< suitup/fzf-config <<<\n`;
       return appendIfMissing(ZSHRC, block, "suitup/fzf-config");
     },
   },

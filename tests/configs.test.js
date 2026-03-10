@@ -70,7 +70,7 @@ describe("Static config templates", () => {
   });
 
   test("shared config files exist", () => {
-    for (const file of ["tools.zsh", "prompt.zsh"]) {
+    for (const file of ["tools.zsh", "prompt.zsh", "fzf.zsh"]) {
       expect(existsSync(join(CONFIGS_DIR, "shared", file))).toBe(true);
     }
   });
@@ -94,13 +94,20 @@ describe("Static config templates", () => {
     }
   });
 
-  test("shared/tools.zsh uses fd instead of rg for FZF_DEFAULT_COMMAND", () => {
+  test("shared/fzf.zsh uses fd instead of rg for FZF_DEFAULT_COMMAND", () => {
+    const fzfContent = readFileSync(join(CONFIGS_DIR, "shared", "fzf.zsh"), "utf-8");
+    expect(fzfContent).toContain("fd --type");
+    expect(fzfContent).toContain("FZF_DEFAULT_COMMAND");
+    expect(fzfContent).toContain("FZF_CTRL_T_COMMAND");
+    expect(fzfContent).toContain("FZF_CTRL_T_OPTS");
+  });
+
+  test("shared/tools.zsh contains tool-init helpers and sources fzf.zsh", () => {
     const content = readFileSync(join(CONFIGS_DIR, "shared", "tools.zsh"), "utf-8");
-    expect(content).toContain("fd --type");
     expect(content).toContain("fnm");
     expect(content).toContain("atuin");
     expect(content).toContain("zoxide");
-    expect(content).toContain("command -v");
+    expect(content).toContain("fzf.zsh");
   });
 
   test("all .zsh config files pass syntax check", () => {
@@ -110,6 +117,7 @@ describe("Static config templates", () => {
       "core/paths.zsh",
       "core/options.zsh",
       "shared/tools.zsh",
+      "shared/fzf.zsh",
       "shared/prompt.zsh",
       "local/machine.zsh",
     ];
@@ -144,6 +152,7 @@ describe("Static config templates", () => {
       "core/paths.zsh",
       "core/options.zsh",
       "shared/tools.zsh",
+      "shared/fzf.zsh",
       "shared/prompt.zsh",
       "zshrc.template",
       "zshrc-omz.template",
