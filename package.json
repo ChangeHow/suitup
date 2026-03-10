@@ -9,7 +9,7 @@
     "append": "node src/cli.js append",
     "verify": "node src/cli.js verify",
     "clean": "node src/cli.js clean",
-    "test": "vitest run",
+    "test": "zsh tests/perf.zsh && vitest run",
     "test:watch": "vitest"
   },
   "keywords": ["dotfiles", "macos", "setup", "zsh", "cli"],

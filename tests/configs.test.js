@@ -1,4 +1,4 @@
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, beforeEach } from "vitest";
 import { readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { execSync } from "node:child_process";
@@ -155,5 +155,59 @@ describe("Static config templates", () => {
       // Should not contain any hardcoded /Users/username paths
       expect(content).not.toMatch(/\/Users\/\w+/);
     }
+  });
+});
+
+describe("perf.zsh EPOCHREALTIME guard", () => {
+  let perf;
+
+  beforeEach(() => {
+    perf = readFileSync(join(CONFIGS_DIR, "core", "perf.zsh"), "utf-8");
+  });
+
+  test("checks EPOCHREALTIME availability after zmodload attempt", () => {
+    expect(perf).toContain("${+EPOCHREALTIME}");
+  });
+
+  test("guard is placed after zmodload and before typeset declarations", () => {
+    const zmodloadIdx = perf.indexOf("zmodload zsh/datetime");
+    const guardIdx = perf.indexOf("${+EPOCHREALTIME}");
+    const typesetIdx = perf.indexOf("typeset -ga _zsh_stage_names");
+
+    expect(zmodloadIdx).toBeGreaterThan(-1);
+    expect(guardIdx).toBeGreaterThan(zmodloadIdx);
+    expect(guardIdx).toBeLessThan(typesetIdx);
+  });
+
+  test("defines no-op _stage stub in the fallback block", () => {
+    expect(perf).toMatch(/_stage\(\) \{ :; \}/);
+  });
+
+  test("defines no-op _zsh_report stub in the fallback block", () => {
+    expect(perf).toMatch(/_zsh_report\(\) \{ :; \}/);
+  });
+
+  test("uses return to skip the normal-path setup in the fallback block", () => {
+    // 'return' must appear inside the guard block (after the guard, before typeset declarations)
+    const guardIdx = perf.indexOf("${+EPOCHREALTIME}");
+    const typesetIdx = perf.indexOf("typeset -ga _zsh_stage_names");
+
+    // Use a regex search from the guard position to allow varying indentation
+    const afterGuard = perf.slice(guardIdx, typesetIdx);
+    expect(afterGuard).toMatch(/^\s*return\s*$/m);
+  });
+
+  test("normal path defines full _record_stage_duration function", () => {
+    expect(perf).toMatch(/_record_stage_duration\(\) \{/);
+  });
+
+  test("normal path _stage records stage names, not just a stub", () => {
+    // The full _stage definition assigns to _zsh_current_stage
+    expect(perf).toContain('_zsh_current_stage="$1"');
+  });
+
+  test("normal path _zsh_report outputs a timing table", () => {
+    expect(perf).toContain("┌──────────────────────────┐");
+    expect(perf).toContain("total");
   });
 });
