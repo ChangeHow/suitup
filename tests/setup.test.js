@@ -101,6 +101,13 @@ describe("Setup simulation in sandbox", () => {
     expect(content).toContain("suitup/aliases");
     expect(content).toContain("shared/prompt.zsh");
     expect(content).toContain("_zsh_report");
+
+    // prompt.zsh (which loads p10k last) must come after zinit-plugins
+    const pluginsIdx = content.indexOf("suitup/zinit-plugins");
+    const promptIdx = content.indexOf("shared/prompt.zsh");
+    const reportIdx = content.indexOf("_zsh_report");
+    expect(pluginsIdx).toBeLessThan(promptIdx);
+    expect(promptIdx).toBeLessThan(reportIdx);
   });
 
   test("omz template has Oh My Zsh structure", () => {

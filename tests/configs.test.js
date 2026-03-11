@@ -56,7 +56,19 @@ describe("Static config templates", () => {
     expect(content).toContain("zinit");
     expect(content).toContain("zsh-autosuggestions");
     expect(content).toContain("zsh-syntax-highlighting");
+    // p10k is loaded last in prompt.zsh, not here
+    expect(content).not.toContain("powerlevel10k");
+  });
+
+  test("shared/prompt.zsh loads p10k theme last (after all other plugins)", () => {
+    const content = readFileSync(join(CONFIGS_DIR, "shared", "prompt.zsh"), "utf-8");
     expect(content).toContain("powerlevel10k");
+    expect(content).toContain("zinit light romkatv/powerlevel10k");
+    expect(content).toContain("~/.p10k.zsh");
+    // p10k theme load must appear before .p10k.zsh source
+    const themeIdx = content.indexOf("zinit light romkatv/powerlevel10k");
+    const configIdx = content.indexOf("~/.p10k.zsh");
+    expect(themeIdx).toBeLessThan(configIdx);
   });
 
   test("config.vim file exists", () => {
