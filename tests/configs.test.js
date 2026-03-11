@@ -56,7 +56,19 @@ describe("Static config templates", () => {
     expect(content).toContain("zinit");
     expect(content).toContain("zsh-autosuggestions");
     expect(content).toContain("zsh-syntax-highlighting");
+    // p10k is loaded last in prompt.zsh, not here
+    expect(content).not.toContain("powerlevel10k");
+  });
+
+  test("shared/prompt.zsh loads p10k theme last (after all other plugins)", () => {
+    const content = readFileSync(join(CONFIGS_DIR, "shared", "prompt.zsh"), "utf-8");
     expect(content).toContain("powerlevel10k");
+    expect(content).toContain("zinit light romkatv/powerlevel10k");
+    expect(content).toContain("~/.p10k.zsh");
+    // p10k theme load must appear before .p10k.zsh source
+    const themeIdx = content.indexOf("zinit light romkatv/powerlevel10k");
+    const configIdx = content.indexOf("~/.p10k.zsh");
+    expect(themeIdx).toBeLessThan(configIdx);
   });
 
   test("config.vim file exists", () => {
@@ -70,7 +82,7 @@ describe("Static config templates", () => {
   });
 
   test("shared config files exist", () => {
-    for (const file of ["tools.zsh", "prompt.zsh"]) {
+    for (const file of ["tools.zsh", "prompt.zsh", "fzf.zsh"]) {
       expect(existsSync(join(CONFIGS_DIR, "shared", file))).toBe(true);
     }
   });
@@ -94,13 +106,20 @@ describe("Static config templates", () => {
     }
   });
 
-  test("shared/tools.zsh uses fd instead of rg for FZF_DEFAULT_COMMAND", () => {
+  test("shared/fzf.zsh uses fd instead of rg for FZF_DEFAULT_COMMAND", () => {
+    const fzfContent = readFileSync(join(CONFIGS_DIR, "shared", "fzf.zsh"), "utf-8");
+    expect(fzfContent).toContain("fd --type");
+    expect(fzfContent).toContain("FZF_DEFAULT_COMMAND");
+    expect(fzfContent).toContain("FZF_CTRL_T_COMMAND");
+    expect(fzfContent).toContain("FZF_CTRL_T_OPTS");
+  });
+
+  test("shared/tools.zsh contains tool-init helpers and sources fzf.zsh", () => {
     const content = readFileSync(join(CONFIGS_DIR, "shared", "tools.zsh"), "utf-8");
-    expect(content).toContain("fd --type");
     expect(content).toContain("fnm");
     expect(content).toContain("atuin");
     expect(content).toContain("zoxide");
-    expect(content).toContain("command -v");
+    expect(content).toContain("fzf.zsh");
   });
 
   test("all .zsh config files pass syntax check", () => {
@@ -110,6 +129,7 @@ describe("Static config templates", () => {
       "core/paths.zsh",
       "core/options.zsh",
       "shared/tools.zsh",
+      "shared/fzf.zsh",
       "shared/prompt.zsh",
       "local/machine.zsh",
     ];
@@ -144,6 +164,7 @@ describe("Static config templates", () => {
       "core/paths.zsh",
       "core/options.zsh",
       "shared/tools.zsh",
+      "shared/fzf.zsh",
       "shared/prompt.zsh",
       "zshrc.template",
       "zshrc-omz.template",

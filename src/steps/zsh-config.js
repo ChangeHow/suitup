@@ -29,7 +29,7 @@ export async function setupZshConfig({ home } = {}) {
   }
 
   // Copy shared configs (skip if already exist)
-  const sharedFiles = ["tools.zsh", "prompt.zsh"];
+  const sharedFiles = ["tools.zsh", "fzf.zsh", "prompt.zsh"];
   for (const file of sharedFiles) {
     const copied = copyIfNotExists(join(CONFIGS_DIR, "shared", file), join(zshConfig, "shared", file));
     if (!copied) p.log.info(`Skipped shared/${file} (already exists)`);
