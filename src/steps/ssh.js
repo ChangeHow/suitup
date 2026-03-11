@@ -42,8 +42,8 @@ export async function setupSsh({ home } = {}) {
 
   p.log.step("Generating SSH key...");
   await runStream(
-    `ssh-keygen -t rsa -b 4096 -C "${email}" -f "${keyFile}" -N "$SSH_KEYGEN_PASSPHRASE"`,
-    { env: { ...process.env, SSH_KEYGEN_PASSPHRASE: passphrase } }
+    `ssh-keygen -t rsa -b 4096 -C "$SSH_KEYGEN_EMAIL" -f "${keyFile}" -N "$SSH_KEYGEN_PASSPHRASE"`,
+    { env: { ...process.env, SSH_KEYGEN_EMAIL: email, SSH_KEYGEN_PASSPHRASE: passphrase } }
   );
 
   // Copy public key to clipboard

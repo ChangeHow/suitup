@@ -59,7 +59,9 @@ describe("ssh step", () => {
     expect(mockText).toHaveBeenCalled();
     const sshKeygenCall = runStream.mock.calls.find((c) => c[0].includes("ssh-keygen"));
     expect(sshKeygenCall).toBeDefined();
-    expect(sshKeygenCall[0]).toContain("test@example.com");
+    expect(sshKeygenCall[0]).not.toContain("test@example.com");
+    expect(sshKeygenCall[0]).toContain('-C "$SSH_KEYGEN_EMAIL"');
+    expect(sshKeygenCall[1]).toEqual({ env: expect.objectContaining({ SSH_KEYGEN_EMAIL: "test@example.com" }) });
   });
 
   test("uses sandbox path for key file location", async () => {
@@ -78,7 +80,10 @@ describe("ssh step", () => {
     const sshKeygenCall = runStream.mock.calls.find((c) => c[0].includes("ssh-keygen"));
     expect(sshKeygenCall).toBeDefined();
     expect(sshKeygenCall[0]).toContain('-N "$SSH_KEYGEN_PASSPHRASE"');
-    expect(sshKeygenCall[1]).toEqual({ env: expect.objectContaining({ SSH_KEYGEN_PASSPHRASE: "" }) });
+    expect(sshKeygenCall[0]).toContain('-C "$SSH_KEYGEN_EMAIL"');
+    expect(sshKeygenCall[1]).toEqual({
+      env: expect.objectContaining({ SSH_KEYGEN_PASSPHRASE: "", SSH_KEYGEN_EMAIL: "test@example.com" }),
+    });
   });
 
   test("generates key with passphrase when provided", async () => {
@@ -89,7 +94,10 @@ describe("ssh step", () => {
     const sshKeygenCall = runStream.mock.calls.find((c) => c[0].includes("ssh-keygen"));
     expect(sshKeygenCall).toBeDefined();
     expect(sshKeygenCall[0]).toContain('-N "$SSH_KEYGEN_PASSPHRASE"');
-    expect(sshKeygenCall[1]).toEqual({ env: expect.objectContaining({ SSH_KEYGEN_PASSPHRASE: "s3cr3tPass" }) });
+    expect(sshKeygenCall[0]).toContain('-C "$SSH_KEYGEN_EMAIL"');
+    expect(sshKeygenCall[1]).toEqual({
+      env: expect.objectContaining({ SSH_KEYGEN_PASSPHRASE: "s3cr3tPass", SSH_KEYGEN_EMAIL: "test@example.com" }),
+    });
   });
 
   test("aborts when passphrase prompt is cancelled", async () => {
@@ -109,5 +117,19 @@ describe("ssh step", () => {
     expect(mockPassword).toHaveBeenCalledWith(
       expect.objectContaining({ message: expect.stringContaining("passphrase") })
     );
+  });
+
+  test("does not interpolate email into command string (prevents shell injection)", async () => {
+    mockText.mockResolvedValue('evil@example.com; echo "injected"');
+
+    await setupSsh({ home: sandbox.path });
+
+    const sshKeygenCall = runStream.mock.calls.find((c) => c[0].includes("ssh-keygen"));
+    expect(sshKeygenCall).toBeDefined();
+    expect(sshKeygenCall[0]).not.toContain("evil@example.com");
+    expect(sshKeygenCall[0]).not.toContain("injected");
+    expect(sshKeygenCall[1]).toEqual({
+      env: expect.objectContaining({ SSH_KEYGEN_EMAIL: 'evil@example.com; echo "injected"' }),
+    });
   });
 });
