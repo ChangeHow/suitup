@@ -3,6 +3,7 @@ import { mkdtempSync, readFileSync, writeFileSync, rmSync, existsSync } from "no
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { appendIfMissing, ensureDir, readFileSafe } from "../src/utils/fs.js";
+import { CONFIGS_DIR } from "../src/constants.js";
 
 describe("Append mode utilities", () => {
   let sandbox;
@@ -84,5 +85,74 @@ describe("Append mode utilities", () => {
     expect(content).toContain("block-a");
     expect(content).toContain("block-b");
     expect(content).toContain("# base");
+  });
+});
+
+describe("fzf-config block", () => {
+  let sandbox;
+  let zshrcPath;
+
+  beforeEach(() => {
+    sandbox = mkdtempSync(join(tmpdir(), "suitup-test-"));
+    zshrcPath = join(sandbox, ".zshrc");
+  });
+
+  afterEach(() => {
+    rmSync(sandbox, { recursive: true, force: true });
+  });
+
+  test("configs/shared/fzf.zsh exists as a standalone file", () => {
+    const fzfFile = join(CONFIGS_DIR, "shared", "fzf.zsh");
+    expect(existsSync(fzfFile)).toBe(true);
+  });
+
+  test("fzf.zsh contains expected FZF environment variables", () => {
+    const fzfContent = readFileSync(join(CONFIGS_DIR, "shared", "fzf.zsh"), "utf-8");
+    expect(fzfContent).toContain("FZF_DEFAULT_COMMAND");
+    expect(fzfContent).toContain("FZF_CTRL_T_COMMAND");
+    expect(fzfContent).toContain("FZF_CTRL_T_OPTS");
+  });
+
+  test("fzf.zsh does not contain tool-init cache helpers (those belong in tools.zsh)", () => {
+    const fzfContent = readFileSync(join(CONFIGS_DIR, "shared", "fzf.zsh"), "utf-8");
+    expect(fzfContent).not.toContain("_source_cached_tool_init");
+    expect(fzfContent).not.toContain("_zsh_tools_cache_dir");
+  });
+
+  test("tools.zsh no longer embeds FZF env vars directly", () => {
+    const toolsContent = readFileSync(join(CONFIGS_DIR, "shared", "tools.zsh"), "utf-8");
+    expect(toolsContent).not.toContain("FZF_DEFAULT_COMMAND=");
+    expect(toolsContent).not.toContain("FZF_CTRL_T_OPTS=");
+  });
+
+  test("fzf-config block appends fzf.zsh content directly (no brittle string splitting)", () => {
+    writeFileSync(zshrcPath, "# base\n", "utf-8");
+
+    const fzfContent = readFileSync(join(CONFIGS_DIR, "shared", "fzf.zsh"), "utf-8").trim();
+    const block = `\n# >>> suitup/fzf-config >>>\n${fzfContent}\n# <<< suitup/fzf-config <<<\n`;
+
+    const result = appendIfMissing(zshrcPath, block, "suitup/fzf-config");
+
+    expect(result).toBe(true);
+    const written = readFileSync(zshrcPath, "utf-8");
+    expect(written).toContain("FZF_DEFAULT_COMMAND");
+    expect(written).toContain("FZF_CTRL_T_OPTS");
+    expect(written).toContain("# >>> suitup/fzf-config >>>");
+    expect(written).toContain("# <<< suitup/fzf-config <<<");
+  });
+
+  test("fzf-config block is idempotent — double append does not duplicate", () => {
+    writeFileSync(zshrcPath, "# base\n", "utf-8");
+
+    const fzfContent = readFileSync(join(CONFIGS_DIR, "shared", "fzf.zsh"), "utf-8").trim();
+    const block = `\n# >>> suitup/fzf-config >>>\n${fzfContent}\n# <<< suitup/fzf-config <<<\n`;
+
+    appendIfMissing(zshrcPath, block, "suitup/fzf-config");
+    appendIfMissing(zshrcPath, block, "suitup/fzf-config");
+
+    const written = readFileSync(zshrcPath, "utf-8");
+    const matches = written.match(/suitup\/fzf-config/g);
+    // Should appear exactly twice (open + close marker), not four
+    expect(matches.length).toBe(2);
   });
 });

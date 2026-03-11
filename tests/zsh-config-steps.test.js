@@ -39,6 +39,7 @@ describe("zsh-config step", () => {
     expect(existsSync(join(sandbox.path, ".config", "zsh", "core", "paths.zsh"))).toBe(true);
     expect(existsSync(join(sandbox.path, ".config", "zsh", "core", "options.zsh"))).toBe(true);
     expect(existsSync(join(sandbox.path, ".config", "zsh", "shared", "tools.zsh"))).toBe(true);
+    expect(existsSync(join(sandbox.path, ".config", "zsh", "shared", "fzf.zsh"))).toBe(true);
     expect(existsSync(join(sandbox.path, ".config", "zsh", "shared", "prompt.zsh"))).toBe(true);
     expect(existsSync(join(sandbox.path, ".config", "zsh", "local", "machine.zsh"))).toBe(true);
   });
@@ -48,11 +49,14 @@ describe("zsh-config step", () => {
 
     const perf = readFileSync(join(sandbox.path, ".config", "zsh", "core", "perf.zsh"), "utf-8");
     const tools = readFileSync(join(sandbox.path, ".config", "zsh", "shared", "tools.zsh"), "utf-8");
+    const fzf = readFileSync(join(sandbox.path, ".config", "zsh", "shared", "fzf.zsh"), "utf-8");
 
     expect(perf).toContain("EPOCHREALTIME");
     expect(perf).toContain("_record_stage_duration");
     expect(tools).toContain("_source_cached_tool_init");
     expect(tools).toContain("$_zsh_tools_cache_dir");
+    expect(fzf).toContain("FZF_DEFAULT_COMMAND");
+    expect(fzf).toContain("FZF_CTRL_T_OPTS");
   });
 
   test("skips existing config files without overwriting", async () => {
