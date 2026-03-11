@@ -7,6 +7,7 @@ import {
   copyFileSync,
 } from "node:fs";
 import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { homedir } from "node:os";
 
 /**
@@ -94,5 +95,5 @@ export function expandHome(p) {
  * Get the suitup project root (where configs/ lives).
  */
 export function projectRoot() {
-  return join(import.meta.dirname, "..", "..");
+  return join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 }
