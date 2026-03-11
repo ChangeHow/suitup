@@ -1,5 +1,8 @@
 #!/usr/bin/env node
 
+import { checkNodeVersion } from "./utils/node-version.js";
+checkNodeVersion();
+
 import { runSetup } from "./setup.js";
 import { runAppend } from "./append.js";
 import { runVerify } from "./verify.js";

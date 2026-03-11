@@ -3,6 +3,9 @@
   "version": "2.0.0",
   "description": "Opinionated macOS development environment setup tool with beautiful TUI",
   "type": "module",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "start": "node src/cli.js",
     "setup": "node src/cli.js setup",
