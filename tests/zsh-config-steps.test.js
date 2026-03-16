@@ -1,5 +1,5 @@
 import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
-import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync, mkdirSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { createSandbox } from "./helpers.js";
 
@@ -15,7 +15,7 @@ vi.mock("@clack/prompts", () => ({
   isCancel: vi.fn(() => false),
 }));
 
-import { setupZshConfig, writeZshrc } from "../src/steps/zsh-config.js";
+import { backupShellRcFiles, setupZshConfig, writeZshrc } from "../src/steps/zsh-config.js";
 import { setupAliases } from "../src/steps/aliases.js";
 import { setupVim } from "../src/steps/vim.js";
 
@@ -57,6 +57,14 @@ describe("zsh-config step", () => {
     expect(tools).toContain("$_zsh_tools_cache_dir");
     expect(fzf).toContain("FZF_DEFAULT_COMMAND");
     expect(fzf).toContain("FZF_CTRL_T_OPTS");
+  });
+
+  test("writes a basic prompt preset when selected", async () => {
+    await setupZshConfig({ home: sandbox.path, promptTheme: "basic" });
+
+    const prompt = readFileSync(join(sandbox.path, ".config", "zsh", "shared", "prompt.zsh"), "utf-8");
+    expect(prompt).toContain("basic preset");
+    expect(prompt).not.toContain("powerlevel10k");
   });
 
   test("skips existing config files without overwriting", async () => {
@@ -115,11 +123,26 @@ describe("zsh-config step", () => {
     const content = readFileSync(join(sandbox.path, ".zshrc"), "utf-8");
     expect(content).toContain("ZSH_CONFIG");
 
-    // A backup file should exist
-    const { readdirSync } = await import("node:fs");
-    const files = readdirSync(sandbox.path);
-    const backupFile = files.find((f) => f.startsWith(".zshrc.backup."));
-    expect(backupFile).toBeDefined();
+    const backupRoot = join(sandbox.path, ".config", "suitup", "backups");
+    const backupDirs = readdirSync(backupRoot);
+    expect(backupDirs.length).toBe(1);
+
+    const backupDir = join(backupRoot, backupDirs[0]);
+    expect(existsSync(join(backupDir, ".zshrc"))).toBe(true);
+    expect(readFileSync(join(backupDir, ".zshrc"), "utf-8")).toContain("FOO=bar");
+    expect(existsSync(join(backupDir, "manifest.json"))).toBe(true);
+  });
+
+  test("backupShellRcFiles stores existing shell rc files under suitup backups", async () => {
+    writeFileSync(join(sandbox.path, ".zshrc"), "export ZSH_TEST=1\n", "utf-8");
+    writeFileSync(join(sandbox.path, ".bashrc"), "export BASH_TEST=1\n", "utf-8");
+
+    const result = await backupShellRcFiles({ home: sandbox.path, reason: "setup" });
+
+    expect(result.files).toEqual([".zshrc", ".bashrc"]);
+    expect(existsSync(join(result.backupDir, ".zshrc"))).toBe(true);
+    expect(existsSync(join(result.backupDir, ".bashrc"))).toBe(true);
+    expect(readFileSync(join(result.backupDir, "manifest.json"), "utf-8")).toContain('"reason": "setup"');
   });
 
   test("writeZshrc uses omz template when pluginManager is omz", async () => {

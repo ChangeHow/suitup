@@ -5,6 +5,7 @@ import { homedir } from "node:os";
 import { join } from "node:path";
 import { appendIfMissing, ensureDir, readFileSafe, copyFile } from "./utils/fs.js";
 import { CONFIGS_DIR, SUITUP_MARKER } from "./constants.js";
+import { backupShellRcFiles } from "./steps/zsh-config.js";
 
 const ZSHRC = join(homedir(), ".zshrc");
 const SUITUP_DIR = join(homedir(), ".config", "suitup");
@@ -125,6 +126,12 @@ export async function runAppend() {
     p.log.warn("No ~/.zshrc found. Use `node src/cli.js setup` for a full setup instead.");
     p.outro("Nothing to append to.");
     return;
+  }
+
+  const shellBackup = await backupShellRcFiles({ reason: "append" });
+
+  if (shellBackup) {
+    p.log.info(`Shell backups saved to ${shellBackup.backupDir.replace(homedir(), "~")}`);
   }
 
   p.log.info(`Detected existing ${pc.cyan("~/.zshrc")}`);

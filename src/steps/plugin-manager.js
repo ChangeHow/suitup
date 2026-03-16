@@ -45,7 +45,7 @@ export async function installZinit({ home } = {}) {
  * @param {object} [opts]
  * @param {string} [opts.home] - override home directory (for testing)
  */
-export async function installOhMyZsh({ home } = {}) {
+export async function installOhMyZsh({ home, promptTheme = "p10k" } = {}) {
   const base = home || homedir();
   const omzDir = join(base, ".oh-my-zsh");
 
@@ -59,15 +59,6 @@ export async function installOhMyZsh({ home } = {}) {
     p.log.success("Oh My Zsh installed");
   }
 
-  // Install p10k theme for OMZ
-  const p10kDir = join(omzDir, "custom", "themes", "powerlevel10k");
-  if (!existsSync(p10kDir)) {
-    p.log.step("Installing Powerlevel10k theme for Oh My Zsh...");
-    await runStream(
-      `git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "${p10kDir}"`
-    );
-  }
-
   // Install OMZ plugins
   const pluginsDir = join(omzDir, "custom", "plugins");
   for (const plugin of ["zsh-autosuggestions", "zsh-syntax-highlighting"]) {
@@ -76,6 +67,16 @@ export async function installOhMyZsh({ home } = {}) {
       p.log.step(`Installing ${plugin}...`);
       await runStream(
         `git clone https://github.com/zsh-users/${plugin} "${dir}"`
+      );
+    }
+  }
+
+  if (promptTheme === "p10k") {
+    const p10kDir = join(omzDir, "custom", "themes", "powerlevel10k");
+    if (!existsSync(p10kDir)) {
+      p.log.step("Installing Powerlevel10k theme for Oh My Zsh...");
+      await runStream(
+        `git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "${p10kDir}"`
       );
     }
   }

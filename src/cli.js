@@ -7,10 +7,14 @@ import { runSetup } from "./setup.js";
 import { runAppend } from "./append.js";
 import { runVerify } from "./verify.js";
 import { runClean } from "./clean.js";
+import { getHelpText, resolveCommand } from "./cli-config.js";
 
-const command = process.argv[2] || "setup";
+const command = resolveCommand(process.argv[2]);
 
 switch (command) {
+  case "help":
+    console.log(getHelpText());
+    break;
   case "setup":
     await runSetup();
     break;
@@ -24,12 +28,6 @@ switch (command) {
     await runClean();
     break;
   default:
-    console.log(`Usage: node src/cli.js [setup|append|verify|clean]
-
-Commands:
-  setup   Full interactive environment setup (default)
-  append  Append recommended configs to existing .zshrc
-  verify  Verify installation and config integrity
-  clean   Remove suitup config files`);
+    console.log(getHelpText());
     process.exit(1);
 }

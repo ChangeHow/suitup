@@ -71,9 +71,19 @@ describe("plugin-manager step", () => {
   test("installs Oh My Zsh when directory does not exist", async () => {
     await installOhMyZsh({ home: sandbox.path });
 
-    // Should call runStream for OMZ install + p10k + 2 plugins = 4 calls
     expect(runStream).toHaveBeenCalledWith(
       expect.stringContaining("ohmyzsh")
+    );
+    expect(runStream).toHaveBeenLastCalledWith(
+      expect.stringContaining("powerlevel10k")
+    );
+  });
+
+  test("skips Powerlevel10k install when basic prompt is selected", async () => {
+    await installOhMyZsh({ home: sandbox.path, promptTheme: "basic" });
+
+    expect(runStream).not.toHaveBeenCalledWith(
+      expect.stringContaining("powerlevel10k")
     );
   });
 
