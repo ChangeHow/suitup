@@ -99,11 +99,22 @@ export async function runSetup() {
       ],
       initialValue: "p10k",
     });
-    if (p.isCancel(promptChoice)) {
+  if (p.isCancel(promptChoice)) {
       p.cancel("Setup cancelled.");
       process.exit(0);
     }
     promptTheme = promptChoice;
+  }
+
+  const zinitHome = join(
+    process.env.XDG_DATA_HOME || join(homedir(), ".local", "share"),
+    "zinit",
+    "zinit.git"
+  );
+  const willInstallZinit = steps.includes("plugins") && pluginManager === "zinit";
+  if (promptTheme === "p10k" && !(willInstallZinit || existsSync(zinitHome))) {
+    p.log.warn("Powerlevel10k needs zinit. Since zinit is not installed or selected, suitup falls back to the Basic prompt.");
+    promptTheme = "basic";
   }
 
   // --- Step 3: CLI tool selection (if selected) ---

@@ -1,15 +1,23 @@
-import { describe, test, expect, beforeEach, afterEach } from "vitest";
+import { describe, test, expect, beforeEach, afterEach, vi } from "vitest";
 import { mkdtempSync, readFileSync, writeFileSync, rmSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { appendIfMissing, ensureDir, readFileSafe } from "../src/utils/fs.js";
+import { appendIfMissing, ensureDir } from "../src/utils/fs.js";
 import { CONFIGS_DIR } from "../src/constants.js";
+
+vi.mock("../src/steps/plugin-manager.js", () => ({
+  installZinit: vi.fn(() => Promise.resolve()),
+}));
+
+import { ensurePromptSource, writePromptPreset } from "../src/append.js";
+import { installZinit } from "../src/steps/plugin-manager.js";
 
 describe("Append mode utilities", () => {
   let sandbox;
   let zshrcPath;
 
   beforeEach(() => {
+    vi.clearAllMocks();
     sandbox = mkdtempSync(join(tmpdir(), "suitup-test-"));
     zshrcPath = join(sandbox, ".zshrc");
   });
@@ -86,6 +94,41 @@ describe("Append mode utilities", () => {
     expect(content).toContain("block-b");
     expect(content).toContain("# base");
   });
+
+  test("writePromptPreset replaces prompt.zsh with the p10k preset", async () => {
+    const sharedDir = join(sandbox, ".config", "zsh", "shared");
+    ensureDir(sharedDir);
+    writeFileSync(join(sharedDir, "prompt.zsh"), "old prompt\n", "utf-8");
+
+    const changed = await writePromptPreset("p10k", { home: sandbox });
+
+    expect(changed).toBe(true);
+    expect(installZinit).toHaveBeenCalledWith({ home: sandbox });
+    expect(readFileSync(join(sharedDir, "prompt.zsh"), "utf-8")).toBe(
+      readFileSync(join(CONFIGS_DIR, "shared", "prompt.zsh"), "utf-8")
+    );
+  });
+
+  test("writePromptPreset replaces prompt.zsh with the basic preset", async () => {
+    const sharedDir = join(sandbox, ".config", "zsh", "shared");
+    ensureDir(sharedDir);
+
+    const changed = await writePromptPreset("basic", { home: sandbox });
+
+    expect(changed).toBe(true);
+    expect(readFileSync(join(sharedDir, "prompt.zsh"), "utf-8")).toBe(
+      readFileSync(join(CONFIGS_DIR, "shared", "prompt-basic.zsh"), "utf-8")
+    );
+  });
+
+  test("ensurePromptSource appends prompt loader when missing", () => {
+    writeFileSync(zshrcPath, "# base\n", "utf-8");
+
+    const changed = ensurePromptSource({ home: sandbox });
+
+    expect(changed).toBe(true);
+    expect(readFileSync(zshrcPath, "utf-8")).toContain('source_if_exists "$HOME/.config/zsh/shared/prompt.zsh"');
+  });
 });
 
 describe("fzf-config block", () => {
@@ -93,6 +136,7 @@ describe("fzf-config block", () => {
   let zshrcPath;
 
   beforeEach(() => {
+    vi.clearAllMocks();
     sandbox = mkdtempSync(join(tmpdir(), "suitup-test-"));
     zshrcPath = join(sandbox, ".zshrc");
   });
