@@ -27,6 +27,15 @@
 
 ## 用法优先
 
+### 推荐前置准备
+
+Suitup 可以帮你初始化 Zsh 和 Homebrew，但更稳妥的路径仍然是先把它们准备好再继续。
+
+- 推荐：先安装 Zsh，并切到 Zsh 会话里再运行 suitup
+- 推荐：先安装 Homebrew，这样后续包管理和工具安装会更稳定
+- 可选：如果你不想手动准备，也可以保留 `Bootstrap` 步骤，让 suitup 代为安装
+- 如果初始化做到一半中断了，可以运行 `node src/cli.js append` 继续补齐缺失配置，或者切换 prompt 预设，而不必整体重写 `.zshrc`
+
 ### 安装并运行
 
 ```bash
@@ -69,6 +78,12 @@ node src/cli.js
 
 如果你选择 Powerlevel10k，suitup 会保持安装过程非交互；当缺少 `~/.p10k.zsh` 时，会先回退到基础 prompt，等你之后自行运行 `p10k configure` 再启用。
 
+Bootstrap 细节：
+
+- macOS：安装 Homebrew，或跳过包管理器初始化
+- Linux：可选 `apt-get`、`dnf`、`yum`、`brew`，或直接跳过
+- 如果 Homebrew 已经安装在非默认位置，suitup 现在会在 Zsh 启动时自动尝试常见 `shellenv` 路径
+
 ### Append（追加）
 
 适用于已有 `.zshrc`，想按需接入 suitup 配置：
@@ -81,6 +96,7 @@ node src/cli.js append
 
 - aliases
 - zinit 插件
+- Powerlevel10k prompt 或基础 prompt 预设（会替换 `~/.config/zsh/shared/prompt.zsh`）
 - 工具初始化（atuin/fzf/zoxide/fnm）
 - Zsh 选项（history/completion）
 - 环境变量

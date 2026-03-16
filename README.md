@@ -27,6 +27,15 @@ Named after Barney's catchphrase from [How I Met Your Mother](https://www.themov
 
 ## Usage First
 
+### Recommended preflight
+
+Suitup can bootstrap Zsh and Homebrew for you, but the most reliable path is to start after both are already working.
+
+- Recommended: install Zsh first, switch into a Zsh session, then run suitup
+- Recommended: install Homebrew first so later package/tool steps run in a known-good environment
+- Optional: if you skip either one, keep the `Bootstrap` step selected and let suitup set them up for you
+- If your setup stopped halfway, run `node src/cli.js append` to add missing blocks or switch the prompt preset without replacing your whole `.zshrc`
+
 ### Install and run
 
 ```bash
@@ -73,6 +82,7 @@ Bootstrap details:
 
 - macOS: install Homebrew or skip package manager setup
 - Linux: choose `apt-get`, `dnf`, `yum`, `brew`, or skip
+- If Homebrew is already installed in a non-default location, suitup now tries common shellenv paths automatically during Zsh startup
 
 ### Append
 
@@ -86,6 +96,7 @@ Uses idempotent marker blocks (`# >>> suitup/... >>>`) to safely append selected
 
 - Suitup aliases
 - Zinit plugins
+- Powerlevel10k prompt or basic prompt preset (replaces `~/.config/zsh/shared/prompt.zsh`)
 - Tool initialization (atuin, fzf, zoxide, fnm)
 - Zsh options (history, completion)
 - Environment variables
