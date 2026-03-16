@@ -9,6 +9,7 @@ import {
 } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
+import { isZshShell } from "../src/setup.js";
 
 const CONFIGS_DIR = join(import.meta.dirname, "..", "configs");
 
@@ -118,10 +119,16 @@ describe("Setup simulation in sandbox", () => {
 
     expect(content).toContain('export ZSH="$HOME/.oh-my-zsh"');
     expect(content).toContain("oh-my-zsh.sh");
-    expect(content).toContain("powerlevel10k");
+    expect(content).toContain('ZSH_THEME=""');
     expect(content).toContain("plugins=(");
     // OMZ template should NOT have zinit references
     expect(content).not.toContain("zinit.zsh");
+  });
+
+  test("detects whether the current shell is zsh", () => {
+    expect(isZshShell("/bin/zsh")).toBe(true);
+    expect(isZshShell("/opt/homebrew/bin/zsh")).toBe(true);
+    expect(isZshShell("/bin/bash")).toBe(false);
   });
 
   test("aliases file uses $HOME or ~ instead of hardcoded paths", () => {

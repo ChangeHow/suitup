@@ -14,10 +14,14 @@
 ## 特性
 
 - 基于 [@clack/prompts](https://github.com/bombshell-dev/clack) 的交互式终端界面
+- 初始化流程以 zsh 为前提，需先在 zsh 中运行 suitup
 - 模块化步骤选择，只安装你需要的内容
 - **追加模式**：向现有 `.zshrc` 追加推荐配置，不强制覆盖
 - **验证模式**：检查安装完整性
 - **清理模式**：删除 suitup 生成的配置
+- 提供 `--help`，方便快速查看命令
+- 修改 Shell 启动配置前，会先把现有 rc 文件备份到 `~/.config/suitup/backups/`
+- Powerlevel10k 为可选项；推荐开启，因为它在大型 Git 仓库里的异步 git 状态会更流畅
 - 幂等执行，可安全重复运行
 - 不包含私有/公司特定内容
 
@@ -41,6 +45,7 @@ node src/cli.js
 | `node src/cli.js append` | 追加配置到已有 `.zshrc` |
 | `node src/cli.js verify` | 验证安装完整性 |
 | `node src/cli.js clean` | 删除 suitup 配置文件 |
+| `node src/cli.js --help` | 显示可用命令 |
 
 ### 模式说明
 
@@ -51,13 +56,18 @@ node src/cli.js
 1. **Bootstrap** — 包管理器 + Zsh（macOS 可安装/跳过 Homebrew；Linux 可选 apt-get/dnf/yum/brew/跳过）
 2. **Zsh Config** — 创建 `~/.config/zsh/` 分层结构
 3. **Plugin Manager** — zinit（推荐）或 Oh My Zsh
-4. **CLI Tools** — bat、eza、fzf、fd、zoxide、atuin、ripgrep 等
-5. **GUI Apps** — iTerm2、Raycast、VS Code、字体等
-6. **Frontend Tools** — fnm、pnpm、git-cz
-7. **Shell Aliases** — git、eza、fzf 等快捷命令
-8. **SSH Key** — 生成 GitHub SSH 密钥
-9. **Vim Config** — 基础 Vim 配置
-10. **Dock Cleanup** — 清理 macOS Dock
+4. **Prompt Preset** — Powerlevel10k（推荐）或基础 zsh prompt
+5. **CLI Tools** — bat、eza、fzf、fd、zoxide、atuin、ripgrep 等
+6. **GUI Apps** — iTerm2、Raycast、VS Code、字体等
+7. **Frontend Tools** — fnm、pnpm、git-cz
+8. **Shell Aliases** — git、eza、fzf 等快捷命令
+9. **SSH Key** — 生成 GitHub SSH 密钥
+10. **Vim Config** — 基础 Vim 配置
+11. **Dock Cleanup** — 清理 macOS Dock
+
+在 suitup 修改 Shell 启动配置前，会先把现有 `.zshrc`、`.zprofile`、`.bashrc`、`.bash_profile` 等文件备份到 `~/.config/suitup/backups/`。
+
+如果你选择 Powerlevel10k，suitup 会保持安装过程非交互；当缺少 `~/.p10k.zsh` 时，会先回退到基础 prompt，等你之后自行运行 `p10k configure` 再启用。
 
 ### Append（追加）
 
@@ -93,6 +103,14 @@ node src/cli.js clean
 
 删除 `~/.config/suitup/`。不会删除 `~/.zshrc` 与 `~/.config/zsh/`。
 
+### Help（帮助）
+
+```bash
+node src/cli.js --help
+```
+
+输出命令列表和可用选项。
+
 ## suitup 会安装什么
 
 ### CLI 工具
@@ -111,7 +129,7 @@ node src/cli.js clean
 
 - [zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions)
 - [zsh-syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting)
-- [powerlevel10k](https://github.com/romkatv/powerlevel10k) 主题
+- [powerlevel10k](https://github.com/romkatv/powerlevel10k) 主题（可选，推荐）
 
 ### GUI 应用
 

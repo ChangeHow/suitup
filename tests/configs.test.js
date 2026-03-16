@@ -65,10 +65,18 @@ describe("Static config templates", () => {
     expect(content).toContain("powerlevel10k");
     expect(content).toContain("zinit light romkatv/powerlevel10k");
     expect(content).toContain("~/.p10k.zsh");
+    expect(content).toContain("PROMPT='");
     // p10k theme load must appear before .p10k.zsh source
     const themeIdx = content.indexOf("zinit light romkatv/powerlevel10k");
-    const configIdx = content.indexOf("~/.p10k.zsh");
+    const configIdx = content.lastIndexOf("~/.p10k.zsh");
     expect(themeIdx).toBeLessThan(configIdx);
+  });
+
+  test("shared/prompt-basic.zsh provides a simple fallback prompt", () => {
+    const content = readFileSync(join(CONFIGS_DIR, "shared", "prompt-basic.zsh"), "utf-8");
+    expect(content).toContain("basic preset");
+    expect(content).toContain("PROMPT='");
+    expect(content).not.toContain("powerlevel10k");
   });
 
   test("config.vim file exists", () => {
@@ -82,7 +90,7 @@ describe("Static config templates", () => {
   });
 
   test("shared config files exist", () => {
-    for (const file of ["tools.zsh", "prompt.zsh", "fzf.zsh"]) {
+    for (const file of ["tools.zsh", "prompt.zsh", "prompt-basic.zsh", "fzf.zsh"]) {
       expect(existsSync(join(CONFIGS_DIR, "shared", file))).toBe(true);
     }
   });

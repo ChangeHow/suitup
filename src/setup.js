@@ -1,5 +1,8 @@
 import * as p from "@clack/prompts";
 import pc from "picocolors";
+import { existsSync } from "node:fs";
+import { homedir } from "node:os";
+import { join } from "node:path";
 import { bootstrap } from "./steps/bootstrap.js";
 import { installZinit, installOhMyZsh } from "./steps/plugin-manager.js";
 import { CLI_TOOLS, installCliTools } from "./steps/cli-tools.js";
@@ -11,11 +14,22 @@ import { setupAliases } from "./steps/aliases.js";
 import { cleanDock } from "./steps/dock.js";
 import { setupZshConfig, writeZshrc } from "./steps/zsh-config.js";
 
+export function isZshShell(shell = process.env.SHELL || "") {
+  return /(^|\/)zsh$/.test(shell);
+}
+
 /**
  * Full interactive setup flow.
  */
 export async function runSetup() {
   p.intro(pc.bgCyan(pc.black(" Suit up! ")));
+
+  if (!isZshShell()) {
+    p.log.error("Suitup setup must be run from zsh.");
+    p.log.info("Switch to zsh first: run `zsh` for this session or `chsh -s \"$(which zsh)\"` to make it your default shell.");
+    p.outro("No changes made.");
+    return;
+  }
 
   // --- Step 1: Select setup steps ---
   const steps = await p.multiselect({
@@ -66,6 +80,31 @@ export async function runSetup() {
     pluginManager = pmChoice;
   }
 
+  let promptTheme = "p10k";
+  if (steps.includes("zsh-config") || steps.includes("plugins")) {
+    const promptChoice = await p.select({
+      message: "Choose a prompt preset:",
+      options: [
+        {
+          value: "p10k",
+          label: "Powerlevel10k",
+          hint: "recommended - async git status stays fast in large repositories",
+        },
+        {
+          value: "basic",
+          label: "Basic zsh prompt",
+          hint: "no Powerlevel10k, simple and dependency-free",
+        },
+      ],
+      initialValue: "p10k",
+    });
+    if (p.isCancel(promptChoice)) {
+      p.cancel("Setup cancelled.");
+      process.exit(0);
+    }
+    promptTheme = promptChoice;
+  }
+
   // --- Step 3: CLI tool selection (if selected) ---
   let selectedTools = [];
   if (steps.includes("cli-tools")) {
@@ -111,14 +150,14 @@ export async function runSetup() {
   }
 
   if (steps.includes("zsh-config")) {
-    await setupZshConfig();
+    await setupZshConfig({ promptTheme });
   }
 
   if (steps.includes("plugins")) {
     if (pluginManager === "zinit") {
       await installZinit();
     } else {
-      await installOhMyZsh();
+      await installOhMyZsh({ promptTheme });
     }
   }
 
@@ -153,6 +192,10 @@ export async function runSetup() {
   // --- Write .zshrc ---
   if (steps.includes("zsh-config")) {
     await writeZshrc(pluginManager);
+  }
+
+  if (promptTheme === "p10k" && !existsSync(join(homedir(), ".p10k.zsh"))) {
+    p.log.info("Powerlevel10k is selected, but `~/.p10k.zsh` was not found. Suitup keeps a basic prompt until you run `p10k configure` in zsh, which avoids dropping you into an interactive wizard during setup.");
   }
 
   p.outro(

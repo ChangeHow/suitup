@@ -35,7 +35,7 @@ source "$ZSH_CONFIG/shared/tools.zsh"
 # Oh My Zsh
 # ---------------------------------------------------------------------------
 _stage "omz"
-ZSH_THEME="powerlevel10k/powerlevel10k"
+ZSH_THEME=""
 plugins=(git zsh-autosuggestions zsh-syntax-highlighting)
 source "$ZSH/oh-my-zsh.sh"
 
