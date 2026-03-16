@@ -55,7 +55,7 @@ Interactive step-by-step setup with selectable steps:
 
 1. **Bootstrap** — package manager + Zsh
 2. **Zsh Config** — creates `~/.config/zsh/` with layered config architecture
-3. **Plugin Manager** — zinit (recommended) or Oh My Zsh
+3. **Plugin Manager** — zinit (recommended) or skip for native zsh only
 4. **Prompt Preset** — Powerlevel10k (recommended) or a basic zsh prompt
 5. **CLI Tools** — bat, eza, fzf, fd, zoxide, atuin, ripgrep...
 6. **GUI Apps** — iTerm2, Raycast, VS Code, fonts...
@@ -134,7 +134,7 @@ Prints the command list and available options.
 
 - [zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions)
 - [zsh-syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting)
-- [powerlevel10k](https://github.com/romkatv/powerlevel10k) theme (optional, recommended)
+- [powerlevel10k](https://github.com/romkatv/powerlevel10k) theme (optional, pairs well with zinit)
 
 ### GUI apps
 

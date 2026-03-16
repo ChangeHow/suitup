@@ -111,20 +111,6 @@ describe("Setup simulation in sandbox", () => {
     expect(promptIdx).toBeLessThan(reportIdx);
   });
 
-  test("omz template has Oh My Zsh structure", () => {
-    const content = readFileSync(
-      join(CONFIGS_DIR, "zshrc-omz.template"),
-      "utf-8"
-    );
-
-    expect(content).toContain('export ZSH="$HOME/.oh-my-zsh"');
-    expect(content).toContain("oh-my-zsh.sh");
-    expect(content).toContain('ZSH_THEME=""');
-    expect(content).toContain("plugins=(");
-    // OMZ template should NOT have zinit references
-    expect(content).not.toContain("zinit.zsh");
-  });
-
   test("detects whether the current shell is zsh", () => {
     expect(isZshShell("/bin/zsh")).toBe(true);
     expect(isZshShell("/opt/homebrew/bin/zsh")).toBe(true);

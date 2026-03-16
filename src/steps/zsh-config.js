@@ -95,16 +95,14 @@ export async function setupZshConfig({ home, promptTheme = "p10k" } = {}) {
 
 /**
  * Write the .zshrc file from template.
- * @param {"zinit" | "omz"} pluginManager
+ * @param {"zinit" | "skip"} pluginManager
  * @param {object} [opts]
  * @param {string} [opts.home] - override home directory (for testing)
  */
 export async function writeZshrc(pluginManager = "zinit", { home } = {}) {
   const base = home || homedir();
   const zshrc = join(base, ".zshrc");
-  const templateName =
-    pluginManager === "omz" ? "zshrc-omz.template" : "zshrc.template";
-  const template = readFileSafe(join(CONFIGS_DIR, templateName));
+  const template = readFileSafe(join(CONFIGS_DIR, "zshrc.template"));
   const shellBackup = await backupShellRcFiles({ home: base, reason: "setup" });
 
   if (shellBackup) {

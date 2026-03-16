@@ -19,7 +19,7 @@ vi.mock("../src/utils/shell.js", () => ({
   runStream: vi.fn(() => Promise.resolve(0)),
 }));
 
-import { installZinit, installOhMyZsh } from "../src/steps/plugin-manager.js";
+import { installZinit } from "../src/steps/plugin-manager.js";
 import { runStream } from "../src/utils/shell.js";
 
 describe("plugin-manager step", () => {
@@ -68,35 +68,4 @@ describe("plugin-manager step", () => {
     expect(content).toBe("existing");
   });
 
-  test("installs Oh My Zsh when directory does not exist", async () => {
-    await installOhMyZsh({ home: sandbox.path });
-
-    expect(runStream).toHaveBeenCalledWith(
-      expect.stringContaining("ohmyzsh")
-    );
-    expect(runStream).toHaveBeenLastCalledWith(
-      expect.stringContaining("powerlevel10k")
-    );
-  });
-
-  test("skips Powerlevel10k install when basic prompt is selected", async () => {
-    await installOhMyZsh({ home: sandbox.path, promptTheme: "basic" });
-
-    expect(runStream).not.toHaveBeenCalledWith(
-      expect.stringContaining("powerlevel10k")
-    );
-  });
-
-  test("skips Oh My Zsh install when directory already exists", async () => {
-    // Create OMZ directory
-    mkdirSync(join(sandbox.path, ".oh-my-zsh"), { recursive: true });
-    // Still need p10k and plugins dirs to skip those too
-    mkdirSync(join(sandbox.path, ".oh-my-zsh", "custom", "themes", "powerlevel10k"), { recursive: true });
-    mkdirSync(join(sandbox.path, ".oh-my-zsh", "custom", "plugins", "zsh-autosuggestions"), { recursive: true });
-    mkdirSync(join(sandbox.path, ".oh-my-zsh", "custom", "plugins", "zsh-syntax-highlighting"), { recursive: true });
-
-    await installOhMyZsh({ home: sandbox.path });
-
-    expect(runStream).not.toHaveBeenCalled();
-  });
 });

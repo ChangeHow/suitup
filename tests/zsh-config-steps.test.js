@@ -145,12 +145,6 @@ describe("zsh-config step", () => {
     expect(readFileSync(join(result.backupDir, "manifest.json"), "utf-8")).toContain('"reason": "setup"');
   });
 
-  test("writeZshrc uses omz template when pluginManager is omz", async () => {
-    await writeZshrc("omz", { home: sandbox.path });
-
-    const content = readFileSync(join(sandbox.path, ".zshrc"), "utf-8");
-    expect(content).toContain("oh-my-zsh");
-  });
 });
 
 describe("aliases step", () => {
