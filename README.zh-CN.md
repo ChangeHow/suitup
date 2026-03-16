@@ -55,7 +55,7 @@ node src/cli.js
 
 1. **Bootstrap** — 包管理器 + Zsh（macOS 可安装/跳过 Homebrew；Linux 可选 apt-get/dnf/yum/brew/跳过）
 2. **Zsh Config** — 创建 `~/.config/zsh/` 分层结构
-3. **Plugin Manager** — zinit（推荐）或 Oh My Zsh
+3. **Plugin Manager** — zinit（推荐）或跳过，仅保留原生 zsh
 4. **Prompt Preset** — Powerlevel10k（推荐）或基础 zsh prompt
 5. **CLI Tools** — bat、eza、fzf、fd、zoxide、atuin、ripgrep 等
 6. **GUI Apps** — iTerm2、Raycast、VS Code、字体等
@@ -129,7 +129,7 @@ node src/cli.js --help
 
 - [zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions)
 - [zsh-syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting)
-- [powerlevel10k](https://github.com/romkatv/powerlevel10k) 主题（可选，推荐）
+- [powerlevel10k](https://github.com/romkatv/powerlevel10k) 主题（可选，适合配合 zinit）
 
 ### GUI 应用
 

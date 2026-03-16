@@ -4,7 +4,7 @@ import { existsSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import { bootstrap } from "./steps/bootstrap.js";
-import { installZinit, installOhMyZsh } from "./steps/plugin-manager.js";
+import { installZinit } from "./steps/plugin-manager.js";
 import { CLI_TOOLS, installCliTools } from "./steps/cli-tools.js";
 import { APPS, installApps } from "./steps/apps.js";
 import { installFrontendTools } from "./steps/frontend.js";
@@ -38,7 +38,7 @@ export async function runSetup() {
     options: [
       { value: "bootstrap", label: "Bootstrap", hint: "Package manager + Zsh" },
       { value: "zsh-config", label: "Zsh Config Structure", hint: "~/.config/zsh/" },
-      { value: "plugins", label: "Plugin Manager", hint: "zinit or Oh My Zsh" },
+      { value: "plugins", label: "Plugin Manager", hint: "recommended zinit or skip" },
       { value: "cli-tools", label: "CLI Tools", hint: "bat, eza, fzf, fd, zoxide, atuin..." },
       { value: "apps", label: "GUI Apps", hint: "iTerm2, Raycast, VS Code..." },
       { value: "frontend", label: "Frontend Tools", hint: "fnm, pnpm, git-cz" },
@@ -67,11 +67,12 @@ export async function runSetup() {
   let pluginManager = "zinit";
   if (steps.includes("plugins")) {
     const pmChoice = await p.select({
-      message: "Choose a plugin manager:",
+      message: "Choose plugin manager setup:",
       options: [
-        { value: "zinit", label: "zinit", hint: "recommended — lightweight, fast" },
-        { value: "omz", label: "Oh My Zsh", hint: "feature-rich, popular" },
+        { value: "zinit", label: "zinit", hint: "recommended - lightweight, fast, enough for most setups" },
+        { value: "skip", label: "Skip plugin manager", hint: "keep native zsh features only" },
       ],
+      initialValue: "zinit",
     });
     if (p.isCancel(pmChoice)) {
       p.cancel("Setup cancelled.");
@@ -156,8 +157,6 @@ export async function runSetup() {
   if (steps.includes("plugins")) {
     if (pluginManager === "zinit") {
       await installZinit();
-    } else {
-      await installOhMyZsh({ promptTheme });
     }
   }
 

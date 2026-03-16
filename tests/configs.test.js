@@ -97,7 +97,6 @@ describe("Static config templates", () => {
 
   test("zshrc templates exist", () => {
     expect(existsSync(join(CONFIGS_DIR, "zshrc.template"))).toBe(true);
-    expect(existsSync(join(CONFIGS_DIR, "zshrc-omz.template"))).toBe(true);
   });
 
   test("core/paths.zsh does not contain private paths", () => {
@@ -152,7 +151,7 @@ describe("Static config templates", () => {
   });
 
   test("zshrc templates pass syntax check", () => {
-    for (const tmpl of ["zshrc.template", "zshrc-omz.template"]) {
+    for (const tmpl of ["zshrc.template"]) {
       const fullPath = join(CONFIGS_DIR, tmpl);
       // These templates reference files that may not exist, so zsh -n may fail
       // on source statements. We just check the file is valid UTF-8 and has content.
@@ -175,7 +174,6 @@ describe("Static config templates", () => {
       "shared/fzf.zsh",
       "shared/prompt.zsh",
       "zshrc.template",
-      "zshrc-omz.template",
     ];
 
     for (const file of allFiles) {

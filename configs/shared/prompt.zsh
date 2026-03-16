@@ -7,11 +7,6 @@ if [[ -f ~/.p10k.zsh ]]; then
   # For zinit-based setups: load p10k as the final plugin so it wraps everything
   (( ${+functions[zinit]} )) && { zinit ice depth"1"; zinit light romkatv/powerlevel10k; }
 
-  # For Oh My Zsh setups: load the theme manually at the prompt stage.
-  if (( ! ${+functions[zinit]} )) && [[ -r "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k/powerlevel10k.zsh-theme" ]]; then
-    source "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k/powerlevel10k.zsh-theme"
-  fi
-
   source ~/.p10k.zsh
 else
   PROMPT='%F{cyan}%n@%m%f:%F{yellow}%~%f %# '

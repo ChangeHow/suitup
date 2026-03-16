@@ -36,10 +36,9 @@ The actual config lives under `~/.config/zsh/`.
 
 ## Templates
 
-- `configs/zshrc.template` is the default zinit-based entrypoint.
-- `configs/zshrc-omz.template` is the Oh My Zsh variant.
+- `configs/zshrc.template` is the default entrypoint.
 
-Both templates should keep the same loading order unless there is a strong reason to diverge:
+The template should keep the same loading order unless there is a strong reason to diverge:
 
 1. perf
 2. env
