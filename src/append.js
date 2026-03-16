@@ -3,13 +3,49 @@ import pc from "picocolors";
 import { existsSync, readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
-import { appendIfMissing, ensureDir, readFileSafe, copyFile } from "./utils/fs.js";
-import { CONFIGS_DIR, SUITUP_MARKER } from "./constants.js";
+import { appendIfMissing, ensureDir, readFileSafe, copyFile, writeFile } from "./utils/fs.js";
+import { CONFIGS_DIR } from "./constants.js";
 import { backupShellRcFiles } from "./steps/zsh-config.js";
+import { installZinit } from "./steps/plugin-manager.js";
 
 const ZSHRC = join(homedir(), ".zshrc");
 const SUITUP_DIR = join(homedir(), ".config", "suitup");
-const ZSH_CONFIG = join(homedir(), ".config", "zsh");
+
+function sourcePromptTemplate(preset) {
+  return preset === "basic"
+    ? join(CONFIGS_DIR, "shared", "prompt-basic.zsh")
+    : join(CONFIGS_DIR, "shared", "prompt.zsh");
+}
+
+export async function writePromptPreset(preset = "p10k", { home } = {}) {
+  const base = home || homedir();
+  const promptDest = join(base, ".config", "zsh", "shared", "prompt.zsh");
+  const nextContent = readFileSync(sourcePromptTemplate(preset), "utf-8");
+  const prevContent = readFileSafe(promptDest);
+
+  ensureDir(join(base, ".config", "zsh", "shared"));
+  if (preset === "p10k") {
+    await installZinit({ home: base });
+  }
+
+  writeFile(promptDest, nextContent);
+  return prevContent !== nextContent;
+}
+
+export function ensurePromptSource({ home } = {}) {
+  const base = home || homedir();
+  const zshrc = join(base, ".zshrc");
+  const existing = readFileSafe(zshrc);
+  if (existing.includes("shared/prompt.zsh")) {
+    return false;
+  }
+
+  return appendIfMissing(
+    zshrc,
+    '\n# >>> suitup/prompt >>>\nsource_if_exists "$HOME/.config/zsh/shared/prompt.zsh"\n# <<< suitup/prompt <<<\n',
+    "suitup/prompt"
+  );
+}
 
 /** Appendable config blocks. */
 const BLOCKS = [
@@ -43,6 +79,34 @@ const BLOCKS = [
         '\n# >>> suitup/zinit-plugins >>>\nsource_if_exists "$HOME/.config/suitup/zinit-plugins"\n# <<< suitup/zinit-plugins <<<\n',
         "suitup/zinit-plugins"
       );
+    },
+  },
+  {
+    value: "p10k-prompt",
+    label: "Powerlevel10k prompt",
+    hint: "replace ~/.config/zsh/shared/prompt.zsh",
+    group: "Suitup Configs",
+    isAvailable() {
+      return true;
+    },
+    async apply() {
+      const changed = await writePromptPreset("p10k");
+      const sourced = ensurePromptSource();
+      return changed || sourced;
+    },
+  },
+  {
+    value: "basic-prompt",
+    label: "Basic prompt",
+    hint: "replace ~/.config/zsh/shared/prompt.zsh",
+    group: "Suitup Configs",
+    isAvailable() {
+      return true;
+    },
+    async apply() {
+      const changed = await writePromptPreset("basic");
+      const sourced = ensurePromptSource();
+      return changed || sourced;
     },
   },
   {
@@ -138,7 +202,12 @@ export async function runAppend() {
 
   // Check which blocks are already present
   const existing = readFileSafe(ZSHRC);
-  const available = BLOCKS.filter((b) => !existing.includes(b.marker));
+  const available = BLOCKS.filter((block) => {
+    if (typeof block.isAvailable === "function") {
+      return block.isAvailable({ existing });
+    }
+    return !existing.includes(block.marker);
+  });
 
   if (available.length === 0) {
     p.log.success("All suitup configs are already present in .zshrc");
@@ -179,7 +248,7 @@ export async function runAppend() {
   let appended = 0;
   for (const value of selected) {
     const block = BLOCKS.find((b) => b.value === value);
-    if (block && block.apply()) {
+    if (block && await block.apply()) {
       appended++;
       p.log.success(`Appended: ${block.label}`);
     }

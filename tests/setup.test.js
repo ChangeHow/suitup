@@ -102,6 +102,7 @@ describe("Setup simulation in sandbox", () => {
     expect(content).toContain("suitup/aliases");
     expect(content).toContain("shared/prompt.zsh");
     expect(content).toContain("_zsh_report");
+    expect(content).toContain('source_if_exists "${ZINIT_HOME}/zinit.zsh"');
 
     // prompt.zsh (which loads p10k last) must come after zinit-plugins
     const pluginsIdx = content.indexOf("suitup/zinit-plugins");

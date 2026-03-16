@@ -35,7 +35,7 @@ source "$ZSH_CONFIG/shared/tools.zsh"
 # ---------------------------------------------------------------------------
 _stage "zinit"
 ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
-source "${ZINIT_HOME}/zinit.zsh"
+source_if_exists "${ZINIT_HOME}/zinit.zsh"
 
 # Suitup
 _stage "suitup"

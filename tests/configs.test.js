@@ -106,6 +106,13 @@ describe("Static config templates", () => {
     }
   });
 
+  test("core/paths.zsh bootstraps Homebrew shellenv from standard locations", () => {
+    const content = readFileSync(join(CONFIGS_DIR, "core", "paths.zsh"), "utf-8");
+    expect(content).toContain("/opt/homebrew/bin/brew");
+    expect(content).toContain("/home/linuxbrew/.linuxbrew/bin/brew");
+    expect(content).toContain("shellenv zsh");
+  });
+
   test("core/env.zsh does not contain API keys", () => {
     const content = readFileSync(join(CONFIGS_DIR, "core", "env.zsh"), "utf-8");
     for (const pattern of FORBIDDEN_PATTERNS) {
