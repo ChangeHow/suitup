@@ -1,0 +1,6 @@
+# >>> suitup zinit-plugins >>>
+
+zinit load 'zsh-users/zsh-autosuggestions'
+zinit load 'zsh-users/zsh-syntax-highlighting'
+
+# <<< suitup zinit-plugins <<<
