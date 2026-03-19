@@ -259,8 +259,13 @@ describe("extractPathLines", () => {
       'echo "done"',
     ].join("\n");
 
-    const { pathLines } = extractPathLines(content);
-    expect(pathLines.length).toBe(3);
+    const { pathLines, remainingLines } = extractPathLines(content);
+    expect(pathLines).toEqual([
+      'export PATH="$HOME/bin:\\',
+      "  $HOME/.local/bin:\\",
+      '  $PATH"',
+    ]);
+    expect(remainingLines.join("\n")).toContain('echo "done"');
   });
 
   test("handles multiple PATH lines interspersed with other content", () => {
@@ -289,7 +294,10 @@ describe("extractPathLines", () => {
 
     const { remainingLines } = extractPathLines(content);
     const joined = remainingLines.join("\n");
+    // Should not have three consecutive newlines (double blank)
     expect(joined).not.toMatch(/\n\n\n/);
+    // Should preserve exactly one blank line between start and end
+    expect(joined).toBe('echo "start"\n\necho "end"');
   });
 
   test("realistic multi-tool zshrc", () => {

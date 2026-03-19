@@ -20,10 +20,10 @@ unset _suitup_brew_bin
 # shells so that globally-installed CLIs (pnpm, git-cz …) work in
 # non-interactive contexts such as scripts, editors, agents, and git hooks.
 # Interactive shells get the full fnm env from shared/tools.zsh instead.
-_suitup_fnm_default="${FNM_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/fnm}/aliases/default/bin"
-if [[ -d "$_suitup_fnm_default" && ":${PATH}:" != *":${_suitup_fnm_default}:"* ]]; then
-  export PATH="${_suitup_fnm_default}:${PATH}"
+_suitup_fnm_default_bin="${FNM_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/fnm}/aliases/default/bin"
+if [[ -d "$_suitup_fnm_default_bin" && ":${PATH}:" != *":${_suitup_fnm_default_bin}:"* ]]; then
+  export PATH="${_suitup_fnm_default_bin}:${PATH}"
 fi
-unset _suitup_fnm_default
+unset _suitup_fnm_default_bin
 
 # Keep this file for user PATH overrides if needed.
