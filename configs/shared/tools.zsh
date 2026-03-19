@@ -31,7 +31,7 @@ _source_cached_tool_init() {
   source "$cache_file"
 }
 
-_source_cached_tool_init atuin-init atuin 'atuin init zsh'
 _source_cached_tool_init fzf-init fzf 'fzf --zsh'
+_source_cached_tool_init atuin-init atuin 'atuin init zsh'
 _source_cached_tool_init zoxide-init zoxide 'zoxide init zsh'
 _source_cached_tool_init fnm-init fnm 'fnm env --use-on-cd --version-file-strategy=recursive --shell zsh'

@@ -153,6 +153,16 @@ describe("Static config templates", () => {
     expect(content).toContain("fzf.zsh");
   });
 
+  test("shared/tools.zsh loads fzf before atuin so atuin keeps the Ctrl-R binding", () => {
+    const content = readFileSync(join(CONFIGS_DIR, "shared", "tools.zsh"), "utf-8");
+    const fzfIdx = content.indexOf("_source_cached_tool_init fzf-init fzf 'fzf --zsh'");
+    const atuinIdx = content.indexOf("_source_cached_tool_init atuin-init atuin 'atuin init zsh'");
+
+    expect(fzfIdx).toBeGreaterThan(-1);
+    expect(atuinIdx).toBeGreaterThan(-1);
+    expect(fzfIdx).toBeLessThan(atuinIdx);
+  });
+
   test("all .zsh config files pass syntax check", () => {
     const zshFiles = [
       "core/perf.zsh",
