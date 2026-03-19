@@ -137,7 +137,12 @@ This command:
 node src/cli.js clean
 ```
 
-Removes `~/.config/suitup/`. Does NOT remove `~/.zshrc` or `~/.config/zsh/` — remove those manually if needed.
+Attempts a safe uninstall of suitup-managed config:
+
+- restores the latest non-suitup backup of `~/.zshrc` / `~/.zshenv` when available
+- removes suitup-generated `~/.config/zsh/` and `~/.config/suitup/` files when they still match shipped templates
+- strips `# >>> suitup/... >>>` blocks from an existing `~/.zshrc` if you used `append`
+- preserves user-modified files instead of deleting them blindly
 
 ### Help
 

@@ -137,7 +137,12 @@ node src/cli.js migrate-paths
 node src/cli.js clean
 ```
 
-删除 `~/.config/suitup/`。不会删除 `~/.zshrc` 与 `~/.config/zsh/`。
+尽量安全地卸载 suitup 管理的配置：
+
+- 若存在备份，优先恢复最近一次“非 suitup 版本”的 `~/.zshrc` / `~/.zshenv`
+- 对仍与项目模板一致的文件，删除 `~/.config/zsh/` 与 `~/.config/suitup/` 下的 suitup 生成内容
+- 如果你用过 `append`，会从现有 `~/.zshrc` 中移除 `# >>> suitup/... >>>` 标记块
+- 对用户自己改过的文件会保留，不会盲删
 
 ### Help（帮助）
 
