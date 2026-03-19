@@ -17,6 +17,7 @@ Named after Barney's catchphrase from [How I Met Your Mother](https://www.themov
 - Setup is intentionally zsh-first; run suitup from zsh before initialization
 - Modular step selection — install only what you need
 - **Append mode** — add recommended configs to an existing `.zshrc` without replacing it
+- **Migrate PATH mode** — move PATH/tool bootstrap lines out of `.zshrc` into `~/.config/zsh/core/paths.zsh`
 - **Verify mode** — check your installation integrity
 - **Clean mode** — remove suitup config files
 - `--help` output for quick command discovery
@@ -52,6 +53,7 @@ node src/cli.js
 | `node src/cli.js` | Full interactive setup (default) |
 | `node src/cli.js setup` | Same as above |
 | `node src/cli.js append` | Append configs to existing `.zshrc` |
+| `node src/cli.js migrate-paths` | Migrate PATH-related lines from `.zshrc` to `~/.config/zsh/core/paths.zsh` |
 | `node src/cli.js verify` | Verify installation integrity |
 | `node src/cli.js clean` | Remove suitup config files |
 | `node src/cli.js --help` | Show available commands |
@@ -83,6 +85,8 @@ Bootstrap details:
 - macOS: install Homebrew or skip package manager setup
 - Linux: choose `apt-get`, `dnf`, `yum`, `brew`, or skip
 - If Homebrew is already installed in a non-default location, suitup now tries common shellenv paths automatically during Zsh startup
+- Suitup now also writes a minimal `~/.zshenv` so non-interactive shells can still load shared env vars and PATH setup
+- When fnm installs Node.js, suitup sets the installed version as the fnm default so `node`, `npm`, and globally installed CLIs resolve from the fnm-managed location in both interactive and non-interactive shells
 
 ### Append
 
@@ -109,7 +113,23 @@ Uses idempotent marker blocks (`# >>> suitup/... >>>`) to safely append selected
 node src/cli.js verify
 ```
 
-Checks config files, CLI tool availability, and shell syntax validity.
+Checks config files (including `~/.zshenv`), CLI tool availability, and shell syntax validity.
+
+### Migrate PATH entries
+
+For users whose existing `.zshrc` has accumulated `PATH=...`, `brew shellenv`, `cargo/env`, `fnm env`, `NVM_DIR`, `PNPM_HOME`, and similar tool bootstrap lines:
+
+```bash
+node src/cli.js migrate-paths
+```
+
+This command:
+
+- extracts detected PATH-related lines from `.zshrc`
+- appends them to `~/.config/zsh/core/paths.zsh`
+- creates a backup in `~/.config/suitup/backups/`
+- runs a post-migration Zsh syntax check
+- rolls back automatically if validation fails
 
 ### Clean
 
@@ -163,11 +183,12 @@ After setup, your shell config looks like:
 
 ```
 ~/.zshrc                          # Thin orchestrator
+~/.zshenv                         # Minimal env for non-interactive shells
 ~/.config/zsh/
   core/
     perf.zsh                      # Startup timing
     env.zsh                       # Environment variables
-    paths.zsh                     # PATH placeholder
+    paths.zsh                     # PATH + tool bootstrap entries
     options.zsh                   # Zsh shell options
   shared/
     tools.zsh                     # Tool init (fzf, atuin, zoxide, fnm)

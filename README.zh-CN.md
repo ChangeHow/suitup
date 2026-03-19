@@ -17,6 +17,7 @@
 - 初始化流程以 zsh 为前提，需先在 zsh 中运行 suitup
 - 模块化步骤选择，只安装你需要的内容
 - **追加模式**：向现有 `.zshrc` 追加推荐配置，不强制覆盖
+- **PATH 迁移模式**：把 `.zshrc` 里的 PATH / 工具初始化行迁移到 `~/.config/zsh/core/paths.zsh`
 - **验证模式**：检查安装完整性
 - **清理模式**：删除 suitup 生成的配置
 - 提供 `--help`，方便快速查看命令
@@ -52,6 +53,7 @@ node src/cli.js
 | `node src/cli.js` | 完整交互式安装（默认） |
 | `node src/cli.js setup` | 同上 |
 | `node src/cli.js append` | 追加配置到已有 `.zshrc` |
+| `node src/cli.js migrate-paths` | 将 `.zshrc` 中的 PATH 相关配置迁移到 `~/.config/zsh/core/paths.zsh` |
 | `node src/cli.js verify` | 验证安装完整性 |
 | `node src/cli.js clean` | 删除 suitup 配置文件 |
 | `node src/cli.js --help` | 显示可用命令 |
@@ -83,6 +85,8 @@ Bootstrap 细节：
 - macOS：安装 Homebrew，或跳过包管理器初始化
 - Linux：可选 `apt-get`、`dnf`、`yum`、`brew`，或直接跳过
 - 如果 Homebrew 已经安装在非默认位置，suitup 现在会在 Zsh 启动时自动尝试常见 `shellenv` 路径
+- suitup 现在也会生成一个精简的 `~/.zshenv`，保证非交互式 shell 也能加载共享环境变量和 PATH
+- 当 fnm 安装 Node.js 后，suitup 会把该版本设置为 fnm 默认版本，确保交互式/非交互式 shell 下的 `node`、`npm` 和全局 CLI 都优先指向 fnm 管理的路径
 
 ### Append（追加）
 
@@ -109,7 +113,23 @@ node src/cli.js append
 node src/cli.js verify
 ```
 
-检查配置文件、CLI 可用性、Shell 语法。
+检查配置文件（包含 `~/.zshenv`）、CLI 可用性、Shell 语法。
+
+### Migrate PATH（迁移 PATH）
+
+适用于已有 `.zshrc`，并且里面已经堆积了 `PATH=...`、`brew shellenv`、`cargo/env`、`fnm env`、`NVM_DIR`、`PNPM_HOME` 等 PATH / 工具初始化配置：
+
+```bash
+node src/cli.js migrate-paths
+```
+
+该命令会：
+
+- 从 `.zshrc` 中提取识别到的 PATH 相关配置
+- 追加到 `~/.config/zsh/core/paths.zsh`
+- 先创建 `~/.config/suitup/backups/` 备份
+- 迁移后执行 Zsh 语法检查
+- 如果校验失败则自动回滚
 
 ### Clean（清理）
 
@@ -161,11 +181,12 @@ node src/cli.js --help
 
 ```text
 ~/.zshrc                          # 轻量入口
+~/.zshenv                         # 非交互式 shell 的最小环境入口
 ~/.config/zsh/
   core/
     perf.zsh                      # 启动计时
     env.zsh                       # 环境变量
-    paths.zsh                     # PATH 预留文件
+    paths.zsh                     # PATH 与工具引导配置
     options.zsh                   # Zsh 选项
   shared/
     tools.zsh                     # 工具初始化（带缓存）
