@@ -13,10 +13,8 @@ import { setupVim } from "./steps/vim.js";
 import { setupAliases } from "./steps/aliases.js";
 import { cleanDock } from "./steps/dock.js";
 import { setupZshConfig, writeZshrc, writeZshenv } from "./steps/zsh-config.js";
-
-export function isZshShell(shell = process.env.SHELL || "") {
-  return /(^|\/)zsh$/.test(shell);
-}
+import { isZshShell } from "./utils/shell-context.js";
+export { isZshShell } from "./utils/shell-context.js";
 
 /**
  * Full interactive setup flow.

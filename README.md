@@ -14,14 +14,14 @@ Named after Barney's catchphrase from [How I Met Your Mother](https://www.themov
 ## Features
 
 - Interactive TUI powered by [@clack/prompts](https://github.com/bombshell-dev/clack)
-- Setup is intentionally zsh-first; run suitup from zsh before initialization
+- Suitup is zsh-only; run all suitup commands from a zsh session
 - Modular step selection — install only what you need
 - **Append mode** — add recommended configs to an existing `.zshrc` without replacing it
 - **Migrate PATH mode** — move PATH/tool bootstrap lines out of `.zshrc` into `~/.config/zsh/core/paths.zsh`
 - **Verify mode** — check your installation integrity
 - **Clean mode** — remove suitup config files
 - `--help` output for quick command discovery
-- Backs up existing shell rc files to `~/.config/suitup/backups/` before changing shell startup config
+- Backs up existing zsh startup files to `~/.config/suitup/backups/` before changing shell startup config
 - Powerlevel10k is optional; recommended because its async git status stays responsive in large repositories
 - Idempotent — safe to run multiple times
 - No private/company-specific content — clean, generic configs
@@ -38,6 +38,24 @@ Suitup can bootstrap Zsh and Homebrew for you, but the most reliable path is to 
 - If your setup stopped halfway, run `node src/cli.js append` to add missing blocks or switch the prompt preset without replacing your whole `.zshrc`
 
 ### Install and run
+
+Suitup now assumes zsh is already installed and that you are running the command from a zsh session.
+
+### Quick install via curl
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/ChangeHow/suitup/main/install.sh | bash
+```
+
+The installer downloads a temporary copy of the repo, runs `npm ci`, and then launches `node src/cli.js` inside `zsh`.
+
+You can also pass a specific command to the installer:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/ChangeHow/suitup/main/install.sh | bash -s -- clean
+```
+
+### Clone locally
 
 ```bash
 git clone https://github.com/ChangeHow/suitup.git
@@ -76,7 +94,7 @@ Interactive step-by-step setup with selectable steps:
 10. **Vim Config** — basic vim setup
 11. **Dock Cleanup** — clean macOS Dock
 
-Before suitup updates shell startup config, it backs up existing shell rc files such as `.zshrc`, `.zprofile`, `.bashrc`, and `.bash_profile` to `~/.config/suitup/backups/`.
+Before suitup updates shell startup config, it backs up existing zsh startup files such as `.zshrc`, `.zprofile`, `.zshenv`, and `.zlogin` to `~/.config/suitup/backups/`.
 
 If you choose Powerlevel10k, suitup keeps prompt loading non-interactive during setup. When `~/.p10k.zsh` is missing, it falls back to a basic prompt until you run `p10k configure` yourself.
 
@@ -113,7 +131,7 @@ Uses idempotent marker blocks (`# >>> suitup/... >>>`) to safely append selected
 node src/cli.js verify
 ```
 
-Checks config files (including `~/.zshenv`), CLI tool availability, and shell syntax validity.
+Checks config files (including `~/.zshenv`), CLI tool availability, and zsh syntax validity.
 
 ### Migrate PATH entries
 
@@ -223,7 +241,8 @@ Implementation details and architecture notes live in `AGENTS.md`.
 - macOS (full support, tested on Sonoma+)
 - Linux (bootstrap package-manager selection supported; most install steps still target Homebrew ecosystem)
 - Node.js >= 18
-- Zsh (default shell on macOS)
+- Zsh installed locally
+- Run suitup from a zsh session (`echo $SHELL` should end with `zsh`)
 
 ## License
 

@@ -10,9 +10,6 @@ const SHELL_RC_FILES = [
   ".zprofile",
   ".zshenv",
   ".zlogin",
-  ".bashrc",
-  ".bash_profile",
-  ".profile",
 ];
 
 function createBackupStamp() {

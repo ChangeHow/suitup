@@ -3,6 +3,8 @@ const HELP_FLAGS = new Set(["help", "--help", "-h"]);
 export function getHelpText(executable = "node src/cli.js") {
   return `Usage: ${executable} [command] [options]
 
+Run suitup from a zsh session.
+
 Commands:
   setup          Full interactive environment setup (default)
   append         Append recommended configs to existing .zshrc

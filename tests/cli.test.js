@@ -24,6 +24,11 @@ describe("cli command resolution", () => {
     expect(helpText).toContain("migrate-paths");
   });
 
+  test("help text mentions the zsh session requirement", () => {
+    const helpText = getHelpText();
+    expect(helpText).toContain("Run suitup from a zsh session");
+  });
+
   test("resolves migrate-paths command", () => {
     expect(resolveCommand("migrate-paths")).toBe("migrate-paths");
   });

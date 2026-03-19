@@ -135,13 +135,13 @@ describe("zsh-config step", () => {
 
   test("backupShellRcFiles stores existing shell rc files under suitup backups", async () => {
     writeFileSync(join(sandbox.path, ".zshrc"), "export ZSH_TEST=1\n", "utf-8");
-    writeFileSync(join(sandbox.path, ".bashrc"), "export BASH_TEST=1\n", "utf-8");
+    writeFileSync(join(sandbox.path, ".zprofile"), "export ZPROFILE_TEST=1\n", "utf-8");
 
     const result = await backupShellRcFiles({ home: sandbox.path, reason: "setup" });
 
-    expect(result.files).toEqual([".zshrc", ".bashrc"]);
+    expect(result.files).toEqual([".zshrc", ".zprofile"]);
     expect(existsSync(join(result.backupDir, ".zshrc"))).toBe(true);
-    expect(existsSync(join(result.backupDir, ".bashrc"))).toBe(true);
+    expect(existsSync(join(result.backupDir, ".zprofile"))).toBe(true);
     expect(readFileSync(join(result.backupDir, "manifest.json"), "utf-8")).toContain('"reason": "setup"');
   });
 
