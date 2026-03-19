@@ -7,6 +7,7 @@ import { runSetup } from "./setup.js";
 import { runAppend } from "./append.js";
 import { runVerify } from "./verify.js";
 import { runClean } from "./clean.js";
+import { runMigratePaths } from "./migrate-paths.js";
 import { getHelpText, resolveCommand } from "./cli-config.js";
 
 const command = resolveCommand(process.argv[2]);
@@ -26,6 +27,9 @@ switch (command) {
     break;
   case "clean":
     await runClean();
+    break;
+  case "migrate-paths":
+    await runMigratePaths();
     break;
   default:
     console.log(getHelpText());

@@ -60,6 +60,9 @@ describe("Verify in sandbox", () => {
     // Create .zshrc
     copyFileSync(join(CONFIGS_DIR, "zshrc.template"), join(sandbox, ".zshrc"));
 
+    // Create .zshenv
+    copyFileSync(join(CONFIGS_DIR, "zshenv.template"), join(sandbox, ".zshenv"));
+
     const results = verifySandbox(sandbox);
     expect(results.configs.every((c) => c.ok)).toBe(true);
   });

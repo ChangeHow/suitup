@@ -29,7 +29,7 @@ export async function installFrontendTools() {
   // Install Node via fnm
   p.log.step(`Installing Node.js v${ltsVersion} via fnm...`);
   try {
-    await runStream(`fnm install ${ltsVersion} && fnm use ${ltsVersion}`);
+    await runStream(`fnm install ${ltsVersion} && fnm use ${ltsVersion} && fnm default ${ltsVersion}`);
     p.log.success(`Node.js v${ltsVersion} installed`);
   } catch {
     p.log.warn("Could not install Node.js — fnm may need a shell restart first");

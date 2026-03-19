@@ -12,6 +12,7 @@ const HOME = homedir();
 const CHECKS = {
   configs: [
     { path: ".zshrc", label: "~/.zshrc" },
+    { path: ".zshenv", label: "~/.zshenv" },
     { path: ".config/zsh/core/perf.zsh", label: "~/.config/zsh/core/perf.zsh" },
     { path: ".config/zsh/core/env.zsh", label: "~/.config/zsh/core/env.zsh" },
     { path: ".config/zsh/core/paths.zsh", label: "~/.config/zsh/core/paths.zsh" },

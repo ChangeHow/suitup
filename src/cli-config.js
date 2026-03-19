@@ -4,10 +4,11 @@ export function getHelpText(executable = "node src/cli.js") {
   return `Usage: ${executable} [command] [options]
 
 Commands:
-  setup      Full interactive environment setup (default)
-  append     Append recommended configs to existing .zshrc
-  verify     Verify installation and config integrity
-  clean      Remove suitup config files
+  setup          Full interactive environment setup (default)
+  append         Append recommended configs to existing .zshrc
+  verify         Verify installation and config integrity
+  clean          Remove suitup config files
+  migrate-paths  Move PATH entries from .zshrc into ~/.config/zsh/core/paths.zsh
 
 Options:
   -h, --help Show help`;

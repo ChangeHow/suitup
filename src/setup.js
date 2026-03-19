@@ -12,7 +12,7 @@ import { setupSsh } from "./steps/ssh.js";
 import { setupVim } from "./steps/vim.js";
 import { setupAliases } from "./steps/aliases.js";
 import { cleanDock } from "./steps/dock.js";
-import { setupZshConfig, writeZshrc } from "./steps/zsh-config.js";
+import { setupZshConfig, writeZshrc, writeZshenv } from "./steps/zsh-config.js";
 
 export function isZshShell(shell = process.env.SHELL || "") {
   return /(^|\/)zsh$/.test(shell);
@@ -202,6 +202,7 @@ export async function runSetup() {
   // --- Write .zshrc ---
   if (steps.includes("zsh-config")) {
     await writeZshrc(pluginManager);
+    await writeZshenv();
   }
 
   if (promptTheme === "p10k" && !existsSync(join(homedir(), ".p10k.zsh"))) {
