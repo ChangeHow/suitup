@@ -7,9 +7,13 @@ import { appendIfMissing, ensureDir, readFileSafe, copyFile, writeFile } from ".
 import { CONFIGS_DIR } from "./constants.js";
 import { backupShellRcFiles } from "./steps/zsh-config.js";
 import { installZinit } from "./steps/plugin-manager.js";
+import { installCliTools } from "./steps/cli-tools.js";
+import { installFrontendTools } from "./steps/frontend.js";
+import { commandExists } from "./utils/shell.js";
 
 const ZSHRC = join(homedir(), ".zshrc");
 const SUITUP_DIR = join(homedir(), ".config", "suitup");
+const TOOLS_INIT_COMMANDS = ["atuin", "fzf", "zoxide", "fnm"];
 
 function sourcePromptTemplate(preset) {
   return preset === "basic"
@@ -45,6 +49,36 @@ export function ensurePromptSource({ home } = {}) {
     '\n# >>> suitup/prompt >>>\nsource_if_exists "$HOME/.config/zsh/shared/prompt.zsh"\n# <<< suitup/prompt <<<\n',
     "suitup/prompt"
   );
+}
+
+export function getMissingToolsInitCommands(commandExistsFn = commandExists) {
+  return TOOLS_INIT_COMMANDS.filter((tool) => !commandExistsFn(tool));
+}
+
+export function needsToolsInitRepair(existing = "", commandExistsFn = commandExists) {
+  return !existing.includes("suitup/tools-init") || getMissingToolsInitCommands(commandExistsFn).length > 0;
+}
+
+export async function ensureToolsInitDependencies({
+  commandExistsFn = commandExists,
+  installCliToolsFn = installCliTools,
+  installFrontendToolsFn = installFrontendTools,
+} = {}) {
+  const missing = getMissingToolsInitCommands(commandExistsFn);
+  const missingCliTools = missing.filter((tool) => tool !== "fnm");
+  let changed = false;
+
+  if (missingCliTools.length > 0) {
+    await installCliToolsFn(missingCliTools);
+    changed = true;
+  }
+
+  if (missing.includes("fnm")) {
+    await installFrontendToolsFn();
+    changed = true;
+  }
+
+  return changed;
 }
 
 /** Appendable config blocks. */
@@ -115,7 +149,11 @@ const BLOCKS = [
     hint: "atuin, fzf, zoxide, fnm",
     group: "Shell Enhancements",
     marker: "suitup/tools-init",
-    apply() {
+    isAvailable({ existing, commandExistsFn = commandExists } = {}) {
+      return needsToolsInitRepair(existing, commandExistsFn);
+    },
+    async apply() {
+      const installed = await ensureToolsInitDependencies();
       const block = [
         "",
         "# >>> suitup/tools-init >>>",
@@ -127,7 +165,8 @@ const BLOCKS = [
         "# <<< suitup/tools-init <<<",
         "",
       ].join("\n");
-      return appendIfMissing(ZSHRC, block, "suitup/tools-init");
+      const appended = appendIfMissing(ZSHRC, block, "suitup/tools-init");
+      return installed || appended;
     },
   },
   {
@@ -250,13 +289,13 @@ export async function runAppend() {
     const block = BLOCKS.find((b) => b.value === value);
     if (block && await block.apply()) {
       appended++;
-      p.log.success(`Appended: ${block.label}`);
+      p.log.success(`Applied: ${block.label}`);
     }
   }
 
   p.outro(
     appended > 0
-      ? `Appended ${appended} config(s). Run ${pc.cyan("exec zsh")} to reload.`
-      : "No changes made (configs already present)."
+      ? `Applied ${appended} selection(s). Run ${pc.cyan("exec zsh")} to reload.`
+      : "No changes made (CLI tools and configs are already present)."
   );
 }

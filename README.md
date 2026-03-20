@@ -35,7 +35,7 @@ Suitup can bootstrap Zsh and Homebrew for you, but the most reliable path is to 
 - Recommended: install Zsh first, switch into a Zsh session, then run suitup
 - Recommended: install Homebrew first so later package/tool steps run in a known-good environment
 - Optional: if you skip either one, keep the `Bootstrap` step selected and let suitup set them up for you
-- If your setup stopped halfway, run `node src/cli.js append` to add missing blocks or switch the prompt preset without replacing your whole `.zshrc`
+- If your setup stopped halfway, run `node src/cli.js append` to add missing blocks, re-install missing tools tied to those blocks, or switch the prompt preset without replacing your whole `.zshrc`
 - When suitup detects existing suitup-managed config or already-installed frontend prerequisites, setup now deselects those completed steps by default so reruns stay focused
 
 ### Install and run
@@ -121,7 +121,7 @@ For users who already have a `.zshrc` and want to cherry-pick suitup configs:
 node src/cli.js append
 ```
 
-Uses idempotent marker blocks (`# >>> suitup/... >>>`) to safely append selected configs:
+Uses idempotent marker blocks (`# >>> suitup/... >>>`) to safely append selected configs and re-run related installers when required tools are missing:
 
 - Suitup aliases
 - Zinit plugins
