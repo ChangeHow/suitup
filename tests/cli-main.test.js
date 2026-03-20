@@ -49,7 +49,7 @@ describe("cli main", () => {
 
     await main(["node", "src/cli.js", "setup"]);
 
-    expect(requireZshShell).toHaveBeenCalledWith("suitup setup");
+    expect(requireZshShell).toHaveBeenCalledWith();
     expect(runSetup).toHaveBeenCalledTimes(1);
   });
 
@@ -59,6 +59,7 @@ describe("cli main", () => {
 
     await main(["node", "src/cli.js", "--help"]);
 
+    expect(requireZshShell).not.toHaveBeenCalled();
     expect(logSpy).toHaveBeenCalledTimes(1);
     expect(runSetup).not.toHaveBeenCalled();
     logSpy.mockRestore();

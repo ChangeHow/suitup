@@ -13,37 +13,30 @@ import { runMigratePaths } from "./migrate-paths.js";
 import { getHelpText, resolveCommand } from "./cli-config.js";
 import { requireZshShell } from "./utils/shell-context.js";
 
-function exitIfNotZsh(commandLabel) {
-  if (!requireZshShell(`suitup ${commandLabel}`)) {
-    process.exit(1);
-  }
-}
-
 export async function main(argv = process.argv) {
   const command = resolveCommand(argv[2]);
+
+  if (command !== "help" && !requireZshShell()) {
+    process.exit(1);
+  }
 
   switch (command) {
     case "help":
       console.log(getHelpText());
       break;
     case "setup":
-      exitIfNotZsh("setup");
       await runSetup();
       break;
     case "append":
-      exitIfNotZsh("append");
       await runAppend();
       break;
     case "verify":
-      exitIfNotZsh("verify");
       await runVerify();
       break;
     case "clean":
-      exitIfNotZsh("clean");
       await runClean();
       break;
     case "migrate-paths":
-      exitIfNotZsh("migrate-paths");
       await runMigratePaths();
       break;
     default:
