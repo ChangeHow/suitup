@@ -37,6 +37,31 @@ if (major < 18) {
 }
 '
 
+CLI_COMMAND="${1:-}"
+if [[ -n "${CLI_COMMAND}" ]]; then
+  shift
+  if [[ "${CLI_COMMAND}" == "init" ]]; then
+    CLI_COMMAND="setup"
+  fi
+else
+  echo "Choose install mode:"
+  echo "  1) init   - full interactive setup"
+  echo "  2) append - incremental config updates for an existing ~/.zshrc"
+  read -r -p "Select [1-2] (default 1): " INSTALL_MODE < /dev/tty
+  case "${INSTALL_MODE:-1}" in
+    1)
+      CLI_COMMAND="setup"
+      ;;
+    2)
+      CLI_COMMAND="append"
+      ;;
+    *)
+      echo "Invalid selection: ${INSTALL_MODE}. Please enter 1 for init or 2 for append." >&2
+      exit 1
+      ;;
+  esac
+fi
+
 echo "Downloading ${REPO_SLUG}@${SUITUP_REF}..."
 curl --fail --show-error --silent --location "${ARCHIVE_URL}" --output "${ARCHIVE_PATH}"
 
@@ -49,4 +74,4 @@ cd "${WORK_DIR}/repo"
 npm ci --no-fund --no-audit
 
 echo "Launching suitup inside zsh..."
-zsh -lc 'cd "$1" && shift && node src/cli.js "$@"' -- "${WORK_DIR}/repo" "$@" < /dev/tty
+zsh -lc 'cd "$1" && shift && node src/cli.js "$@"' -- "${WORK_DIR}/repo" "${CLI_COMMAND}" "$@" < /dev/tty

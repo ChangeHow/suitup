@@ -122,9 +122,11 @@ describe("Static config templates", () => {
     expect(content).toContain("shellenv zsh");
   });
 
-  test("core/paths.zsh exposes fnm default node for non-interactive shells", () => {
+  test("core/paths.zsh keeps fnm and its default node on PATH for non-interactive shells", () => {
     const content = readFileSync(join(CONFIGS_DIR, "core", "paths.zsh"), "utf-8");
     expect(content).toContain("fnm");
+    expect(content).toContain("_suitup_fnm_dir");
+    expect(content).toContain(".local/share}/fnm");
     expect(content).toContain("aliases/default/bin");
     // Should check for PATH deduplication
     expect(content).toContain(":${PATH}:");

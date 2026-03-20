@@ -25,4 +25,28 @@ describe("install.sh", () => {
     expect(content).toContain("zsh -lc");
     expect(content).toContain("< /dev/tty");
   });
+
+  test("prompts for init or append mode before launching when no command is provided", () => {
+    const content = readFileSync(INSTALL_SCRIPT, "utf-8");
+
+    expect(content).toContain("Choose install mode:");
+    expect(content).toContain("1) init");
+    expect(content).toContain("2) append");
+    expect(content).toContain('CLI_COMMAND="${1:-}"');
+    expect(content).toContain('read -r -p "Select [1-2] (default 1): " INSTALL_MODE < /dev/tty');
+  });
+
+  test("maps init to setup and forwards the selected command to the CLI", () => {
+    const content = readFileSync(INSTALL_SCRIPT, "utf-8");
+
+    expect(content).toContain('if [[ "${CLI_COMMAND}" == "init" ]]; then');
+    expect(content).toContain('CLI_COMMAND="setup"');
+    expect(content).toContain('"${CLI_COMMAND}" "$@" < /dev/tty');
+  });
+
+  test("prints a helpful error for invalid installer mode selections", () => {
+    const content = readFileSync(INSTALL_SCRIPT, "utf-8");
+
+    expect(content).toContain('Please enter 1 for init or 2 for append.');
+  });
 });

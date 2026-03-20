@@ -36,6 +36,7 @@ Suitup can bootstrap Zsh and Homebrew for you, but the most reliable path is to 
 - Recommended: install Homebrew first so later package/tool steps run in a known-good environment
 - Optional: if you skip either one, keep the `Bootstrap` step selected and let suitup set them up for you
 - If your setup stopped halfway, run `node src/cli.js append` to add missing blocks or switch the prompt preset without replacing your whole `.zshrc`
+- When suitup detects existing suitup-managed config or already-installed frontend prerequisites, setup now deselects those completed steps by default so reruns stay focused
 
 ### Install and run
 
@@ -47,12 +48,18 @@ Suitup now assumes zsh is already installed and that you are running the command
 curl -fsSL https://raw.githubusercontent.com/ChangeHow/suitup/main/install.sh | bash
 ```
 
-The installer downloads a temporary copy of the repo, runs `npm ci`, and then launches `node src/cli.js` inside `zsh`.
+The installer first asks whether you want `init` (full setup) or `append` (incremental updates to an existing `.zshrc`), then downloads a temporary copy of the repo, runs `npm ci`, and launches the matching `node src/cli.js` command inside `zsh`.
 
 You can also pass a specific command to the installer:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/ChangeHow/suitup/main/install.sh | bash -s -- clean
+```
+
+If you want append mode directly without the prompt:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/ChangeHow/suitup/main/install.sh | bash -s -- append
 ```
 
 ### Clone locally
@@ -104,7 +111,7 @@ Bootstrap details:
 - Linux: choose `apt-get`, `dnf`, `yum`, `brew`, or skip
 - If Homebrew is already installed in a non-default location, suitup now tries common shellenv paths automatically during Zsh startup
 - Suitup now also writes a minimal `~/.zshenv` so non-interactive shells can still load shared env vars and PATH setup
-- When fnm installs Node.js, suitup sets the installed version as the fnm default so `node`, `npm`, and globally installed CLIs resolve from the fnm-managed location in both interactive and non-interactive shells
+- When fnm installs Node.js, suitup keeps both the `fnm` binary and the installed default Node version on PATH so `fnm`, `node`, `npm`, and globally installed CLIs resolve correctly in both interactive and non-interactive shells
 
 ### Append
 
