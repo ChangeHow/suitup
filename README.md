@@ -104,7 +104,7 @@ Bootstrap details:
 - Linux: choose `apt-get`, `dnf`, `yum`, `brew`, or skip
 - If Homebrew is already installed in a non-default location, suitup now tries common shellenv paths automatically during Zsh startup
 - Suitup now also writes a minimal `~/.zshenv` so non-interactive shells can still load shared env vars and PATH setup
-- When fnm installs Node.js, suitup sets the installed version as the fnm default so `node`, `npm`, and globally installed CLIs resolve from the fnm-managed location in both interactive and non-interactive shells
+- When fnm installs Node.js, suitup keeps both the `fnm` binary and the installed default Node version on PATH so `fnm`, `node`, `npm`, and globally installed CLIs resolve correctly in both interactive and non-interactive shells
 
 ### Append
 

@@ -104,7 +104,7 @@ Bootstrap 细节：
 - Linux：可选 `apt-get`、`dnf`、`yum`、`brew`，或直接跳过
 - 如果 Homebrew 已经安装在非默认位置，suitup 现在会在 Zsh 启动时自动尝试常见 `shellenv` 路径
 - suitup 现在也会生成一个精简的 `~/.zshenv`，保证非交互式 shell 也能加载共享环境变量和 PATH
-- 当 fnm 安装 Node.js 后，suitup 会把该版本设置为 fnm 默认版本，确保交互式/非交互式 shell 下的 `node`、`npm` 和全局 CLI 都优先指向 fnm 管理的路径
+- 当 fnm 安装 Node.js 后，suitup 会把 `fnm` 自身和该默认 Node 版本一起放进 PATH，确保交互式/非交互式 shell 下的 `fnm`、`node`、`npm` 和全局 CLI 都优先指向 fnm 管理的路径
 
 ### Append（追加）
 
