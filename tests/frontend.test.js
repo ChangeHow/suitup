@@ -48,6 +48,15 @@ describe("frontend step", () => {
     expect(calls.some((c) => c.includes("fnm.vercel.app"))).toBe(true);
   });
 
+  test("sets fnm default after installing node", async () => {
+    commandExists.mockReturnValue(true);
+
+    await installFrontendTools();
+
+    const calls = runStream.mock.calls.map((c) => c[0]);
+    expect(calls.some((c) => c.includes("fnm default"))).toBe(true);
+  });
+
   test("installs pnpm when not present", async () => {
     commandExists.mockImplementation((name) => {
       if (name === "pnpm") return false;
