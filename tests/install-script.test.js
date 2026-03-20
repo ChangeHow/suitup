@@ -43,4 +43,10 @@ describe("install.sh", () => {
     expect(content).toContain('CLI_COMMAND="setup"');
     expect(content).toContain('"${CLI_COMMAND}" "$@" < /dev/tty');
   });
+
+  test("prints a helpful error for invalid installer mode selections", () => {
+    const content = readFileSync(INSTALL_SCRIPT, "utf-8");
+
+    expect(content).toContain('Please enter 1 for init or 2 for append.');
+  });
 });

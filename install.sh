@@ -56,7 +56,7 @@ else
       CLI_COMMAND="append"
       ;;
     *)
-      echo "Invalid selection: ${INSTALL_MODE}" >&2
+      echo "Invalid selection: ${INSTALL_MODE}. Please enter 1 for init or 2 for append." >&2
       exit 1
       ;;
   esac

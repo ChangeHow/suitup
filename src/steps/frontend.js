@@ -51,7 +51,7 @@ export async function installFrontendTools() {
   }
 
   // Install Node via fnm
-  if (fnmReady || commandExists("fnm")) {
+  if (fnmReady) {
     p.log.step(`Installing Node.js v${ltsVersion} via fnm...`);
     try {
       await runStreamChecked(`fnm install ${ltsVersion} && fnm use ${ltsVersion} && fnm default ${ltsVersion}`);

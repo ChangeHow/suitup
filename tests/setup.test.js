@@ -197,6 +197,32 @@ describe("Setup simulation in sandbox", () => {
     }
   });
 
+  test("does not treat non-suitup shell files as completed zsh config", () => {
+    mkdirSync(join(sandbox, ".config", "zsh", "core"), { recursive: true });
+    mkdirSync(join(sandbox, ".config", "zsh", "shared"), { recursive: true });
+    mkdirSync(join(sandbox, ".config", "zsh", "local"), { recursive: true });
+
+    writeFileSync(join(sandbox, ".zshrc"), "# user managed\n", "utf-8");
+    writeFileSync(join(sandbox, ".zshenv"), "# user managed\n", "utf-8");
+    writeFileSync(join(sandbox, ".config", "zsh", "core", "perf.zsh"), "", "utf-8");
+    writeFileSync(join(sandbox, ".config", "zsh", "core", "env.zsh"), "", "utf-8");
+    writeFileSync(join(sandbox, ".config", "zsh", "core", "paths.zsh"), "", "utf-8");
+    writeFileSync(join(sandbox, ".config", "zsh", "core", "options.zsh"), "", "utf-8");
+    writeFileSync(join(sandbox, ".config", "zsh", "shared", "tools.zsh"), "", "utf-8");
+    writeFileSync(join(sandbox, ".config", "zsh", "shared", "prompt.zsh"), "", "utf-8");
+    writeFileSync(join(sandbox, ".config", "zsh", "local", "machine.zsh"), "", "utf-8");
+
+    const detected = detectCompletedSteps({
+      home: sandbox,
+      platform: "darwin",
+      commandExistsFn(name) {
+        return ["zsh", "brew"].includes(name);
+      },
+    });
+
+    expect(detected).not.toContain("zsh-config");
+  });
+
   test("aliases file uses $HOME or ~ instead of hardcoded paths", () => {
     const content = readFileSync(join(CONFIGS_DIR, "aliases"), "utf-8");
 
