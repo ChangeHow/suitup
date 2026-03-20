@@ -49,4 +49,4 @@ cd "${WORK_DIR}/repo"
 npm ci --no-fund --no-audit
 
 echo "Launching suitup inside zsh..."
-zsh -lc 'cd "$1" && shift && node src/cli.js "$@"' -- "${WORK_DIR}/repo" "$@"
+zsh -lc 'cd "$1" && shift && node src/cli.js "$@"' -- "${WORK_DIR}/repo" "$@" < /dev/tty
