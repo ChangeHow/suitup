@@ -164,7 +164,15 @@ describe("Append mode utilities", () => {
   });
 
   test("tools-init repair is needed when config exists but fnm is missing", () => {
-    const existing = '# >>> suitup/tools-init >>>\nready\n# <<< suitup/tools-init <<<\n';
+    const existing = [
+      "# >>> suitup/tools-init >>>",
+      'command -v atuin  &>/dev/null && eval "$(atuin init zsh)"',
+      'command -v fzf    &>/dev/null && eval "$(fzf --zsh)"',
+      'command -v zoxide &>/dev/null && eval "$(zoxide init zsh)"',
+      'command -v fnm    &>/dev/null && eval "$(fnm env --use-on-cd --version-file-strategy=recursive --shell zsh)"',
+      "# <<< suitup/tools-init <<<",
+      "",
+    ].join("\n");
 
     const needsRepair = needsToolsInitRepair(existing, (name) => name !== "fnm");
 
