@@ -13,6 +13,8 @@ import { setupVim } from "./steps/vim.js";
 import { setupAliases } from "./steps/aliases.js";
 import { cleanDock } from "./steps/dock.js";
 import { setupZshConfig, writeZshrc, writeZshenv } from "./steps/zsh-config.js";
+import { readFileSafe } from "./utils/fs.js";
+import { commandExists } from "./utils/shell.js";
 import { isZshShell } from "./utils/shell-context.js";
 export { isZshShell } from "./utils/shell-context.js";
 
@@ -31,6 +33,85 @@ export function getDefaultSteps(platform = process.platform) {
   ];
 }
 
+function hasCompletedBootstrap(platform, commandExistsFn) {
+  if (!commandExistsFn("zsh")) {
+    return false;
+  }
+
+  if (platform === "darwin") {
+    return commandExistsFn("brew");
+  }
+
+  if (platform === "linux") {
+    return ["apt-get", "dnf", "yum", "brew"].some((manager) => commandExistsFn(manager));
+  }
+
+  return false;
+}
+
+export function detectCompletedSteps({
+  home = homedir(),
+  platform = process.platform,
+  commandExistsFn = commandExists,
+} = {}) {
+  const completed = new Set();
+  const zshConfigDir = join(home, ".config", "zsh");
+  const suitupDir = join(home, ".config", "suitup");
+  const xdgDataHome = process.env.XDG_DATA_HOME || join(home, ".local", "share");
+  const zinitHome = join(xdgDataHome, "zinit", "zinit.git");
+  const vimrc = readFileSafe(join(home, ".vimrc"));
+
+  if (hasCompletedBootstrap(platform, commandExistsFn)) {
+    completed.add("bootstrap");
+  }
+
+  if (
+    existsSync(join(home, ".zshrc")) &&
+    existsSync(join(home, ".zshenv")) &&
+    existsSync(join(zshConfigDir, "core", "perf.zsh")) &&
+    existsSync(join(zshConfigDir, "core", "env.zsh")) &&
+    existsSync(join(zshConfigDir, "core", "paths.zsh")) &&
+    existsSync(join(zshConfigDir, "core", "options.zsh")) &&
+    existsSync(join(zshConfigDir, "shared", "tools.zsh")) &&
+    existsSync(join(zshConfigDir, "shared", "prompt.zsh")) &&
+    existsSync(join(zshConfigDir, "local", "machine.zsh"))
+  ) {
+    completed.add("zsh-config");
+  }
+
+  if (existsSync(join(suitupDir, "zinit-plugins")) || existsSync(zinitHome)) {
+    completed.add("plugins");
+  }
+
+  if (existsSync(join(suitupDir, "aliases"))) {
+    completed.add("aliases");
+  }
+
+  if (
+    commandExistsFn("fnm") &&
+    commandExistsFn("node") &&
+    commandExistsFn("pnpm") &&
+    commandExistsFn("git-cz")
+  ) {
+    completed.add("frontend");
+  }
+
+  if (existsSync(join(home, ".ssh", "github_rsa"))) {
+    completed.add("ssh");
+  }
+
+  if (existsSync(join(suitupDir, "config.vim")) && vimrc.includes("config.vim")) {
+    completed.add("vim");
+  }
+
+  return [...completed];
+}
+
+export function getInitialStepValues(opts = {}) {
+  const completed = new Set(detectCompletedSteps(opts));
+  return getDefaultSteps(opts.platform).filter((step) => !completed.has(step));
+}
+
 export async function runSetup() {
   p.intro(pc.bgCyan(pc.black(" Suit up! ")));
 
@@ -42,6 +123,12 @@ export async function runSetup() {
   }
 
   // --- Step 1: Select setup steps ---
+  const completedSteps = detectCompletedSteps();
+  const initialValues = getInitialStepValues();
+  if (completedSteps.length > 0) {
+    p.log.info(`Deselected already configured steps: ${completedSteps.join(", ")}`);
+  }
+
   const steps = await p.multiselect({
     message: "Select setup steps:",
     required: true,
@@ -57,7 +144,7 @@ export async function runSetup() {
       { value: "vim", label: "Vim Config", hint: "basic vim setup" },
       { value: "dock", label: "Dock Cleanup", hint: "clean macOS Dock" },
     ],
-    initialValues: getDefaultSteps(),
+    initialValues,
   });
 
   if (p.isCancel(steps)) {

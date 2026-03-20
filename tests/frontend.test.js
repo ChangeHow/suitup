@@ -14,7 +14,8 @@ vi.mock("../src/utils/shell.js", () => ({
 }));
 
 import { installFrontendTools } from "../src/steps/frontend.js";
-import { commandExists, run, runStream } from "../src/utils/shell.js";
+import { brewInstall, commandExists, run, runStream } from "../src/utils/shell.js";
+import * as p from "@clack/prompts";
 
 describe("frontend step", () => {
   beforeEach(() => {
@@ -46,6 +47,38 @@ describe("frontend step", () => {
 
     const calls = runStream.mock.calls.map((c) => c[0]);
     expect(calls.some((c) => c.includes("fnm.vercel.app"))).toBe(true);
+  });
+
+  test("falls back to Homebrew when fnm curl install fails", async () => {
+    commandExists.mockImplementation((name) => {
+      if (name === "fnm") return false;
+      if (name === "brew") return true;
+      return true;
+    });
+    runStream.mockImplementationOnce(() => Promise.resolve(22));
+    brewInstall.mockReturnValue(true);
+
+    await installFrontendTools();
+
+    expect(brewInstall).toHaveBeenCalledWith("fnm");
+    expect(p.log.success).not.toHaveBeenCalledWith("fnm installed");
+    expect(p.log.warn).toHaveBeenCalledWith("Could not install fnm via curl, trying Homebrew...");
+    expect(p.log.success).toHaveBeenCalledWith("fnm installed via Homebrew");
+  });
+
+  test("warns when fnm curl install fails and Homebrew is unavailable", async () => {
+    commandExists.mockImplementation((name) => {
+      if (name === "fnm" || name === "brew") return false;
+      return true;
+    });
+    runStream.mockImplementationOnce(() => Promise.resolve(22));
+
+    await installFrontendTools();
+
+    expect(brewInstall).not.toHaveBeenCalled();
+    expect(p.log.success).not.toHaveBeenCalledWith("fnm installed");
+    expect(p.log.warn).toHaveBeenCalledWith("Could not install fnm via curl, and Homebrew is not available");
+    expect(p.log.warn).toHaveBeenCalledWith("Skipping Node.js install because fnm is unavailable");
   });
 
   test("sets fnm default after installing node", async () => {

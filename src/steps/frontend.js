@@ -1,17 +1,41 @@
 import * as p from "@clack/prompts";
-import { commandExists, run, runStream } from "../utils/shell.js";
+import { brewInstall, commandExists, run, runStream } from "../utils/shell.js";
+
+async function runStreamChecked(cmd) {
+  const exitCode = await runStream(cmd);
+  if (exitCode !== 0) {
+    throw new Error(`Command exited with status ${exitCode}`);
+  }
+}
 
 /**
  * Install fnm (Fast Node Manager) and set up Node.js + pnpm.
  */
 export async function installFrontendTools() {
+  let fnmReady = commandExists("fnm");
+
   // fnm
-  if (commandExists("fnm")) {
+  if (fnmReady) {
     p.log.success("fnm is already installed");
   } else {
     p.log.step("Installing fnm...");
-    await runStream("curl -fsSL https://fnm.vercel.app/install | bash");
-    p.log.success("fnm installed");
+    try {
+      await runStreamChecked("curl -fsSL https://fnm.vercel.app/install | bash");
+      p.log.success("fnm installed");
+      fnmReady = true;
+    } catch {
+      if (commandExists("brew")) {
+        p.log.warn("Could not install fnm via curl, trying Homebrew...");
+        if (brewInstall("fnm")) {
+          p.log.success("fnm installed via Homebrew");
+          fnmReady = true;
+        } else {
+          p.log.warn("Could not install fnm via curl or Homebrew");
+        }
+      } else {
+        p.log.warn("Could not install fnm via curl, and Homebrew is not available");
+      }
+    }
   }
 
   // Fetch latest LTS version
@@ -27,12 +51,16 @@ export async function installFrontendTools() {
   }
 
   // Install Node via fnm
-  p.log.step(`Installing Node.js v${ltsVersion} via fnm...`);
-  try {
-    await runStream(`fnm install ${ltsVersion} && fnm use ${ltsVersion} && fnm default ${ltsVersion}`);
-    p.log.success(`Node.js v${ltsVersion} installed`);
-  } catch {
-    p.log.warn("Could not install Node.js — fnm may need a shell restart first");
+  if (fnmReady || commandExists("fnm")) {
+    p.log.step(`Installing Node.js v${ltsVersion} via fnm...`);
+    try {
+      await runStreamChecked(`fnm install ${ltsVersion} && fnm use ${ltsVersion} && fnm default ${ltsVersion}`);
+      p.log.success(`Node.js v${ltsVersion} installed`);
+    } catch {
+      p.log.warn("Could not install Node.js — fnm may need a shell restart first");
+    }
+  } else {
+    p.log.warn("Skipping Node.js install because fnm is unavailable");
   }
 
   // pnpm
