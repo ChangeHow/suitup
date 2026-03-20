@@ -9,7 +9,7 @@ import {
 } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { isZshShell } from "../src/setup.js";
+import { getDefaultSteps, isZshShell } from "../src/setup.js";
 
 const CONFIGS_DIR = join(import.meta.dirname, "..", "configs");
 
@@ -116,6 +116,11 @@ describe("Setup simulation in sandbox", () => {
     expect(isZshShell("/bin/zsh")).toBe(true);
     expect(isZshShell("/opt/homebrew/bin/zsh")).toBe(true);
     expect(isZshShell("/bin/bash")).toBe(false);
+  });
+
+  test("does not preselect GUI Apps on Linux", () => {
+    expect(getDefaultSteps("linux")).not.toContain("apps");
+    expect(getDefaultSteps("darwin")).toContain("apps");
   });
 
   test("aliases file uses $HOME or ~ instead of hardcoded paths", () => {

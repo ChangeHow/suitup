@@ -19,6 +19,18 @@ export { isZshShell } from "./utils/shell-context.js";
 /**
  * Full interactive setup flow.
  */
+export function getDefaultSteps(platform = process.platform) {
+  return [
+    "bootstrap",
+    "zsh-config",
+    "plugins",
+    "cli-tools",
+    ...(platform === "linux" ? [] : ["apps"]),
+    "frontend",
+    "aliases",
+  ];
+}
+
 export async function runSetup() {
   p.intro(pc.bgCyan(pc.black(" Suit up! ")));
 
@@ -45,15 +57,7 @@ export async function runSetup() {
       { value: "vim", label: "Vim Config", hint: "basic vim setup" },
       { value: "dock", label: "Dock Cleanup", hint: "clean macOS Dock" },
     ],
-    initialValues: [
-      "bootstrap",
-      "zsh-config",
-      "plugins",
-      "cli-tools",
-      "apps",
-      "frontend",
-      "aliases",
-    ],
+    initialValues: getDefaultSteps(),
   });
 
   if (p.isCancel(steps)) {
