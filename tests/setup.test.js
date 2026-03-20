@@ -125,7 +125,7 @@ describe("Setup simulation in sandbox", () => {
     expect(getDefaultSteps("darwin")).toContain("apps");
   });
 
-  test("detects completed suitup-managed setup steps from sandbox files", () => {
+  test("detects completed suitup-managed setup steps", () => {
     mkdirSync(join(sandbox, ".config", "zsh", "core"), { recursive: true });
     mkdirSync(join(sandbox, ".config", "zsh", "shared"), { recursive: true });
     mkdirSync(join(sandbox, ".config", "zsh", "local"), { recursive: true });

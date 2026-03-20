@@ -17,6 +17,8 @@ import { installFrontendTools } from "../src/steps/frontend.js";
 import { brewInstall, commandExists, run, runStream } from "../src/utils/shell.js";
 import * as p from "@clack/prompts";
 
+const CURL_HTTP_ERROR_CODE = 22;
+
 describe("frontend step", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -55,7 +57,7 @@ describe("frontend step", () => {
       if (name === "brew") return true;
       return true;
     });
-    runStream.mockImplementationOnce(() => Promise.resolve(22));
+    runStream.mockImplementationOnce(() => Promise.resolve(CURL_HTTP_ERROR_CODE));
     brewInstall.mockReturnValue(true);
 
     await installFrontendTools();
@@ -71,7 +73,7 @@ describe("frontend step", () => {
       if (name === "fnm" || name === "brew") return false;
       return true;
     });
-    runStream.mockImplementationOnce(() => Promise.resolve(22));
+    runStream.mockImplementationOnce(() => Promise.resolve(CURL_HTTP_ERROR_CODE));
 
     await installFrontendTools();
 

@@ -4,7 +4,7 @@ import { brewInstall, commandExists, run, runStream } from "../utils/shell.js";
 async function runStreamChecked(cmd) {
   const exitCode = await runStream(cmd);
   if (exitCode !== 0) {
-    throw new Error(`Command exited with status ${exitCode}`);
+    throw new Error(`Command failed with exit code ${exitCode}: ${cmd}`);
   }
 }
 
