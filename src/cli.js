@@ -52,8 +52,9 @@ export async function main(argv = process.argv) {
   }
 }
 
-const isDirectRun = process.argv[1] &&
-  resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+const isDirectRun = process.argv[1]
+  ? resolve(process.argv[1]) === fileURLToPath(import.meta.url)
+  : false;
 
 if (isDirectRun) {
   main().catch((error) => {

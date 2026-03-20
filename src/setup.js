@@ -20,20 +20,15 @@ export { isZshShell } from "./utils/shell-context.js";
  * Full interactive setup flow.
  */
 export function getDefaultSteps(platform = process.platform) {
-  const defaults = [
+  return [
     "bootstrap",
     "zsh-config",
     "plugins",
     "cli-tools",
+    ...(platform === "linux" ? [] : ["apps"]),
     "frontend",
     "aliases",
   ];
-
-  if (platform !== "linux") {
-    defaults.splice(4, 0, "apps");
-  }
-
-  return defaults;
 }
 
 export async function runSetup() {

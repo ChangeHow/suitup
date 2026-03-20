@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 const runSetup = vi.fn();
 const runAppend = vi.fn();
@@ -38,6 +38,10 @@ vi.mock("../src/utils/shell-context.js", () => ({
 describe("cli main", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   test("awaits async setup commands through main()", async () => {
