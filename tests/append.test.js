@@ -5,12 +5,45 @@ import { tmpdir } from "node:os";
 import { appendIfMissing, ensureDir } from "../src/utils/fs.js";
 import { CONFIGS_DIR } from "../src/constants.js";
 
+vi.mock("@clack/prompts", () => ({
+  log: { success: vi.fn(), step: vi.fn(), info: vi.fn(), warn: vi.fn(), error: vi.fn() },
+  intro: vi.fn(),
+  outro: vi.fn(),
+  cancel: vi.fn(),
+  isCancel: vi.fn(() => false),
+  groupMultiselect: vi.fn(),
+}));
+
 vi.mock("../src/steps/plugin-manager.js", () => ({
   installZinit: vi.fn(() => Promise.resolve()),
 }));
 
-import { ensurePromptSource, writePromptPreset } from "../src/append.js";
+vi.mock("../src/steps/cli-tools.js", () => ({
+  installCliTools: vi.fn(() => Promise.resolve()),
+}));
+
+vi.mock("../src/steps/frontend.js", () => ({
+  installFrontendTools: vi.fn(() => Promise.resolve()),
+}));
+
+vi.mock("../src/utils/shell.js", () => ({
+  commandExists: vi.fn(),
+  brewInstalled: vi.fn(),
+  brewInstall: vi.fn(() => true),
+  run: vi.fn(() => ""),
+  runStream: vi.fn(() => Promise.resolve(0)),
+}));
+
+import {
+  ensurePromptSource,
+  ensureToolsInitDependencies,
+  getMissingToolsInitCommands,
+  needsToolsInitRepair,
+  writePromptPreset,
+} from "../src/append.js";
 import { installZinit } from "../src/steps/plugin-manager.js";
+import { installCliTools } from "../src/steps/cli-tools.js";
+import { installFrontendTools } from "../src/steps/frontend.js";
 
 describe("Append mode utilities", () => {
   let sandbox;
@@ -128,6 +161,35 @@ describe("Append mode utilities", () => {
 
     expect(changed).toBe(true);
     expect(readFileSync(zshrcPath, "utf-8")).toContain('source_if_exists "$HOME/.config/zsh/shared/prompt.zsh"');
+  });
+
+  test("tools-init repair is needed when config exists but fnm is missing", () => {
+    const existing = '# >>> suitup/tools-init >>>\nready\n# <<< suitup/tools-init <<<\n';
+
+    const needsRepair = needsToolsInitRepair(existing, (name) => name !== "fnm");
+
+    expect(needsRepair).toBe(true);
+    expect(getMissingToolsInitCommands((name) => name !== "fnm")).toEqual(["fnm"]);
+  });
+
+  test("ensureToolsInitDependencies installs missing shell tools and frontend tools together", async () => {
+    const commandExistsFn = vi.fn((name) => !["atuin", "fzf", "fnm"].includes(name));
+
+    const changed = await ensureToolsInitDependencies({ commandExistsFn });
+
+    expect(changed).toBe(true);
+    expect(installCliTools).toHaveBeenCalledWith(["atuin", "fzf"]);
+    expect(installFrontendTools).toHaveBeenCalledTimes(1);
+  });
+
+  test("ensureToolsInitDependencies skips installers when everything is already present", async () => {
+    const commandExistsFn = vi.fn(() => true);
+
+    const changed = await ensureToolsInitDependencies({ commandExistsFn });
+
+    expect(changed).toBe(false);
+    expect(installCliTools).not.toHaveBeenCalled();
+    expect(installFrontendTools).not.toHaveBeenCalled();
   });
 });
 
