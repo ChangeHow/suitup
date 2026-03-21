@@ -3,7 +3,7 @@ import pc from "picocolors";
 import { existsSync, readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
-import { appendIfMissing, ensureDir, readFileSafe, copyFile, writeFile } from "./utils/fs.js";
+import { appendIfMissing, ensureDir, readFileSafe, copyFile, copyIfNotExists, writeFile } from "./utils/fs.js";
 import { CONFIGS_DIR } from "./constants.js";
 import { backupShellRcFiles } from "./steps/zsh-config.js";
 import { installZinit } from "./steps/plugin-manager.js";
@@ -154,13 +154,14 @@ const BLOCKS = [
     },
     async apply() {
       const installed = await ensureToolsInitDependencies();
+      const zshSharedDir = join(homedir(), ".config", "zsh", "shared");
+      ensureDir(zshSharedDir);
+      copyIfNotExists(join(CONFIGS_DIR, "shared", "tools.zsh"), join(zshSharedDir, "tools.zsh"));
+      copyIfNotExists(join(CONFIGS_DIR, "shared", "fzf.zsh"), join(zshSharedDir, "fzf.zsh"));
       const block = [
         "",
         "# >>> suitup/tools-init >>>",
-        'command -v atuin  &>/dev/null && eval "$(atuin init zsh)"',
-        'command -v fzf    &>/dev/null && eval "$(fzf --zsh)"',
-        'command -v zoxide &>/dev/null && eval "$(zoxide init zsh)"',
-        'command -v fnm    &>/dev/null && eval "$(fnm env --use-on-cd --version-file-strategy=recursive --shell zsh)"',
+        'source_if_exists "$HOME/.config/zsh/shared/tools.zsh"',
         '[[ -s "$HOME/.bun/_bun" ]] && source "$HOME/.bun/_bun"',
         "# <<< suitup/tools-init <<<",
         "",

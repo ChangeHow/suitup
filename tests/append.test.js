@@ -166,10 +166,8 @@ describe("Append mode utilities", () => {
   test("tools-init repair is needed when config exists but fnm is missing", () => {
     const existing = [
       "# >>> suitup/tools-init >>>",
-      'command -v atuin  &>/dev/null && eval "$(atuin init zsh)"',
-      'command -v fzf    &>/dev/null && eval "$(fzf --zsh)"',
-      'command -v zoxide &>/dev/null && eval "$(zoxide init zsh)"',
-      'command -v fnm    &>/dev/null && eval "$(fnm env --use-on-cd --version-file-strategy=recursive --shell zsh)"',
+      'source_if_exists "$HOME/.config/zsh/shared/tools.zsh"',
+      '[[ -s "$HOME/.bun/_bun" ]] && source "$HOME/.bun/_bun"',
       "# <<< suitup/tools-init <<<",
       "",
     ].join("\n");
@@ -198,6 +196,28 @@ describe("Append mode utilities", () => {
     expect(changed).toBe(false);
     expect(installCliTools).not.toHaveBeenCalled();
     expect(installFrontendTools).not.toHaveBeenCalled();
+  });
+  test("tools-init block sources tools.zsh instead of inline eval commands", () => {
+    writeFileSync(zshrcPath, '# existing config\nsource_if_exists() { [[ -f "$1" ]] && source "$1"; }\n', "utf-8");
+
+    const block = [
+      "",
+      "# >>> suitup/tools-init >>>",
+      'source_if_exists "$HOME/.config/zsh/shared/tools.zsh"',
+      '[[ -s "$HOME/.bun/_bun" ]] && source "$HOME/.bun/_bun"',
+      "# <<< suitup/tools-init <<<",
+      "",
+    ].join("\n");
+
+    const result = appendIfMissing(zshrcPath, block, "suitup/tools-init");
+
+    expect(result).toBe(true);
+    const content = readFileSync(zshrcPath, "utf-8");
+    // Should source the managed tools.zsh file
+    expect(content).toContain('source_if_exists "$HOME/.config/zsh/shared/tools.zsh"');
+    // Should NOT contain inline eval commands
+    expect(content).not.toContain('eval "$(atuin init zsh)"');
+    expect(content).not.toContain('eval "$(fzf --zsh)"');
   });
 });
 
