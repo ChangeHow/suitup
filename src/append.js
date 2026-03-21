@@ -177,8 +177,10 @@ const BLOCKS = [
     group: "Shell Enhancements",
     marker: "suitup/zsh-options",
     apply() {
-      const content = readFileSync(join(CONFIGS_DIR, "core", "options.zsh"), "utf-8");
-      const block = `\n# >>> suitup/zsh-options >>>\n${content}\n# <<< suitup/zsh-options <<<\n`;
+      const dest = join(homedir(), ".config", "zsh", "core", "options.zsh");
+      ensureDir(join(homedir(), ".config", "zsh", "core"));
+      copyIfNotExists(join(CONFIGS_DIR, "core", "options.zsh"), dest);
+      const block = '\n# >>> suitup/zsh-options >>>\nsource_if_exists "$HOME/.config/zsh/core/options.zsh"\n# <<< suitup/zsh-options <<<\n';
       return appendIfMissing(ZSHRC, block, "suitup/zsh-options");
     },
   },
@@ -189,8 +191,10 @@ const BLOCKS = [
     group: "Shell Enhancements",
     marker: "suitup/env",
     apply() {
-      const content = readFileSync(join(CONFIGS_DIR, "core", "env.zsh"), "utf-8");
-      const block = `\n# >>> suitup/env >>>\n${content}\n# <<< suitup/env <<<\n`;
+      const dest = join(homedir(), ".config", "zsh", "core", "env.zsh");
+      ensureDir(join(homedir(), ".config", "zsh", "core"));
+      copyIfNotExists(join(CONFIGS_DIR, "core", "env.zsh"), dest);
+      const block = '\n# >>> suitup/env >>>\nsource_if_exists "$HOME/.config/zsh/core/env.zsh"\n# <<< suitup/env <<<\n';
       return appendIfMissing(ZSHRC, block, "suitup/env");
     },
   },
@@ -201,8 +205,10 @@ const BLOCKS = [
     group: "Advanced",
     marker: "suitup/perf",
     apply() {
-      const content = readFileSync(join(CONFIGS_DIR, "core", "perf.zsh"), "utf-8");
-      const block = `\n# >>> suitup/perf >>>\n${content}\n# <<< suitup/perf <<<\n`;
+      const dest = join(homedir(), ".config", "zsh", "core", "perf.zsh");
+      ensureDir(join(homedir(), ".config", "zsh", "core"));
+      copyIfNotExists(join(CONFIGS_DIR, "core", "perf.zsh"), dest);
+      const block = '\n# >>> suitup/perf >>>\nsource_if_exists "$HOME/.config/zsh/core/perf.zsh"\n# <<< suitup/perf <<<\n';
       return appendIfMissing(ZSHRC, block, "suitup/perf");
     },
   },
@@ -213,8 +219,10 @@ const BLOCKS = [
     group: "Advanced",
     marker: "suitup/fzf-config",
     apply() {
-      const fzfContent = readFileSync(join(CONFIGS_DIR, "shared", "fzf.zsh"), "utf-8");
-      const block = `\n# >>> suitup/fzf-config >>>\n${fzfContent.trim()}\n# <<< suitup/fzf-config <<<\n`;
+      const dest = join(homedir(), ".config", "zsh", "shared", "fzf.zsh");
+      ensureDir(join(homedir(), ".config", "zsh", "shared"));
+      copyIfNotExists(join(CONFIGS_DIR, "shared", "fzf.zsh"), dest);
+      const block = '\n# >>> suitup/fzf-config >>>\nsource_if_exists "$HOME/.config/zsh/shared/fzf.zsh"\n# <<< suitup/fzf-config <<<\n';
       return appendIfMissing(ZSHRC, block, "suitup/fzf-config");
     },
   },

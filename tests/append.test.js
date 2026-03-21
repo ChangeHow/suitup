@@ -259,27 +259,26 @@ describe("fzf-config block", () => {
     expect(toolsContent).not.toContain("FZF_CTRL_T_OPTS=");
   });
 
-  test("fzf-config block appends fzf.zsh content directly (no brittle string splitting)", () => {
-    writeFileSync(zshrcPath, "# base\n", "utf-8");
+  test("fzf-config block sources fzf.zsh instead of inlining content", () => {
+    writeFileSync(zshrcPath, '# base\nsource_if_exists() { [[ -f "$1" ]] && source "$1"; }\n', "utf-8");
 
-    const fzfContent = readFileSync(join(CONFIGS_DIR, "shared", "fzf.zsh"), "utf-8").trim();
-    const block = `\n# >>> suitup/fzf-config >>>\n${fzfContent}\n# <<< suitup/fzf-config <<<\n`;
+    const block = '\n# >>> suitup/fzf-config >>>\nsource_if_exists "$HOME/.config/zsh/shared/fzf.zsh"\n# <<< suitup/fzf-config <<<\n';
 
     const result = appendIfMissing(zshrcPath, block, "suitup/fzf-config");
 
     expect(result).toBe(true);
     const written = readFileSync(zshrcPath, "utf-8");
-    expect(written).toContain("FZF_DEFAULT_COMMAND");
-    expect(written).toContain("FZF_CTRL_T_OPTS");
+    expect(written).toContain('source_if_exists "$HOME/.config/zsh/shared/fzf.zsh"');
     expect(written).toContain("# >>> suitup/fzf-config >>>");
     expect(written).toContain("# <<< suitup/fzf-config <<<");
+    // Should NOT inline FZF env vars directly
+    expect(written).not.toContain("FZF_DEFAULT_COMMAND");
   });
 
   test("fzf-config block is idempotent — double append does not duplicate", () => {
     writeFileSync(zshrcPath, "# base\n", "utf-8");
 
-    const fzfContent = readFileSync(join(CONFIGS_DIR, "shared", "fzf.zsh"), "utf-8").trim();
-    const block = `\n# >>> suitup/fzf-config >>>\n${fzfContent}\n# <<< suitup/fzf-config <<<\n`;
+    const block = '\n# >>> suitup/fzf-config >>>\nsource_if_exists "$HOME/.config/zsh/shared/fzf.zsh"\n# <<< suitup/fzf-config <<<\n';
 
     appendIfMissing(zshrcPath, block, "suitup/fzf-config");
     appendIfMissing(zshrcPath, block, "suitup/fzf-config");
@@ -288,5 +287,61 @@ describe("fzf-config block", () => {
     const matches = written.match(/suitup\/fzf-config/g);
     // Should appear exactly twice (open + close marker), not four
     expect(matches.length).toBe(2);
+  });
+});
+
+describe("append blocks source managed files instead of inlining", () => {
+  let sandbox;
+  let zshrcPath;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    sandbox = mkdtempSync(join(tmpdir(), "suitup-test-"));
+    zshrcPath = join(sandbox, ".zshrc");
+  });
+
+  afterEach(() => {
+    rmSync(sandbox, { recursive: true, force: true });
+  });
+
+  test("zsh-options block sources core/options.zsh instead of inlining", () => {
+    writeFileSync(zshrcPath, "# base\n", "utf-8");
+
+    const block = '\n# >>> suitup/zsh-options >>>\nsource_if_exists "$HOME/.config/zsh/core/options.zsh"\n# <<< suitup/zsh-options <<<\n';
+    const result = appendIfMissing(zshrcPath, block, "suitup/zsh-options");
+
+    expect(result).toBe(true);
+    const content = readFileSync(zshrcPath, "utf-8");
+    expect(content).toContain('source_if_exists "$HOME/.config/zsh/core/options.zsh"');
+    // Should NOT inline the options content
+    expect(content).not.toContain("setopt AUTO_CD");
+    expect(content).not.toContain("HISTSIZE");
+  });
+
+  test("env-vars block sources core/env.zsh instead of inlining", () => {
+    writeFileSync(zshrcPath, "# base\n", "utf-8");
+
+    const block = '\n# >>> suitup/env >>>\nsource_if_exists "$HOME/.config/zsh/core/env.zsh"\n# <<< suitup/env <<<\n';
+    const result = appendIfMissing(zshrcPath, block, "suitup/env");
+
+    expect(result).toBe(true);
+    const content = readFileSync(zshrcPath, "utf-8");
+    expect(content).toContain('source_if_exists "$HOME/.config/zsh/core/env.zsh"');
+    // Should NOT inline the env content
+    expect(content).not.toContain("BAT_THEME");
+  });
+
+  test("perf block sources core/perf.zsh instead of inlining", () => {
+    writeFileSync(zshrcPath, "# base\n", "utf-8");
+
+    const block = '\n# >>> suitup/perf >>>\nsource_if_exists "$HOME/.config/zsh/core/perf.zsh"\n# <<< suitup/perf <<<\n';
+    const result = appendIfMissing(zshrcPath, block, "suitup/perf");
+
+    expect(result).toBe(true);
+    const content = readFileSync(zshrcPath, "utf-8");
+    expect(content).toContain('source_if_exists "$HOME/.config/zsh/core/perf.zsh"');
+    // Should NOT inline the perf content
+    expect(content).not.toContain("EPOCHREALTIME");
+    expect(content).not.toContain("_zsh_report");
   });
 });
