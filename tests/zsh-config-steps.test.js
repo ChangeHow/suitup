@@ -40,6 +40,8 @@ describe("zsh-config step", () => {
     expect(existsSync(join(sandbox.path, ".config", "zsh", "core", "options.zsh"))).toBe(true);
     expect(existsSync(join(sandbox.path, ".config", "zsh", "shared", "tools.zsh"))).toBe(true);
     expect(existsSync(join(sandbox.path, ".config", "zsh", "shared", "fzf.zsh"))).toBe(true);
+    expect(existsSync(join(sandbox.path, ".config", "zsh", "shared", "completion.zsh"))).toBe(true);
+    expect(existsSync(join(sandbox.path, ".config", "zsh", "shared", "highlighting.zsh"))).toBe(true);
     expect(existsSync(join(sandbox.path, ".config", "zsh", "shared", "prompt.zsh"))).toBe(true);
     expect(existsSync(join(sandbox.path, ".config", "zsh", "local", "machine.zsh"))).toBe(true);
   });
@@ -50,6 +52,8 @@ describe("zsh-config step", () => {
     const perf = readFileSync(join(sandbox.path, ".config", "zsh", "core", "perf.zsh"), "utf-8");
     const tools = readFileSync(join(sandbox.path, ".config", "zsh", "shared", "tools.zsh"), "utf-8");
     const fzf = readFileSync(join(sandbox.path, ".config", "zsh", "shared", "fzf.zsh"), "utf-8");
+    const completion = readFileSync(join(sandbox.path, ".config", "zsh", "shared", "completion.zsh"), "utf-8");
+    const highlighting = readFileSync(join(sandbox.path, ".config", "zsh", "shared", "highlighting.zsh"), "utf-8");
 
     expect(perf).toContain("EPOCHREALTIME");
     expect(perf).toContain("_record_stage_duration");
@@ -57,6 +61,8 @@ describe("zsh-config step", () => {
     expect(tools).toContain("$_zsh_tools_cache_dir");
     expect(fzf).toContain("FZF_DEFAULT_COMMAND");
     expect(fzf).toContain("FZF_CTRL_T_OPTS");
+    expect(completion).toContain("compinit");
+    expect(highlighting).toContain("ZSH_HIGHLIGHT_STYLES");
   });
 
   test("writes a basic prompt preset when selected", async () => {
@@ -203,16 +209,16 @@ describe("aliases step", () => {
   test("writes aliases file in empty sandbox", async () => {
     await setupAliases({ home: sandbox.path });
 
-    expect(existsSync(join(sandbox.path, ".config", "suitup", "aliases"))).toBe(true);
+    expect(existsSync(join(sandbox.path, ".config", "zsh", "shared", "aliases.zsh"))).toBe(true);
   });
 
   test("skips when aliases file already exists", async () => {
-    mkdirSync(join(sandbox.path, ".config", "suitup"), { recursive: true });
-    writeFileSync(join(sandbox.path, ".config", "suitup", "aliases"), "# my aliases", "utf-8");
+    mkdirSync(join(sandbox.path, ".config", "zsh", "shared"), { recursive: true });
+    writeFileSync(join(sandbox.path, ".config", "zsh", "shared", "aliases.zsh"), "# my aliases", "utf-8");
 
     await setupAliases({ home: sandbox.path });
 
-    const content = readFileSync(join(sandbox.path, ".config", "suitup", "aliases"), "utf-8");
+    const content = readFileSync(join(sandbox.path, ".config", "zsh", "shared", "aliases.zsh"), "utf-8");
     expect(content).toBe("# my aliases");
   });
 });

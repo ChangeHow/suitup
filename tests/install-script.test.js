@@ -16,37 +16,35 @@ describe("install.sh", () => {
     }).not.toThrow();
   });
 
-  test("downloads the repo archive, installs dependencies, and launches under zsh with terminal input", () => {
+  test("bootstraps prerequisites, installs dependencies, and launches under zsh", () => {
     const content = readFileSync(INSTALL_SCRIPT, "utf-8");
 
     expect(content).toContain("https://github.com/${REPO_SLUG}/archive/refs/heads/${SUITUP_REF}.tar.gz");
+    expect(content).toContain('ensure_zsh "${PACKAGE_MANAGER}"');
+    expect(content).toContain('ensure_node_runtime "${PACKAGE_MANAGER}"');
     expect(content).toContain("npm ci --no-fund --no-audit");
-    expect(content).toContain("require_cmd zsh");
     expect(content).toContain("zsh -lc");
-    expect(content).toContain("< /dev/tty");
+    expect(content).toContain("launch_cli");
   });
 
-  test("prompts for init or append mode before launching when no command is provided", () => {
+  test("defaults to quick init when no command is provided", () => {
     const content = readFileSync(INSTALL_SCRIPT, "utf-8");
 
-    expect(content).toContain("Choose install mode:");
-    expect(content).toContain("1) init");
-    expect(content).toContain("2) append");
-    expect(content).toContain('CLI_COMMAND="${1:-}"');
-    expect(content).toContain('read -r -p "Select [1-2] (default 1): " INSTALL_MODE < /dev/tty');
+    expect(content).toContain('CLI_COMMAND="${1:-init}"');
+    expect(content).not.toContain("Choose install mode:");
   });
 
-  test("maps init to setup and forwards the selected command to the CLI", () => {
+  test("passes init directly to the CLI and validates supported commands", () => {
     const content = readFileSync(INSTALL_SCRIPT, "utf-8");
 
-    expect(content).toContain('if [[ "${CLI_COMMAND}" == "init" ]]; then');
-    expect(content).toContain('CLI_COMMAND="setup"');
-    expect(content).toContain('"${CLI_COMMAND}" "$@" < /dev/tty');
+    expect(content).toContain('case "${CLI_COMMAND}" in');
+    expect(content).toContain('init|setup|append|verify|clean|migrate-paths|help|--help|-h');
+    expect(content).toContain('launch_cli "${WORK_DIR}/repo" "${CLI_COMMAND}" "$@"');
   });
 
-  test("prints a helpful error for invalid installer mode selections", () => {
+  test("prints a helpful error for unknown installer commands", () => {
     const content = readFileSync(INSTALL_SCRIPT, "utf-8");
 
-    expect(content).toContain('Please enter 1 for init or 2 for append.');
+    expect(content).toContain('Unknown command: ${CLI_COMMAND}');
   });
 });

@@ -53,6 +53,15 @@ describe("cli main", () => {
     expect(runSetup).toHaveBeenCalledTimes(1);
   });
 
+  test("routes init to non-interactive setup defaults", async () => {
+    const { main } = await import("../src/cli.js");
+
+    await main(["node", "src/cli.js", "init"]);
+
+    expect(requireZshShell).toHaveBeenCalledWith();
+    expect(runSetup).toHaveBeenCalledWith({ defaults: true });
+  });
+
   test("prints help without invoking async commands", async () => {
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     const { main } = await import("../src/cli.js");

@@ -1,9 +1,9 @@
 # ============================================================================
 # Machine-specific overrides
 # ============================================================================
-# Add local path additions, work profile toggles, or any other settings
+# Add local path additions, machine-only toggles, or any other settings
 # that apply only to this machine.
 #
 # Example:
-#   export ZSH_WORK_PROFILE=1   # load work/* config on this machine
+#   export EDITOR="nvim"
 #   path=("/usr/local/custom/bin" $path)

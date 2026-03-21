@@ -12,7 +12,7 @@ import { installFrontendTools } from "./steps/frontend.js";
 import { commandExists } from "./utils/shell.js";
 
 const ZSHRC = join(homedir(), ".zshrc");
-const SUITUP_DIR = join(homedir(), ".config", "suitup");
+const ZSH_SHARED_DIR = join(homedir(), ".config", "zsh", "shared");
 const TOOLS_INIT_COMMANDS = ["atuin", "fzf", "zoxide", "fnm"];
 
 function sourcePromptTemplate(preset) {
@@ -51,6 +51,21 @@ export function ensurePromptSource({ home } = {}) {
   );
 }
 
+export function ensurePluginsSource({ home } = {}) {
+  const base = home || homedir();
+  const zshrc = join(base, ".zshrc");
+  const existing = readFileSafe(zshrc);
+  if (existing.includes(".config/zsh/shared/plugins.zsh") || existing.includes("suitup/zinit-plugins")) {
+    return false;
+  }
+
+  return appendIfMissing(
+    zshrc,
+    '\n# >>> suitup/zinit-plugins >>>\nsource_if_exists "$HOME/.config/zsh/shared/plugins.zsh"\n# <<< suitup/zinit-plugins <<<\n',
+    "suitup/zinit-plugins"
+  );
+}
+
 export function getMissingToolsInitCommands(commandExistsFn = commandExists) {
   return TOOLS_INIT_COMMANDS.filter((tool) => !commandExistsFn(tool));
 }
@@ -86,15 +101,15 @@ const BLOCKS = [
   {
     value: "suitup-aliases",
     label: "Suitup aliases",
-    hint: "source ~/.config/suitup/aliases",
+    hint: "source ~/.config/zsh/shared/aliases.zsh",
     group: "Suitup Configs",
     marker: "suitup/aliases",
     apply() {
-      ensureDir(SUITUP_DIR);
-      copyFile(join(CONFIGS_DIR, "aliases"), join(SUITUP_DIR, "aliases"));
+      ensureDir(ZSH_SHARED_DIR);
+      copyFile(join(CONFIGS_DIR, "shared", "aliases.zsh"), join(ZSH_SHARED_DIR, "aliases.zsh"));
       return appendIfMissing(
         ZSHRC,
-        '\n# >>> suitup/aliases >>>\nsource_if_exists "$HOME/.config/suitup/aliases"\n# <<< suitup/aliases <<<\n',
+        '\n# >>> suitup/aliases >>>\nsource_if_exists "$HOME/.config/zsh/shared/aliases.zsh"\n# <<< suitup/aliases <<<\n',
         "suitup/aliases"
       );
     },
@@ -102,15 +117,15 @@ const BLOCKS = [
   {
     value: "suitup-plugins",
     label: "Zinit plugins",
-    hint: "source ~/.config/suitup/zinit-plugins",
+    hint: "source ~/.config/zsh/shared/plugins.zsh",
     group: "Suitup Configs",
     marker: "suitup/zinit-plugins",
     apply() {
-      ensureDir(SUITUP_DIR);
-      copyFile(join(CONFIGS_DIR, "zinit-plugins"), join(SUITUP_DIR, "zinit-plugins"));
+      ensureDir(ZSH_SHARED_DIR);
+      copyFile(join(CONFIGS_DIR, "shared", "plugins.zsh"), join(ZSH_SHARED_DIR, "plugins.zsh"));
       return appendIfMissing(
         ZSHRC,
-        '\n# >>> suitup/zinit-plugins >>>\nsource_if_exists "$HOME/.config/suitup/zinit-plugins"\n# <<< suitup/zinit-plugins <<<\n',
+        '\n# >>> suitup/zinit-plugins >>>\nsource_if_exists "$HOME/.config/zsh/shared/plugins.zsh"\n# <<< suitup/zinit-plugins <<<\n',
         "suitup/zinit-plugins"
       );
     },
@@ -125,8 +140,11 @@ const BLOCKS = [
     },
     async apply() {
       const changed = await writePromptPreset("p10k");
+      ensureDir(ZSH_SHARED_DIR);
+      copyIfNotExists(join(CONFIGS_DIR, "shared", "plugins.zsh"), join(ZSH_SHARED_DIR, "plugins.zsh"));
+      const pluginsSourced = ensurePluginsSource();
       const sourced = ensurePromptSource();
-      return changed || sourced;
+      return changed || pluginsSourced || sourced;
     },
   },
   {

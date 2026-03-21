@@ -41,7 +41,7 @@ describe("plugin-manager step", () => {
       expect.stringContaining("zinit")
     );
     // Plugin config should be written
-    expect(existsSync(join(sandbox.path, ".config", "suitup", "zinit-plugins"))).toBe(true);
+    expect(existsSync(join(sandbox.path, ".config", "zsh", "shared", "plugins.zsh"))).toBe(true);
   });
 
   test("skips zinit install when directory already exists", async () => {
@@ -57,14 +57,14 @@ describe("plugin-manager step", () => {
     // Create zinit dir to skip install
     mkdirSync(join(sandbox.path, ".local", "share", "zinit", "zinit.git"), { recursive: true });
     // Pre-create the plugin config
-    mkdirSync(join(sandbox.path, ".config", "suitup"), { recursive: true });
-    writeFileSync(join(sandbox.path, ".config", "suitup", "zinit-plugins"), "existing", "utf-8");
+    mkdirSync(join(sandbox.path, ".config", "zsh", "shared"), { recursive: true });
+    writeFileSync(join(sandbox.path, ".config", "zsh", "shared", "plugins.zsh"), "existing", "utf-8");
 
     await installZinit({ home: sandbox.path });
 
     // Should not have been overwritten
     const { readFileSync } = await import("node:fs");
-    const content = readFileSync(join(sandbox.path, ".config", "suitup", "zinit-plugins"), "utf-8");
+    const content = readFileSync(join(sandbox.path, ".config", "zsh", "shared", "plugins.zsh"), "utf-8");
     expect(content).toBe("existing");
   });
 

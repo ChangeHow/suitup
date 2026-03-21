@@ -40,7 +40,7 @@ Suitup can bootstrap Zsh and Homebrew for you, but the most reliable path is to 
 
 ### Install and run
 
-Suitup now assumes zsh is already installed and that you are running the command from a zsh session.
+When you run suitup locally from the repo, use a zsh session. The curl installer can bootstrap missing prerequisites for you on a fresh machine.
 
 ### Quick install via curl
 
@@ -48,7 +48,16 @@ Suitup now assumes zsh is already installed and that you are running the command
 curl -fsSL https://raw.githubusercontent.com/ChangeHow/suitup/main/install.sh | bash
 ```
 
-The installer first asks whether you want `init` (full setup) or `append` (incremental updates to an existing `.zshrc`), then downloads a temporary copy of the repo, runs `npm ci`, and launches the matching `node src/cli.js` command inside `zsh`.
+The installer now defaults to `init`, bootstraps missing `zsh` and Node.js/npm when possible, downloads a temporary copy of the repo, runs `npm ci`, and launches suitup inside `zsh`.
+
+`init` is a non-interactive quick-start path that uses recommended defaults:
+
+- bootstrap package manager + zsh when needed
+- install the layered zsh config
+- install zinit + Powerlevel10k preset
+- install recommended CLI tools and frontend tooling
+- install recommended GUI apps on macOS
+- write shared aliases
 
 You can also pass a specific command to the installer:
 
@@ -75,6 +84,7 @@ node src/cli.js
 
 | Command | Description |
 |---------|-------------|
+| `node src/cli.js init` | Non-interactive quick init with recommended defaults |
 | `node src/cli.js` | Full interactive setup (default) |
 | `node src/cli.js setup` | Same as above |
 | `node src/cli.js append` | Append configs to existing `.zshrc` |
@@ -222,13 +232,15 @@ After setup, your shell config looks like:
     options.zsh                   # Zsh shell options
   shared/
     tools.zsh                     # Tool init (fzf, atuin, zoxide, fnm)
+    plugins.zsh                   # zinit plugin declarations
+    highlighting.zsh              # zsh-syntax-highlighting styles
+    aliases.zsh                   # Shared aliases
+    completion.zsh                # Native completion setup
     prompt.zsh                    # Prompt/theme (p10k)
   local/
     machine.zsh                   # Machine-specific overrides
     secrets.zsh                   # API keys (create manually, gitignored)
 ~/.config/suitup/
-  aliases                         # Shell aliases
-  zinit-plugins                   # Zinit plugin config
   config.vim                      # Vim config
 ```
 
@@ -247,8 +259,8 @@ Implementation details and architecture notes live in `AGENTS.md`.
 
 - macOS (full support, tested on Sonoma+)
 - Linux (bootstrap package-manager selection supported; most install steps still target Homebrew ecosystem)
-- Node.js >= 18
-- Zsh installed locally
+- Node.js >= 18 for local repo usage; the curl installer bootstraps it when possible
+- Zsh for local repo usage; the curl installer bootstraps it when possible
 - Run suitup from a zsh session (`echo $SHELL` should end with `zsh`)
 
 ## License

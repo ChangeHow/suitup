@@ -30,11 +30,11 @@ export async function installZinit({ home } = {}) {
   }
 
   // Copy plugin config (skip if already exists)
-  const dest = join(base, ".config", "suitup", "zinit-plugins");
-  ensureDir(join(base, ".config", "suitup"));
-  const copied = copyIfNotExists(join(CONFIGS_DIR, "zinit-plugins"), dest);
+  const dest = join(base, ".config", "zsh", "shared", "plugins.zsh");
+  ensureDir(join(base, ".config", "zsh", "shared"));
+  const copied = copyIfNotExists(join(CONFIGS_DIR, "shared", "plugins.zsh"), dest);
   if (copied) {
-    p.log.success("zinit plugin config written to ~/.config/suitup/zinit-plugins");
+    p.log.success("zinit plugin config written to ~/.config/zsh/shared/plugins.zsh");
   } else {
     p.log.info("zinit plugin config already exists, skipped");
   }

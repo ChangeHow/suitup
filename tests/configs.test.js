@@ -29,8 +29,8 @@ const FORBIDDEN_PATTERNS = [
 ];
 
 describe("Static config templates", () => {
-  test("aliases file exists and has content", () => {
-    const file = join(CONFIGS_DIR, "aliases");
+  test("shared/aliases.zsh exists and has content", () => {
+    const file = join(CONFIGS_DIR, "shared", "aliases.zsh");
     expect(existsSync(file)).toBe(true);
     const content = readFileSync(file, "utf-8");
     expect(content.length).toBeGreaterThan(0);
@@ -42,34 +42,27 @@ describe("Static config templates", () => {
     expect(content).toContain("bat");
   });
 
-  test("aliases file does not contain private/company content", () => {
-    const content = readFileSync(join(CONFIGS_DIR, "aliases"), "utf-8");
+  test("shared/aliases.zsh does not contain private/company content", () => {
+    const content = readFileSync(join(CONFIGS_DIR, "shared", "aliases.zsh"), "utf-8");
     for (const pattern of FORBIDDEN_PATTERNS) {
       expect(content).not.toContain(pattern);
     }
   });
 
-  test("zinit-plugins file exists and has correct content", () => {
-    const file = join(CONFIGS_DIR, "zinit-plugins");
+  test("shared/plugins.zsh exists and has correct content", () => {
+    const file = join(CONFIGS_DIR, "shared", "plugins.zsh");
     expect(existsSync(file)).toBe(true);
     const content = readFileSync(file, "utf-8");
     expect(content).toContain("zinit");
     expect(content).toContain("zsh-autosuggestions");
     expect(content).toContain("zsh-syntax-highlighting");
-    // p10k is loaded last in prompt.zsh, not here
-    expect(content).not.toContain("powerlevel10k");
+    expect(content).toContain("powerlevel10k");
   });
 
-  test("shared/prompt.zsh loads p10k theme last (after all other plugins)", () => {
+  test("shared/prompt.zsh loads p10k config or falls back to a basic prompt", () => {
     const content = readFileSync(join(CONFIGS_DIR, "shared", "prompt.zsh"), "utf-8");
-    expect(content).toContain("powerlevel10k");
-    expect(content).toContain("zinit light romkatv/powerlevel10k");
     expect(content).toContain("~/.p10k.zsh");
     expect(content).toContain("PROMPT='");
-    // p10k theme load must appear before .p10k.zsh source
-    const themeIdx = content.indexOf("zinit light romkatv/powerlevel10k");
-    const configIdx = content.lastIndexOf("~/.p10k.zsh");
-    expect(themeIdx).toBeLessThan(configIdx);
   });
 
   test("shared/prompt-basic.zsh provides a simple fallback prompt", () => {
@@ -90,7 +83,7 @@ describe("Static config templates", () => {
   });
 
   test("shared config files exist", () => {
-    for (const file of ["tools.zsh", "prompt.zsh", "prompt-basic.zsh", "fzf.zsh"]) {
+    for (const file of ["tools.zsh", "prompt.zsh", "prompt-basic.zsh", "fzf.zsh", "aliases.zsh", "plugins.zsh", "completion.zsh", "highlighting.zsh"]) {
       expect(existsSync(join(CONFIGS_DIR, "shared", file))).toBe(true);
     }
   });
@@ -155,6 +148,28 @@ describe("Static config templates", () => {
     expect(content).toContain("fzf.zsh");
   });
 
+  test("shared/completion.zsh configures cached compinit", () => {
+    const content = readFileSync(join(CONFIGS_DIR, "shared", "completion.zsh"), "utf-8");
+    expect(content).toContain("compinit");
+    expect(content).toContain(".zcompdump");
+    expect(content).toContain("expand-or-complete");
+  });
+
+  test("shared/highlighting.zsh defines syntax highlighting styles", () => {
+    const content = readFileSync(join(CONFIGS_DIR, "shared", "highlighting.zsh"), "utf-8");
+    expect(content).toContain("ZSH_HIGHLIGHT_STYLES");
+    expect(content).toContain("reserved-word");
+  });
+
+  test("local/machine.zsh stays machine-local and avoids work-specific examples", () => {
+    const content = readFileSync(join(CONFIGS_DIR, "local", "machine.zsh"), "utf-8");
+    expect(content).not.toContain("work/*");
+    expect(content).not.toContain("ZSH_WORK_PROFILE");
+    for (const pattern of FORBIDDEN_PATTERNS) {
+      expect(content).not.toContain(pattern);
+    }
+  });
+
   test("shared/tools.zsh loads fzf before atuin so atuin keeps the Ctrl-R binding", () => {
     const content = readFileSync(join(CONFIGS_DIR, "shared", "tools.zsh"), "utf-8");
     const fzfIdx = content.indexOf("_source_cached_tool_init fzf-init fzf 'fzf --zsh'");
@@ -173,6 +188,10 @@ describe("Static config templates", () => {
       "core/options.zsh",
       "shared/tools.zsh",
       "shared/fzf.zsh",
+      "shared/completion.zsh",
+      "shared/highlighting.zsh",
+      "shared/plugins.zsh",
+      "shared/aliases.zsh",
       "shared/prompt.zsh",
       "local/machine.zsh",
     ];
@@ -200,14 +219,16 @@ describe("Static config templates", () => {
 
   test("no hardcoded home directory paths in any config", () => {
     const allFiles = [
-      "aliases",
-      "zinit-plugins",
       "core/perf.zsh",
       "core/env.zsh",
       "core/paths.zsh",
       "core/options.zsh",
       "shared/tools.zsh",
       "shared/fzf.zsh",
+      "shared/completion.zsh",
+      "shared/highlighting.zsh",
+      "shared/plugins.zsh",
+      "shared/aliases.zsh",
       "shared/prompt.zsh",
       "zshrc.template",
       "zshenv.template",

@@ -57,6 +57,24 @@ describe("bootstrap step", () => {
     expect(runStream).toHaveBeenCalledWith(expect.stringContaining("Homebrew/install"));
   });
 
+  test("defaults mode installs Homebrew without prompting", async () => {
+    commandExists.mockImplementation((name) => {
+      if (name === "brew") return false;
+      if (name === "zsh") return true;
+      return false;
+    });
+    run.mockImplementation((cmd) => {
+      if (cmd.includes("echo $SHELL")) return "/bin/zsh";
+      if (cmd.includes("which zsh")) return "/bin/zsh";
+      return "";
+    });
+
+    await bootstrap({ platform: "darwin", defaults: true });
+
+    expect(p.select).not.toHaveBeenCalled();
+    expect(runStream).toHaveBeenCalledWith(expect.stringContaining("Homebrew/install"));
+  });
+
   test("installs Zsh with brew on macOS", async () => {
     commandExists.mockImplementation((name) => {
       if (name === "brew") return true;
@@ -84,6 +102,24 @@ describe("bootstrap step", () => {
 
     await bootstrap({ platform: "linux" });
 
+    expect(runStream).toHaveBeenCalledWith(expect.stringContaining("apt-get install -y zsh"));
+  });
+
+  test("defaults mode auto-selects the first detected Linux package manager", async () => {
+    commandExists.mockImplementation((name) => {
+      if (name === "apt-get") return true;
+      if (name === "zsh") return false;
+      return false;
+    });
+    run.mockImplementation((cmd) => {
+      if (cmd.includes("echo $SHELL")) return "/bin/zsh";
+      if (cmd.includes("which zsh")) return "/bin/zsh";
+      return "";
+    });
+
+    await bootstrap({ platform: "linux", defaults: true });
+
+    expect(p.select).not.toHaveBeenCalled();
     expect(runStream).toHaveBeenCalledWith(expect.stringContaining("apt-get install -y zsh"));
   });
 
