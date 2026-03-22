@@ -126,7 +126,7 @@ ensure_node_runtime() {
 
   if have_cmd node && have_cmd npm; then
     major="$(node_major)"
-    if [[ -n "${major}" && "${major}" -ge 18 ]]; then
+    if [[ -n "${major}" && "${major}" -ge 20 ]]; then
       return 0
     fi
   fi
@@ -137,16 +137,16 @@ ensure_node_runtime() {
       install_with_manager "${manager}" node
       ;;
     apt-get)
-      log "Adding NodeSource repository for Node.js 18..."
-      if ! curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -; then
+      log "Adding NodeSource repository for Node.js 20..."
+      if ! curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -; then
         echo "Failed to set up NodeSource repository for Node.js." >&2
         exit 1
       fi
       install_with_manager "${manager}" nodejs
       ;;
     dnf|yum)
-      log "Adding NodeSource repository for Node.js 18..."
-      if ! curl -fsSL https://rpm.nodesource.com/setup_18.x | sudo -E bash -; then
+      log "Adding NodeSource repository for Node.js 20..."
+      if ! curl -fsSL https://rpm.nodesource.com/setup_20.x | sudo -E bash -; then
         echo "Failed to set up NodeSource repository for Node.js." >&2
         exit 1
       fi
@@ -164,8 +164,8 @@ ensure_node_runtime() {
   fi
 
   major="$(node_major)"
-  if [[ -z "${major}" || "${major}" -lt 18 ]]; then
-    echo "suitup requires Node.js 18 or later. Installed version is $(node -v)." >&2
+  if [[ -z "${major}" || "${major}" -lt 20 ]]; then
+    echo "suitup requires Node.js 20 or later. Installed version is $(node -v)." >&2
     exit 1
   fi
 }
@@ -187,7 +187,7 @@ require_cmd uname
 
 PACKAGE_MANAGER="$(detect_package_manager || true)"
 if [[ -z "${PACKAGE_MANAGER}" ]]; then
-  echo "Could not detect a supported package manager. Install zsh and Node.js 18+ manually, then rerun suitup." >&2
+  echo "Could not detect a supported package manager. Install zsh and Node.js 20+ manually, then rerun suitup." >&2
   exit 1
 fi
 

@@ -51,17 +51,17 @@ describe("install.sh", () => {
   test("skips Node.js installation when a compatible version is already present", () => {
     const content = readFileSync(INSTALL_SCRIPT, "utf-8");
 
-    // ensure_node_runtime returns early when node + npm are found at version >= 18
+    // ensure_node_runtime returns early when node + npm are found at version >= 20
     expect(content).toContain("if have_cmd node && have_cmd npm;");
-    expect(content).toMatch(/"\$\{major\}" -ge 18/);
+    expect(content).toMatch(/"\$\{major\}" -ge 20/);
     expect(content).toContain("return 0");
   });
 
   test("uses NodeSource repository for reliable Node.js installation on Linux", () => {
     const content = readFileSync(INSTALL_SCRIPT, "utf-8");
 
-    expect(content).toContain("https://deb.nodesource.com/setup_18.x");
-    expect(content).toContain("https://rpm.nodesource.com/setup_18.x");
+    expect(content).toContain("https://deb.nodesource.com/setup_20.x");
+    expect(content).toContain("https://rpm.nodesource.com/setup_20.x");
     // NodeSource setup scripts are piped into bash with sudo
     expect(content).toMatch(/curl.*nodesource.*\| sudo -E bash -/s);
   });
