@@ -60,8 +60,8 @@ describe("install.sh", () => {
   test("uses NodeSource repository for reliable Node.js installation on Linux", () => {
     const content = readFileSync(INSTALL_SCRIPT, "utf-8");
 
-    expect(content).toContain("https://deb.nodesource.com/setup_20.x");
-    expect(content).toContain("https://rpm.nodesource.com/setup_20.x");
+    expect(content).toContain("https://deb.nodesource.com/setup_lts.x");
+    expect(content).toContain("https://rpm.nodesource.com/setup_lts.x");
     // NodeSource setup scripts are piped into bash with sudo
     expect(content).toMatch(/curl.*nodesource.*\| sudo -E bash -/s);
   });

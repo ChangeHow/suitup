@@ -137,16 +137,16 @@ ensure_node_runtime() {
       install_with_manager "${manager}" node
       ;;
     apt-get)
-      log "Adding NodeSource repository for Node.js 20..."
-      if ! curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -; then
+      log "Adding NodeSource LTS repository..."
+      if ! curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -; then
         echo "Failed to set up NodeSource repository for Node.js." >&2
         exit 1
       fi
       install_with_manager "${manager}" nodejs
       ;;
     dnf|yum)
-      log "Adding NodeSource repository for Node.js 20..."
-      if ! curl -fsSL https://rpm.nodesource.com/setup_20.x | sudo -E bash -; then
+      log "Adding NodeSource LTS repository..."
+      if ! curl -fsSL https://rpm.nodesource.com/setup_lts.x | sudo -E bash -; then
         echo "Failed to set up NodeSource repository for Node.js." >&2
         exit 1
       fi
