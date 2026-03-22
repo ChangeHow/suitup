@@ -137,10 +137,20 @@ ensure_node_runtime() {
       install_with_manager "${manager}" node
       ;;
     apt-get)
-      install_with_manager "${manager}" nodejs npm
+      log "Adding NodeSource repository for Node.js 18..."
+      if ! curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -; then
+        echo "Failed to set up NodeSource repository for Node.js." >&2
+        exit 1
+      fi
+      install_with_manager "${manager}" nodejs
       ;;
     dnf|yum)
-      install_with_manager "${manager}" nodejs npm
+      log "Adding NodeSource repository for Node.js 18..."
+      if ! curl -fsSL https://rpm.nodesource.com/setup_18.x | sudo -E bash -; then
+        echo "Failed to set up NodeSource repository for Node.js." >&2
+        exit 1
+      fi
+      install_with_manager "${manager}" nodejs
       ;;
     *)
       echo "No supported package manager available to install Node.js." >&2
