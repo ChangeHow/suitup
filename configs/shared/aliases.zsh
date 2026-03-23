@@ -16,7 +16,7 @@ alias cat="bat"
 # git
 alias gco="git checkout"
 alias gph="git push"
-alias gphu='gph -u origin "$(git branch --show-current 2>/dev/null)"'
+alias gphu='local b; b=$(git rev-parse --abbrev-ref HEAD 2>/dev/null); [[ $b != HEAD ]] && gph -u origin "$b"'
 alias gcol="git checkout --no-guess"
 alias gpl="git pull --rebase"
 alias gcz="git-cz"
