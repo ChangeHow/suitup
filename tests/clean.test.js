@@ -33,10 +33,12 @@ function writeManagedTree(base) {
     ["core/options.zsh", ".config/zsh/core/options.zsh"],
     ["shared/tools.zsh", ".config/zsh/shared/tools.zsh"],
     ["shared/fzf.zsh", ".config/zsh/shared/fzf.zsh"],
+    ["shared/completion.zsh", ".config/zsh/shared/completion.zsh"],
+    ["shared/highlighting.zsh", ".config/zsh/shared/highlighting.zsh"],
+    ["shared/plugins.zsh", ".config/zsh/shared/plugins.zsh"],
+    ["shared/aliases.zsh", ".config/zsh/shared/aliases.zsh"],
     ["shared/prompt.zsh", ".config/zsh/shared/prompt.zsh"],
     ["local/machine.zsh", ".config/zsh/local/machine.zsh"],
-    ["aliases", ".config/suitup/aliases"],
-    ["zinit-plugins", ".config/suitup/zinit-plugins"],
     ["config.vim", ".config/suitup/config.vim"],
     ["zshrc.template", ".zshrc"],
     ["zshenv.template", ".zshenv"],
@@ -102,16 +104,16 @@ describe("clean command", () => {
         'source_if_exists() { [[ -f "$1" ]] && source "$1"; }',
         "# <<< suitup/helper <<<",
         "# >>> suitup/aliases >>>",
-        'source_if_exists "$HOME/.config/suitup/aliases"',
+        'source_if_exists "$HOME/.config/zsh/shared/aliases.zsh"',
         "# <<< suitup/aliases <<<",
         "",
       ].join("\n"),
       "utf-8"
     );
-    mkdirSync(join(sandbox.path, ".config", "suitup"), { recursive: true });
+    mkdirSync(join(sandbox.path, ".config", "zsh", "shared"), { recursive: true });
     writeFileSync(
-      join(sandbox.path, ".config", "suitup", "aliases"),
-      readFileSync(join(CONFIGS_DIR, "aliases"), "utf-8"),
+      join(sandbox.path, ".config", "zsh", "shared", "aliases.zsh"),
+      readFileSync(join(CONFIGS_DIR, "shared", "aliases.zsh"), "utf-8"),
       "utf-8"
     );
 
@@ -121,24 +123,24 @@ describe("clean command", () => {
     expect(cleaned).toContain("export FOO=bar");
     expect(cleaned).not.toContain("suitup/helper");
     expect(cleaned).not.toContain("suitup/aliases");
-    expect(existsSync(join(sandbox.path, ".config", "suitup"))).toBe(false);
+    expect(existsSync(join(sandbox.path, ".config", "zsh", "shared"))).toBe(false);
     expect(summary.cleaned).toContain("~/.zshrc");
   });
 
   test("preserves user-modified managed files", () => {
     mkdirSync(join(sandbox.path, ".config", "zsh", "core"), { recursive: true });
-    mkdirSync(join(sandbox.path, ".config", "suitup"), { recursive: true });
+    mkdirSync(join(sandbox.path, ".config", "zsh", "shared"), { recursive: true });
     writeFileSync(join(sandbox.path, ".config", "zsh", "core", "env.zsh"), "# custom env\n", "utf-8");
-    writeFileSync(join(sandbox.path, ".config", "suitup", "aliases"), "# custom aliases\n", "utf-8");
+    writeFileSync(join(sandbox.path, ".config", "zsh", "shared", "aliases.zsh"), "# custom aliases\n", "utf-8");
     writeFileSync(join(sandbox.path, ".zshenv"), "# my zshenv\nexport FOO=bar\n", "utf-8");
 
     const summary = cleanSandbox(sandbox.path);
 
     expect(readFileSync(join(sandbox.path, ".config", "zsh", "core", "env.zsh"), "utf-8")).toBe("# custom env\n");
-    expect(readFileSync(join(sandbox.path, ".config", "suitup", "aliases"), "utf-8")).toBe("# custom aliases\n");
+    expect(readFileSync(join(sandbox.path, ".config", "zsh", "shared", "aliases.zsh"), "utf-8")).toBe("# custom aliases\n");
     expect(readFileSync(join(sandbox.path, ".zshenv"), "utf-8")).toContain("export FOO=bar");
     expect(summary.preserved).toContain("~/.config/zsh/core/env.zsh");
-    expect(summary.preserved).toContain("~/.config/suitup/aliases");
+    expect(summary.preserved).toContain("~/.config/zsh/shared/aliases.zsh");
     expect(summary.preserved).toContain("~/.zshenv");
   });
 

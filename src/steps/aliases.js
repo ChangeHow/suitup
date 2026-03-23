@@ -11,12 +11,12 @@ import { CONFIGS_DIR } from "../constants.js";
  */
 export async function setupAliases({ home } = {}) {
   const base = home || homedir();
-  const dest = join(base, ".config", "suitup", "aliases");
-  ensureDir(join(base, ".config", "suitup"));
-  const copied = copyIfNotExists(join(CONFIGS_DIR, "aliases"), dest);
+  const dest = join(base, ".config", "zsh", "shared", "aliases.zsh");
+  ensureDir(join(base, ".config", "zsh", "shared"));
+  const copied = copyIfNotExists(join(CONFIGS_DIR, "shared", "aliases.zsh"), dest);
   if (copied) {
-    p.log.success("Aliases written to ~/.config/suitup/aliases");
+    p.log.success("Aliases written to ~/.config/zsh/shared/aliases.zsh");
   } else {
-    p.log.info("Aliases already exist at ~/.config/suitup/aliases, skipped");
+    p.log.info("Aliases already exist at ~/.config/zsh/shared/aliases.zsh, skipped");
   }
 }

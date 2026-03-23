@@ -18,6 +18,14 @@ import { commandExists } from "./utils/shell.js";
 import { isZshShell } from "./utils/shell-context.js";
 export { isZshShell } from "./utils/shell-context.js";
 
+export function getRecommendedCliToolValues() {
+  return [...CLI_TOOLS.essentials, ...CLI_TOOLS.shell].map((tool) => tool.value);
+}
+
+export function getRecommendedAppValues() {
+  return APPS.recommended.map((app) => app.value);
+}
+
 /**
  * Full interactive setup flow.
  */
@@ -75,17 +83,20 @@ export function detectCompletedSteps({
     existsSync(join(zshConfigDir, "core", "paths.zsh")) &&
     existsSync(join(zshConfigDir, "core", "options.zsh")) &&
     existsSync(join(zshConfigDir, "shared", "tools.zsh")) &&
+    existsSync(join(zshConfigDir, "shared", "fzf.zsh")) &&
+    existsSync(join(zshConfigDir, "shared", "completion.zsh")) &&
+    existsSync(join(zshConfigDir, "shared", "highlighting.zsh")) &&
     existsSync(join(zshConfigDir, "shared", "prompt.zsh")) &&
     existsSync(join(zshConfigDir, "local", "machine.zsh"))
   ) {
     completed.add("zsh-config");
   }
 
-  if (existsSync(join(suitupDir, "zinit-plugins")) || existsSync(zinitHome)) {
+  if (existsSync(join(zshConfigDir, "shared", "plugins.zsh")) || existsSync(join(suitupDir, "zinit-plugins")) || existsSync(zinitHome)) {
     completed.add("plugins");
   }
 
-  if (existsSync(join(suitupDir, "aliases"))) {
+  if (existsSync(join(zshConfigDir, "shared", "aliases.zsh")) || existsSync(join(suitupDir, "aliases"))) {
     completed.add("aliases");
   }
 
@@ -114,7 +125,7 @@ export function getInitialStepValues(opts = {}) {
   return getDefaultSteps(opts.platform).filter((step) => !completed.has(step));
 }
 
-export async function runSetup() {
+export async function runSetup({ defaults = false } = {}) {
   p.intro(pc.bgCyan(pc.black(" Suit up! ")));
 
   if (!isZshShell()) {
@@ -131,32 +142,39 @@ export async function runSetup() {
     p.log.info(`Deselected already configured steps: ${completedSteps.join(", ")}`);
   }
 
-  const steps = await p.multiselect({
-    message: "Select setup steps:",
-    required: true,
-    options: [
-      { value: "bootstrap", label: "Bootstrap", hint: "Package manager + Zsh" },
-      { value: "zsh-config", label: "Zsh Config Structure", hint: "~/.config/zsh/" },
-      { value: "plugins", label: "Plugin Manager", hint: "recommended zinit or skip" },
-      { value: "cli-tools", label: "CLI Tools", hint: "bat, eza, fzf, fd, zoxide, atuin..." },
-      { value: "apps", label: "GUI Apps", hint: "iTerm2, Raycast, VS Code..." },
-      { value: "frontend", label: "Frontend Tools", hint: "fnm, pnpm, git-cz" },
-      { value: "aliases", label: "Shell Aliases", hint: "git, eza, fzf shortcuts" },
-      { value: "ssh", label: "SSH Key", hint: "generate GitHub SSH key" },
-      { value: "vim", label: "Vim Config", hint: "basic vim setup" },
-      { value: "dock", label: "Dock Cleanup", hint: "clean macOS Dock" },
-    ],
-    initialValues,
-  });
+  const steps = defaults
+    ? initialValues
+    : await p.multiselect({
+        message: "Select setup steps:",
+        required: true,
+        options: [
+          { value: "bootstrap", label: "Bootstrap", hint: "Package manager + Zsh" },
+          { value: "zsh-config", label: "Zsh Config Structure", hint: "~/.config/zsh/" },
+          { value: "plugins", label: "Plugin Manager", hint: "recommended zinit or skip" },
+          { value: "cli-tools", label: "CLI Tools", hint: "bat, eza, fzf, fd, zoxide, atuin..." },
+          { value: "apps", label: "GUI Apps", hint: "iTerm2, Raycast, VS Code..." },
+          { value: "frontend", label: "Frontend Tools", hint: "fnm, pnpm, git-cz" },
+          { value: "aliases", label: "Shell Aliases", hint: "git, eza, fzf shortcuts" },
+          { value: "ssh", label: "SSH Key", hint: "generate GitHub SSH key" },
+          { value: "vim", label: "Vim Config", hint: "basic vim setup" },
+          { value: "dock", label: "Dock Cleanup", hint: "clean macOS Dock" },
+        ],
+        initialValues,
+      });
 
-  if (p.isCancel(steps)) {
+  if (!defaults && (p.isCancel(steps) || steps.length === 0)) {
     p.cancel("Setup cancelled.");
     process.exit(0);
   }
 
+  if (defaults && steps.length === 0) {
+    p.outro("Nothing to do.");
+    return;
+  }
+
   // --- Step 2: Plugin manager choice (if selected) ---
   let pluginManager = "zinit";
-  if (steps.includes("plugins")) {
+  if (!defaults && steps.includes("plugins")) {
     const pmChoice = await p.select({
       message: "Choose plugin manager setup:",
       options: [
@@ -173,7 +191,7 @@ export async function runSetup() {
   }
 
   let promptTheme = "p10k";
-  if (steps.includes("zsh-config") || steps.includes("plugins")) {
+  if (!defaults && (steps.includes("zsh-config") || steps.includes("plugins"))) {
     const promptChoice = await p.select({
       message: "Choose a prompt preset:",
       options: [
@@ -211,45 +229,53 @@ export async function runSetup() {
   // --- Step 3: CLI tool selection (if selected) ---
   let selectedTools = [];
   if (steps.includes("cli-tools")) {
-    const toolChoice = await p.groupMultiselect({
-      message: "Select CLI tools to install:",
-      required: true,
-      options: {
-        Essentials: CLI_TOOLS.essentials,
-        "Shell Enhancement": CLI_TOOLS.shell,
-        Optional: CLI_TOOLS.optional,
-      },
-    });
-    if (p.isCancel(toolChoice)) {
-      p.cancel("Setup cancelled.");
-      process.exit(0);
+    if (defaults) {
+      selectedTools = getRecommendedCliToolValues();
+    } else {
+      const toolChoice = await p.groupMultiselect({
+        message: "Select CLI tools to install:",
+        required: true,
+        options: {
+          Essentials: CLI_TOOLS.essentials,
+          "Shell Enhancement": CLI_TOOLS.shell,
+          Optional: CLI_TOOLS.optional,
+        },
+      });
+      if (p.isCancel(toolChoice)) {
+        p.cancel("Setup cancelled.");
+        process.exit(0);
+      }
+      selectedTools = toolChoice;
     }
-    selectedTools = toolChoice;
   }
 
   // --- Step 4: App selection (if selected) ---
   let selectedApps = [];
   if (steps.includes("apps")) {
-    const appChoice = await p.groupMultiselect({
-      message: "Select apps to install:",
-      options: {
-        Recommended: APPS.recommended,
-        Optional: APPS.optional,
-        Fonts: APPS.fonts,
-      },
-    });
-    if (p.isCancel(appChoice)) {
-      p.cancel("Setup cancelled.");
-      process.exit(0);
+    if (defaults) {
+      selectedApps = getRecommendedAppValues();
+    } else {
+      const appChoice = await p.groupMultiselect({
+        message: "Select apps to install:",
+        options: {
+          Recommended: APPS.recommended,
+          Optional: APPS.optional,
+          Fonts: APPS.fonts,
+        },
+      });
+      if (p.isCancel(appChoice)) {
+        p.cancel("Setup cancelled.");
+        process.exit(0);
+      }
+      selectedApps = appChoice;
     }
-    selectedApps = appChoice;
   }
 
   // --- Execute selected steps ---
   p.log.step(pc.bold("Starting installation..."));
 
   if (steps.includes("bootstrap")) {
-    await bootstrap();
+    await bootstrap({ defaults });
   }
 
   if (steps.includes("zsh-config")) {

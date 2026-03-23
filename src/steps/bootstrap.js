@@ -1,13 +1,24 @@
 import * as p from "@clack/prompts";
 import { commandExists, run, runStream } from "../utils/shell.js";
 
+const BREW_INSTALL_COMMAND = '/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"';
+const BREW_SHELLENV_COMMAND = "(echo; echo 'eval \"$(/opt/homebrew/bin/brew shellenv)\"') >> ~/.zprofile && eval \"$(/opt/homebrew/bin/brew shellenv)\"";
+
 function isBrewAvailable() {
   return commandExists("brew");
 }
 
-async function ensureBrewOnMac() {
+async function ensureBrewOnMac({ defaults = false } = {}) {
   if (isBrewAvailable()) {
     p.log.success("Homebrew is already installed");
+    return true;
+  }
+
+  if (defaults) {
+    p.log.step("Installing Homebrew...");
+    await runStream(BREW_INSTALL_COMMAND);
+    await runStream(BREW_SHELLENV_COMMAND);
+    p.log.success("Homebrew installed");
     return true;
   }
 
@@ -26,8 +37,8 @@ async function ensureBrewOnMac() {
   }
 
   p.log.step("Installing Homebrew...");
-  await runStream('/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"');
-  await runStream('(echo; echo \'eval "$(/opt/homebrew/bin/brew shellenv)"\') >> ~/.zprofile && eval "$(/opt/homebrew/bin/brew shellenv)"');
+  await runStream(BREW_INSTALL_COMMAND);
+  await runStream(BREW_SHELLENV_COMMAND);
   p.log.success("Homebrew installed");
   return true;
 }
@@ -41,11 +52,16 @@ function detectLinuxManagers() {
   return managers;
 }
 
-async function chooseLinuxManager() {
+async function chooseLinuxManager({ defaults = false } = {}) {
   const managers = detectLinuxManagers();
   if (managers.length === 0) {
     p.log.warn("No supported package manager detected. Skipping package manager setup.");
     return "skip";
+  }
+
+  if (defaults) {
+    p.log.info(`Using ${managers[0]} for bootstrap`);
+    return managers[0];
   }
 
   const labels = {
@@ -101,14 +117,14 @@ async function installZshViaManager(manager) {
 /**
  * Install package manager baseline + Zsh.
  */
-export async function bootstrap({ platform = process.platform } = {}) {
+export async function bootstrap({ platform = process.platform, defaults = false } = {}) {
   let manager = "skip";
 
   if (platform === "darwin") {
-    const brewReady = await ensureBrewOnMac();
+    const brewReady = await ensureBrewOnMac({ defaults });
     manager = brewReady ? "brew" : "skip";
   } else if (platform === "linux") {
-    manager = await chooseLinuxManager();
+    manager = await chooseLinuxManager({ defaults });
   } else {
     p.log.warn(`Unsupported platform: ${platform}. Skipping package manager setup.`);
   }

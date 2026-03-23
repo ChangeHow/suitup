@@ -16,6 +16,10 @@ const MANAGED_FILES = [
   { path: ".config/zsh/core/options.zsh", templates: [join(CONFIGS_DIR, "core", "options.zsh")] },
   { path: ".config/zsh/shared/tools.zsh", templates: [join(CONFIGS_DIR, "shared", "tools.zsh")] },
   { path: ".config/zsh/shared/fzf.zsh", templates: [join(CONFIGS_DIR, "shared", "fzf.zsh")] },
+  { path: ".config/zsh/shared/completion.zsh", templates: [join(CONFIGS_DIR, "shared", "completion.zsh")] },
+  { path: ".config/zsh/shared/highlighting.zsh", templates: [join(CONFIGS_DIR, "shared", "highlighting.zsh")] },
+  { path: ".config/zsh/shared/plugins.zsh", templates: [join(CONFIGS_DIR, "shared", "plugins.zsh")] },
+  { path: ".config/zsh/shared/aliases.zsh", templates: [join(CONFIGS_DIR, "shared", "aliases.zsh")] },
   {
     path: ".config/zsh/shared/prompt.zsh",
     templates: [

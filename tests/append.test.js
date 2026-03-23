@@ -64,7 +64,7 @@ describe("Append mode utilities", () => {
 
     const result = appendIfMissing(
       zshrcPath,
-      '# >>> suitup/aliases >>>\nsource "$HOME/.config/suitup/aliases"\n# <<< suitup/aliases <<<',
+      '# >>> suitup/aliases >>>\nsource "$HOME/.config/zsh/shared/aliases.zsh"\n# <<< suitup/aliases <<<',
       "suitup/aliases"
     );
 
@@ -76,12 +76,12 @@ describe("Append mode utilities", () => {
 
   test("appendIfMissing skips when marker already present", () => {
     const original =
-      '# existing config\n# >>> suitup/aliases >>>\nsource "$HOME/.config/suitup/aliases"\n# <<< suitup/aliases <<<\n';
+      '# existing config\n# >>> suitup/aliases >>>\nsource "$HOME/.config/zsh/shared/aliases.zsh"\n# <<< suitup/aliases <<<\n';
     writeFileSync(zshrcPath, original, "utf-8");
 
     const result = appendIfMissing(
       zshrcPath,
-      '# >>> suitup/aliases >>>\nsource "$HOME/.config/suitup/aliases"\n# <<< suitup/aliases <<<',
+      '# >>> suitup/aliases >>>\nsource "$HOME/.config/zsh/shared/aliases.zsh"\n# <<< suitup/aliases <<<',
       "suitup/aliases"
     );
 

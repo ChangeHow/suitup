@@ -35,7 +35,7 @@ describe("Verify in sandbox", () => {
     const dirs = [
       ".config/zsh/core",
       ".config/zsh/shared",
-      ".config/suitup",
+      ".config/zsh/local",
     ];
     for (const dir of dirs) {
       mkdirSync(join(sandbox, dir), { recursive: true });
@@ -48,9 +48,12 @@ describe("Verify in sandbox", () => {
       ["core/paths.zsh", ".config/zsh/core/paths.zsh"],
       ["core/options.zsh", ".config/zsh/core/options.zsh"],
       ["shared/tools.zsh", ".config/zsh/shared/tools.zsh"],
+      ["shared/completion.zsh", ".config/zsh/shared/completion.zsh"],
+      ["shared/highlighting.zsh", ".config/zsh/shared/highlighting.zsh"],
+      ["shared/plugins.zsh", ".config/zsh/shared/plugins.zsh"],
+      ["shared/aliases.zsh", ".config/zsh/shared/aliases.zsh"],
       ["shared/prompt.zsh", ".config/zsh/shared/prompt.zsh"],
-      ["aliases", ".config/suitup/aliases"],
-      ["zinit-plugins", ".config/suitup/zinit-plugins"],
+      ["local/machine.zsh", ".config/zsh/local/machine.zsh"],
     ];
 
     for (const [src, dest] of fileMappings) {
@@ -81,6 +84,10 @@ describe("Verify in sandbox", () => {
       ["core/env.zsh", ".config/zsh/core/env.zsh"],
       ["core/paths.zsh", ".config/zsh/core/paths.zsh"],
       ["core/options.zsh", ".config/zsh/core/options.zsh"],
+      ["shared/completion.zsh", ".config/zsh/shared/completion.zsh"],
+      ["shared/highlighting.zsh", ".config/zsh/shared/highlighting.zsh"],
+      ["shared/plugins.zsh", ".config/zsh/shared/plugins.zsh"],
+      ["shared/aliases.zsh", ".config/zsh/shared/aliases.zsh"],
       ["shared/prompt.zsh", ".config/zsh/shared/prompt.zsh"],
     ];
 

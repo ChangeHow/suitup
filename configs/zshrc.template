@@ -33,14 +33,18 @@ source "$ZSH_CONFIG/shared/tools.zsh"
 # ---------------------------------------------------------------------------
 # Plugin manager
 # ---------------------------------------------------------------------------
-_stage "zinit"
+_stage "plugins"
 ZINIT_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}/zinit/zinit.git"
 source_if_exists "${ZINIT_HOME}/zinit.zsh"
 
-# Suitup
-_stage "suitup"
-source_if_exists "$HOME/.config/suitup/zinit-plugins"
-source_if_exists "$HOME/.config/suitup/aliases"
+# Shared shell config
+source_if_exists "$ZSH_CONFIG/shared/plugins.zsh"
+source_if_exists "$ZSH_CONFIG/shared/highlighting.zsh"
+source_if_exists "$ZSH_CONFIG/shared/aliases.zsh"
+
+# Completion system
+_stage "completion"
+source_if_exists "$ZSH_CONFIG/shared/completion.zsh"
 
 # ---------------------------------------------------------------------------
 # Local overrides

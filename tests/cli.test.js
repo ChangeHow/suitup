@@ -19,6 +19,11 @@ describe("cli command resolution", () => {
     expect(helpText).toContain("clean");
   });
 
+  test("help text lists init", () => {
+    const helpText = getHelpText();
+    expect(helpText).toContain("init");
+  });
+
   test("help text lists migrate-paths", () => {
     const helpText = getHelpText();
     expect(helpText).toContain("migrate-paths");
@@ -31,5 +36,9 @@ describe("cli command resolution", () => {
 
   test("resolves migrate-paths command", () => {
     expect(resolveCommand("migrate-paths")).toBe("migrate-paths");
+  });
+
+  test("resolves init command", () => {
+    expect(resolveCommand("init")).toBe("init");
   });
 });
