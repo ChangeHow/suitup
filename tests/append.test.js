@@ -235,21 +235,20 @@ describe("fzf-config block", () => {
     rmSync(sandbox, { recursive: true, force: true });
   });
 
-  test("configs/shared/fzf.zsh exists as a standalone file", () => {
-    const fzfFile = join(CONFIGS_DIR, "shared", "fzf.zsh");
+  test("configs/shared/tools/fzf.zsh exists as a tool module file", () => {
+    const fzfFile = join(CONFIGS_DIR, "shared", "tools", "fzf.zsh");
     expect(existsSync(fzfFile)).toBe(true);
   });
 
   test("fzf.zsh contains expected FZF environment variables", () => {
-    const fzfContent = readFileSync(join(CONFIGS_DIR, "shared", "fzf.zsh"), "utf-8");
+    const fzfContent = readFileSync(join(CONFIGS_DIR, "shared", "tools", "fzf.zsh"), "utf-8");
     expect(fzfContent).toContain("FZF_DEFAULT_COMMAND");
     expect(fzfContent).toContain("FZF_CTRL_T_COMMAND");
     expect(fzfContent).toContain("FZF_CTRL_T_OPTS");
   });
 
-  test("fzf.zsh does not contain tool-init cache helpers (those belong in tools.zsh)", () => {
-    const fzfContent = readFileSync(join(CONFIGS_DIR, "shared", "fzf.zsh"), "utf-8");
-    expect(fzfContent).not.toContain("_source_cached_tool_init");
+  test("fzf.zsh does not contain cache dir setup (that belongs in _loader.zsh)", () => {
+    const fzfContent = readFileSync(join(CONFIGS_DIR, "shared", "tools", "fzf.zsh"), "utf-8");
     expect(fzfContent).not.toContain("_zsh_tools_cache_dir");
   });
 

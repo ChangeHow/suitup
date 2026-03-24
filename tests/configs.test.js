@@ -83,8 +83,14 @@ describe("Static config templates", () => {
   });
 
   test("shared config files exist", () => {
-    for (const file of ["tools.zsh", "prompt.zsh", "prompt-basic.zsh", "fzf.zsh", "aliases.zsh", "plugins.zsh", "completion.zsh", "highlighting.zsh"]) {
+    for (const file of ["tools.zsh", "prompt.zsh", "prompt-basic.zsh", "aliases.zsh", "plugins.zsh", "completion.zsh", "highlighting.zsh"]) {
       expect(existsSync(join(CONFIGS_DIR, "shared", file))).toBe(true);
+    }
+  });
+
+  test("shared/tools config files exist", () => {
+    for (const file of ["_loader.zsh", "fzf.zsh", "runtime.zsh", "atuin.zsh", "bun.zsh"]) {
+      expect(existsSync(join(CONFIGS_DIR, "shared", "tools", file))).toBe(true);
     }
   });
 
@@ -132,20 +138,22 @@ describe("Static config templates", () => {
     }
   });
 
-  test("shared/fzf.zsh uses fd instead of rg for FZF_DEFAULT_COMMAND", () => {
-    const fzfContent = readFileSync(join(CONFIGS_DIR, "shared", "fzf.zsh"), "utf-8");
+  test("shared/tools/fzf.zsh uses fd instead of rg for FZF_DEFAULT_COMMAND", () => {
+    const fzfContent = readFileSync(join(CONFIGS_DIR, "shared", "tools", "fzf.zsh"), "utf-8");
     expect(fzfContent).toContain("fd --type");
     expect(fzfContent).toContain("FZF_DEFAULT_COMMAND");
     expect(fzfContent).toContain("FZF_CTRL_T_COMMAND");
     expect(fzfContent).toContain("FZF_CTRL_T_OPTS");
   });
 
-  test("shared/tools.zsh contains tool-init helpers and sources fzf.zsh", () => {
+  test("shared/tools.zsh is a thin orchestrator that loads tool configs", () => {
     const content = readFileSync(join(CONFIGS_DIR, "shared", "tools.zsh"), "utf-8");
-    expect(content).toContain("fnm");
+    expect(content).toContain("_load_tool_config");
+    expect(content).toContain("fzf");
+    expect(content).toContain("runtime");
     expect(content).toContain("atuin");
-    expect(content).toContain("zoxide");
-    expect(content).toContain("fzf.zsh");
+    expect(content).toContain("bun");
+    expect(content).not.toContain("_source_cached_tool_init");
   });
 
   test("shared/completion.zsh configures cached compinit", () => {
@@ -172,8 +180,8 @@ describe("Static config templates", () => {
 
   test("shared/tools.zsh loads fzf before atuin so atuin keeps the Ctrl-R binding", () => {
     const content = readFileSync(join(CONFIGS_DIR, "shared", "tools.zsh"), "utf-8");
-    const fzfIdx = content.indexOf("_source_cached_tool_init fzf-init fzf 'fzf --zsh'");
-    const atuinIdx = content.indexOf("_source_cached_tool_init atuin-init atuin 'atuin init zsh'");
+    const fzfIdx = content.indexOf("_load_tool_config fzf");
+    const atuinIdx = content.indexOf("_load_tool_config atuin");
 
     expect(fzfIdx).toBeGreaterThan(-1);
     expect(atuinIdx).toBeGreaterThan(-1);
@@ -187,7 +195,11 @@ describe("Static config templates", () => {
       "core/paths.zsh",
       "core/options.zsh",
       "shared/tools.zsh",
-      "shared/fzf.zsh",
+      "shared/tools/_loader.zsh",
+      "shared/tools/fzf.zsh",
+      "shared/tools/runtime.zsh",
+      "shared/tools/atuin.zsh",
+      "shared/tools/bun.zsh",
       "shared/completion.zsh",
       "shared/highlighting.zsh",
       "shared/plugins.zsh",
@@ -224,7 +236,11 @@ describe("Static config templates", () => {
       "core/paths.zsh",
       "core/options.zsh",
       "shared/tools.zsh",
-      "shared/fzf.zsh",
+      "shared/tools/_loader.zsh",
+      "shared/tools/fzf.zsh",
+      "shared/tools/runtime.zsh",
+      "shared/tools/atuin.zsh",
+      "shared/tools/bun.zsh",
       "shared/completion.zsh",
       "shared/highlighting.zsh",
       "shared/plugins.zsh",
@@ -292,7 +308,8 @@ describe("perf.zsh EPOCHREALTIME guard", () => {
   });
 
   test("normal path _zsh_report outputs a timing table", () => {
-    expect(perf).toContain("┌──────────────────────────┐");
+    expect(perf).toContain("┌────────────────────────────┐");
     expect(perf).toContain("total");
+    expect(perf).toContain("completion cache");
   });
 });

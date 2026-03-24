@@ -32,14 +32,18 @@ function writeManagedTree(base) {
     ["core/paths.zsh", ".config/zsh/core/paths.zsh"],
     ["core/options.zsh", ".config/zsh/core/options.zsh"],
     ["shared/tools.zsh", ".config/zsh/shared/tools.zsh"],
-    ["shared/fzf.zsh", ".config/zsh/shared/fzf.zsh"],
+    ["shared/tools/_loader.zsh", ".config/zsh/shared/tools/_loader.zsh"],
+    ["shared/tools/fzf.zsh", ".config/zsh/shared/tools/fzf.zsh"],
+    ["shared/tools/runtime.zsh", ".config/zsh/shared/tools/runtime.zsh"],
+    ["shared/tools/atuin.zsh", ".config/zsh/shared/tools/atuin.zsh"],
+    ["shared/tools/bun.zsh", ".config/zsh/shared/tools/bun.zsh"],
     ["shared/completion.zsh", ".config/zsh/shared/completion.zsh"],
     ["shared/highlighting.zsh", ".config/zsh/shared/highlighting.zsh"],
     ["shared/plugins.zsh", ".config/zsh/shared/plugins.zsh"],
     ["shared/aliases.zsh", ".config/zsh/shared/aliases.zsh"],
     ["shared/prompt.zsh", ".config/zsh/shared/prompt.zsh"],
     ["local/machine.zsh", ".config/zsh/local/machine.zsh"],
-    ["config.vim", ".config/suitup/config.vim"],
+    ["config.vim", ".config/zsh/local/config.vim"],
     ["zshrc.template", ".zshrc"],
     ["zshenv.template", ".zshenv"],
   ];
@@ -65,7 +69,7 @@ describe("clean command", () => {
   test("restores the latest non-suitup backups for managed zsh files", () => {
     writeManagedTree(sandbox.path);
 
-    const backupsRoot = join(sandbox.path, ".config", "suitup", "backups");
+    const backupsRoot = join(sandbox.path, ".config", "zsh", "backups");
     const olderBackup = join(backupsRoot, "2026-03-19T10-00-00-000Z-setup");
     const newerBackup = join(backupsRoot, "2026-03-19T11-00-00-000Z-setup");
     mkdirSync(olderBackup, { recursive: true });
@@ -89,7 +93,6 @@ describe("clean command", () => {
     expect(readFileSync(join(sandbox.path, ".zshrc"), "utf-8")).toContain("export FOO=bar");
     expect(readFileSync(join(sandbox.path, ".zshenv"), "utf-8")).toContain("export BAR=baz");
     expect(existsSync(join(sandbox.path, ".config", "zsh"))).toBe(false);
-    expect(existsSync(join(sandbox.path, ".config", "suitup"))).toBe(false);
     expect(summary.restored).toContain("~/.zshrc");
     expect(summary.restored).toContain("~/.zshenv");
   });
@@ -152,6 +155,6 @@ describe("clean command", () => {
 
     expect(result).toBeNull();
     expect(existsSync(join(sandbox.path, ".config", "zsh"))).toBe(true);
-    expect(existsSync(join(sandbox.path, ".config", "suitup"))).toBe(true);
+    expect(existsSync(join(sandbox.path, ".config", "zsh", "local", "config.vim"))).toBe(true);
   });
 });

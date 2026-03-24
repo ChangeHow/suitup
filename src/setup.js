@@ -64,7 +64,6 @@ export function detectCompletedSteps({
 } = {}) {
   const completed = new Set();
   const zshConfigDir = join(home, ".config", "zsh");
-  const suitupDir = join(home, ".config", "suitup");
   const xdgDataHome = process.env.XDG_DATA_HOME || join(home, ".local", "share");
   const zinitHome = join(xdgDataHome, "zinit", "zinit.git");
   const zshrc = readFileSafe(join(home, ".zshrc"));
@@ -83,7 +82,7 @@ export function detectCompletedSteps({
     existsSync(join(zshConfigDir, "core", "paths.zsh")) &&
     existsSync(join(zshConfigDir, "core", "options.zsh")) &&
     existsSync(join(zshConfigDir, "shared", "tools.zsh")) &&
-    existsSync(join(zshConfigDir, "shared", "fzf.zsh")) &&
+    existsSync(join(zshConfigDir, "shared", "tools", "_loader.zsh")) &&
     existsSync(join(zshConfigDir, "shared", "completion.zsh")) &&
     existsSync(join(zshConfigDir, "shared", "highlighting.zsh")) &&
     existsSync(join(zshConfigDir, "shared", "prompt.zsh")) &&
@@ -92,11 +91,11 @@ export function detectCompletedSteps({
     completed.add("zsh-config");
   }
 
-  if (existsSync(join(zshConfigDir, "shared", "plugins.zsh")) || existsSync(join(suitupDir, "zinit-plugins")) || existsSync(zinitHome)) {
+  if (existsSync(join(zshConfigDir, "shared", "plugins.zsh")) || existsSync(zinitHome)) {
     completed.add("plugins");
   }
 
-  if (existsSync(join(zshConfigDir, "shared", "aliases.zsh")) || existsSync(join(suitupDir, "aliases"))) {
+  if (existsSync(join(zshConfigDir, "shared", "aliases.zsh"))) {
     completed.add("aliases");
   }
 
@@ -113,7 +112,7 @@ export function detectCompletedSteps({
     completed.add("ssh");
   }
 
-  if (existsSync(join(suitupDir, "config.vim")) && vimrc.includes("config.vim")) {
+  if (existsSync(join(zshConfigDir, "local", "config.vim")) && vimrc.includes("config.vim")) {
     completed.add("vim");
   }
 

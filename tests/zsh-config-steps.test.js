@@ -39,7 +39,11 @@ describe("zsh-config step", () => {
     expect(existsSync(join(sandbox.path, ".config", "zsh", "core", "paths.zsh"))).toBe(true);
     expect(existsSync(join(sandbox.path, ".config", "zsh", "core", "options.zsh"))).toBe(true);
     expect(existsSync(join(sandbox.path, ".config", "zsh", "shared", "tools.zsh"))).toBe(true);
-    expect(existsSync(join(sandbox.path, ".config", "zsh", "shared", "fzf.zsh"))).toBe(true);
+    expect(existsSync(join(sandbox.path, ".config", "zsh", "shared", "tools", "_loader.zsh"))).toBe(true);
+    expect(existsSync(join(sandbox.path, ".config", "zsh", "shared", "tools", "fzf.zsh"))).toBe(true);
+    expect(existsSync(join(sandbox.path, ".config", "zsh", "shared", "tools", "runtime.zsh"))).toBe(true);
+    expect(existsSync(join(sandbox.path, ".config", "zsh", "shared", "tools", "atuin.zsh"))).toBe(true);
+    expect(existsSync(join(sandbox.path, ".config", "zsh", "shared", "tools", "bun.zsh"))).toBe(true);
     expect(existsSync(join(sandbox.path, ".config", "zsh", "shared", "completion.zsh"))).toBe(true);
     expect(existsSync(join(sandbox.path, ".config", "zsh", "shared", "highlighting.zsh"))).toBe(true);
     expect(existsSync(join(sandbox.path, ".config", "zsh", "shared", "prompt.zsh"))).toBe(true);
@@ -51,16 +55,18 @@ describe("zsh-config step", () => {
 
     const perf = readFileSync(join(sandbox.path, ".config", "zsh", "core", "perf.zsh"), "utf-8");
     const tools = readFileSync(join(sandbox.path, ".config", "zsh", "shared", "tools.zsh"), "utf-8");
-    const fzf = readFileSync(join(sandbox.path, ".config", "zsh", "shared", "fzf.zsh"), "utf-8");
+    const loader = readFileSync(join(sandbox.path, ".config", "zsh", "shared", "tools", "_loader.zsh"), "utf-8");
+    const fzfTool = readFileSync(join(sandbox.path, ".config", "zsh", "shared", "tools", "fzf.zsh"), "utf-8");
     const completion = readFileSync(join(sandbox.path, ".config", "zsh", "shared", "completion.zsh"), "utf-8");
     const highlighting = readFileSync(join(sandbox.path, ".config", "zsh", "shared", "highlighting.zsh"), "utf-8");
 
     expect(perf).toContain("EPOCHREALTIME");
     expect(perf).toContain("_record_stage_duration");
-    expect(tools).toContain("_source_cached_tool_init");
-    expect(tools).toContain("$_zsh_tools_cache_dir");
-    expect(fzf).toContain("FZF_DEFAULT_COMMAND");
-    expect(fzf).toContain("FZF_CTRL_T_OPTS");
+    expect(tools).toContain("_load_tool_config");
+    expect(tools).toContain("_zsh_tools_dir");
+    expect(loader).toContain("_source_cached_tool_init");
+    expect(fzfTool).toContain("FZF_DEFAULT_COMMAND");
+    expect(fzfTool).toContain("fzf-file-widget");
     expect(completion).toContain("compinit");
     expect(highlighting).toContain("ZSH_HIGHLIGHT_STYLES");
   });
@@ -129,7 +135,7 @@ describe("zsh-config step", () => {
     const content = readFileSync(join(sandbox.path, ".zshrc"), "utf-8");
     expect(content).toContain("ZSH_CONFIG");
 
-    const backupRoot = join(sandbox.path, ".config", "suitup", "backups");
+    const backupRoot = join(sandbox.path, ".config", "zsh", "backups");
     const backupDirs = readdirSync(backupRoot);
     expect(backupDirs.length).toBe(1);
 
@@ -238,7 +244,7 @@ describe("vim step", () => {
   test("writes vim config and .vimrc in empty sandbox", async () => {
     await setupVim({ home: sandbox.path });
 
-    expect(existsSync(join(sandbox.path, ".config", "suitup", "config.vim"))).toBe(true);
+    expect(existsSync(join(sandbox.path, ".config", "zsh", "local", "config.vim"))).toBe(true);
     expect(existsSync(join(sandbox.path, ".vimrc"))).toBe(true);
 
     const vimrc = readFileSync(join(sandbox.path, ".vimrc"), "utf-8");
@@ -247,12 +253,12 @@ describe("vim step", () => {
   });
 
   test("skips vim config when already exists", async () => {
-    mkdirSync(join(sandbox.path, ".config", "suitup"), { recursive: true });
-    writeFileSync(join(sandbox.path, ".config", "suitup", "config.vim"), "\" my vim config", "utf-8");
+    mkdirSync(join(sandbox.path, ".config", "zsh", "local"), { recursive: true });
+    writeFileSync(join(sandbox.path, ".config", "zsh", "local", "config.vim"), "\" my vim config", "utf-8");
 
     await setupVim({ home: sandbox.path });
 
-    const content = readFileSync(join(sandbox.path, ".config", "suitup", "config.vim"), "utf-8");
+    const content = readFileSync(join(sandbox.path, ".config", "zsh", "local", "config.vim"), "utf-8");
     expect(content).toBe("\" my vim config");
   });
 

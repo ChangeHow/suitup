@@ -21,7 +21,7 @@ Named after Barney's catchphrase from [How I Met Your Mother](https://www.themov
 - **Verify mode** — check your installation integrity
 - **Clean mode** — remove suitup config files
 - `--help` output for quick command discovery
-- Backs up existing zsh startup files to `~/.config/suitup/backups/` before changing shell startup config
+- Backs up existing zsh startup files to `~/.config/zsh/backups/` before changing shell startup config
 - Powerlevel10k is optional; recommended because its async git status stays responsive in large repositories
 - Idempotent — safe to run multiple times
 - No private/company-specific content — clean, generic configs
@@ -111,7 +111,7 @@ Interactive step-by-step setup with selectable steps:
 10. **Vim Config** — basic vim setup
 11. **Dock Cleanup** — clean macOS Dock
 
-Before suitup updates shell startup config, it backs up existing zsh startup files such as `.zshrc`, `.zprofile`, `.zshenv`, and `.zlogin` to `~/.config/suitup/backups/`.
+Before suitup updates shell startup config, it backs up existing zsh startup files such as `.zshrc`, `.zprofile`, `.zshenv`, and `.zlogin` to `~/.config/zsh/backups/`.
 
 If you choose Powerlevel10k, suitup keeps prompt loading non-interactive during setup. When `~/.p10k.zsh` is missing, it falls back to a basic prompt until you run `p10k configure` yourself.
 
@@ -162,7 +162,7 @@ This command:
 
 - extracts detected PATH-related lines from `.zshrc`
 - appends them to `~/.config/zsh/core/paths.zsh`
-- creates a backup in `~/.config/suitup/backups/`
+- creates a backup in `~/.config/zsh/backups/`
 - runs a post-migration Zsh syntax check
 - rolls back automatically if validation fails
 
@@ -175,7 +175,7 @@ node src/cli.js clean
 Attempts a safe uninstall of suitup-managed config:
 
 - restores the latest non-suitup backup of `~/.zshrc` / `~/.zshenv` when available
-- removes suitup-generated `~/.config/zsh/` and `~/.config/suitup/` files when they still match shipped templates
+- removes suitup-generated `~/.config/zsh/` files when they still match shipped templates
 - strips `# >>> suitup/... >>>` blocks from an existing `~/.zshrc` if you used `append`
 - preserves user-modified files instead of deleting them blindly
 
@@ -231,7 +231,13 @@ After setup, your shell config looks like:
     paths.zsh                     # PATH + tool bootstrap entries
     options.zsh                   # Zsh shell options
   shared/
-    tools.zsh                     # Tool init (fzf, atuin, zoxide, fnm)
+    tools.zsh                     # Tool init orchestrator
+    tools/
+      _loader.zsh                 # _load_tool_config() + version-based cache
+      fzf.zsh                     # FZF env, init, Ctrl-T widget
+      runtime.zsh                 # zoxide + fnm
+      atuin.zsh                   # Atuin history (owns Ctrl-R)
+      bun.zsh                     # Bun async completion
     plugins.zsh                   # zinit plugin declarations
     highlighting.zsh              # zsh-syntax-highlighting styles
     aliases.zsh                   # Shared aliases
@@ -239,9 +245,8 @@ After setup, your shell config looks like:
     prompt.zsh                    # Prompt/theme (p10k)
   local/
     machine.zsh                   # Machine-specific overrides
+    config.vim                    # Vim config
     secrets.zsh                   # API keys (create manually, gitignored)
-~/.config/suitup/
-  config.vim                      # Vim config
 ```
 
 ## Testing

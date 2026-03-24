@@ -26,7 +26,9 @@ The actual config lives under `~/.config/zsh/`.
 
 ### Shared files
 
-- `configs/shared/tools.zsh`: external tool initialization, including cached init scripts
+- `configs/shared/tools.zsh`: thin orchestrator that sources `shared/tools/_loader.zsh` and calls `_load_tool_config` for each tool module
+- `configs/shared/tools/_loader.zsh`: `_load_tool_config()` helper and `_source_cached_tool_init()` with version-based cache invalidation
+- `configs/shared/tools/{tool}.zsh`: per-tool module files (fzf, runtime, atuin, bun), loaded on demand by `_load_tool_config`
 - `configs/shared/prompt.zsh`: prompt/theme loading
 
 ### Local files
