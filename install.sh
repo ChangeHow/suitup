@@ -194,9 +194,22 @@ fi
 ensure_zsh "${PACKAGE_MANAGER}"
 ensure_node_runtime "${PACKAGE_MANAGER}"
 
-CLI_COMMAND="${1:-init}"
 if [[ $# -gt 0 ]]; then
+  CLI_COMMAND="$1"
   shift
+elif [[ -r /dev/tty ]]; then
+  echo '' >&2
+  echo 'How would you like to run suitup?' >&2
+  echo '  1) setup  — interactive, choose each step yourself' >&2
+  echo '  2) init   — non-interactive, install everything with recommended defaults' >&2
+  echo '' >&2
+  read -r -p 'Enter 1 or 2 [default: 1]: ' _suitup_choice < /dev/tty
+  case "${_suitup_choice}" in
+    2) CLI_COMMAND="init" ;;
+    *) CLI_COMMAND="setup" ;;
+  esac
+else
+  CLI_COMMAND="setup"
 fi
 
 case "${CLI_COMMAND}" in

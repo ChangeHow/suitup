@@ -48,7 +48,13 @@ When you run suitup locally from the repo, use a zsh session. The curl installer
 curl -fsSL https://raw.githubusercontent.com/ChangeHow/suitup/main/install.sh | bash
 ```
 
-The installer now defaults to `init`, bootstraps missing `zsh` and Node.js/npm when possible, downloads a temporary copy of the repo, runs `npm ci`, and launches suitup inside `zsh`.
+The installer bootstraps missing `zsh` and Node.js/npm when possible, downloads a temporary copy of the repo, runs `npm ci`, then asks whether you want interactive `setup` or non-interactive `init` before launching inside `zsh`.
+
+You can also pass a command directly to skip the prompt:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/ChangeHow/suitup/main/install.sh | bash -s -- init
+```
 
 `init` is a non-interactive quick-start path that uses recommended defaults:
 
@@ -58,14 +64,15 @@ The installer now defaults to `init`, bootstraps missing `zsh` and Node.js/npm w
 - install recommended CLI tools and frontend tooling
 - install recommended GUI apps on macOS
 - write shared aliases
+- run `p10k configure` at the end to set up your prompt theme
 
-You can also pass a specific command to the installer:
+You can also pass any other command:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/ChangeHow/suitup/main/install.sh | bash -s -- clean
 ```
 
-If you want append mode directly without the prompt:
+If you want append mode directly:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/ChangeHow/suitup/main/install.sh | bash -s -- append

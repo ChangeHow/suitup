@@ -3,6 +3,7 @@ import pc from "picocolors";
 import { existsSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
+import { spawnSync } from "node:child_process";
 import { bootstrap } from "./steps/bootstrap.js";
 import { installZinit } from "./steps/plugin-manager.js";
 import { CLI_TOOLS, installCliTools } from "./steps/cli-tools.js";
@@ -322,7 +323,12 @@ export async function runSetup({ defaults = false } = {}) {
   }
 
   if (promptTheme === "p10k" && !existsSync(join(homedir(), ".p10k.zsh"))) {
-    p.log.info("Powerlevel10k is selected, but `~/.p10k.zsh` was not found. Suitup keeps a basic prompt until you run `p10k configure` in zsh, which avoids dropping you into an interactive wizard during setup.");
+    if (defaults) {
+      p.log.step("Launching Powerlevel10k configuration wizard...");
+      spawnSync("zsh", ["-lc", "p10k configure"], { stdio: "inherit" });
+    } else {
+      p.log.info("Powerlevel10k is selected, but `~/.p10k.zsh` was not found. Suitup keeps a basic prompt until you run `p10k configure` in zsh, which avoids dropping you into an interactive wizard during setup.");
+    }
   }
 
   p.outro(
