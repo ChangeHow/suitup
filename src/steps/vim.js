@@ -11,14 +11,14 @@ import { CONFIGS_DIR } from "../constants.js";
  */
 export async function setupVim({ home } = {}) {
   const base = home || homedir();
-  const suitupDir = join(base, ".config", "suitup");
-  const vimCfg = join(suitupDir, "config.vim");
+  const zshLocal = join(base, ".config", "zsh", "local");
+  const vimCfg = join(zshLocal, "config.vim");
   const vimrc = join(base, ".vimrc");
 
   // Copy vim config (skip if already exists)
   const copied = copyIfNotExists(join(CONFIGS_DIR, "config.vim"), vimCfg);
   if (copied) {
-    p.log.success("Vim config written to ~/.config/suitup/config.vim");
+    p.log.success("Vim config written to ~/.config/zsh/local/config.vim");
   } else {
     p.log.info("Vim config already exists, skipped");
   }

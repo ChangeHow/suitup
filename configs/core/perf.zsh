@@ -49,9 +49,9 @@ _print_duration_row() {
   if (( rounded_ms > 1000 )); then
     local sec=$(( rounded_ms / 1000 ))
     local rem=$(( rounded_ms % 1000 ))
-    printf '│ %-8s %12d.%01ds │\n' "$name" "$sec" "$(( rem / 100 ))"
+    printf '│ %-10s %12d.%01ds │\n' "$name" "$sec" "$(( rem / 100 ))"
   else
-    printf '│ %-8s %13dms │\n' "$name" "$rounded_ms"
+    printf '│ %-10s %13dms │\n' "$name" "$rounded_ms"
   fi
 }
 
@@ -66,13 +66,17 @@ _zsh_report() {
   local i
 
   echo ''
-  echo '┌──────────────────────────┐'
+  echo '┌────────────────────────────┐'
 
   for i in {1..${#_zsh_stage_names}}; do
     _print_duration_row "${_zsh_stage_names[$i]}" "${_zsh_stage_durations[$i]}"
   done
 
-  echo '├──────────────────────────┤'
+  echo '├────────────────────────────┤'
   _print_duration_row 'total' "$total_ms"
-  echo '└──────────────────────────┘'
+  echo '└────────────────────────────┘'
+
+  if [[ "${_zsh_completion_cache_mode:-}" == 'cache-hit' && -n "${_zsh_compdump_file:-}" ]]; then
+    printf 'completion cache hit; remove %s to rebuild\n' "$_zsh_compdump_file"
+  fi
 }

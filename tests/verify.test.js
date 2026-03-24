@@ -36,6 +36,7 @@ describe("Verify in sandbox", () => {
       ".config/zsh/core",
       ".config/zsh/shared",
       ".config/zsh/local",
+      ".config/zsh/shared/tools",
     ];
     for (const dir of dirs) {
       mkdirSync(join(sandbox, dir), { recursive: true });
@@ -48,6 +49,11 @@ describe("Verify in sandbox", () => {
       ["core/paths.zsh", ".config/zsh/core/paths.zsh"],
       ["core/options.zsh", ".config/zsh/core/options.zsh"],
       ["shared/tools.zsh", ".config/zsh/shared/tools.zsh"],
+      ["shared/tools/_loader.zsh", ".config/zsh/shared/tools/_loader.zsh"],
+      ["shared/tools/fzf.zsh", ".config/zsh/shared/tools/fzf.zsh"],
+      ["shared/tools/runtime.zsh", ".config/zsh/shared/tools/runtime.zsh"],
+      ["shared/tools/atuin.zsh", ".config/zsh/shared/tools/atuin.zsh"],
+      ["shared/tools/bun.zsh", ".config/zsh/shared/tools/bun.zsh"],
       ["shared/completion.zsh", ".config/zsh/shared/completion.zsh"],
       ["shared/highlighting.zsh", ".config/zsh/shared/highlighting.zsh"],
       ["shared/plugins.zsh", ".config/zsh/shared/plugins.zsh"],

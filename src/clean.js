@@ -15,7 +15,11 @@ const MANAGED_FILES = [
   { path: ".config/zsh/core/paths.zsh", templates: [join(CONFIGS_DIR, "core", "paths.zsh")] },
   { path: ".config/zsh/core/options.zsh", templates: [join(CONFIGS_DIR, "core", "options.zsh")] },
   { path: ".config/zsh/shared/tools.zsh", templates: [join(CONFIGS_DIR, "shared", "tools.zsh")] },
-  { path: ".config/zsh/shared/fzf.zsh", templates: [join(CONFIGS_DIR, "shared", "fzf.zsh")] },
+  { path: ".config/zsh/shared/tools/_loader.zsh", templates: [join(CONFIGS_DIR, "shared", "tools", "_loader.zsh")] },
+  { path: ".config/zsh/shared/tools/fzf.zsh", templates: [join(CONFIGS_DIR, "shared", "tools", "fzf.zsh")] },
+  { path: ".config/zsh/shared/tools/runtime.zsh", templates: [join(CONFIGS_DIR, "shared", "tools", "runtime.zsh")] },
+  { path: ".config/zsh/shared/tools/atuin.zsh", templates: [join(CONFIGS_DIR, "shared", "tools", "atuin.zsh")] },
+  { path: ".config/zsh/shared/tools/bun.zsh", templates: [join(CONFIGS_DIR, "shared", "tools", "bun.zsh")] },
   { path: ".config/zsh/shared/completion.zsh", templates: [join(CONFIGS_DIR, "shared", "completion.zsh")] },
   { path: ".config/zsh/shared/highlighting.zsh", templates: [join(CONFIGS_DIR, "shared", "highlighting.zsh")] },
   { path: ".config/zsh/shared/plugins.zsh", templates: [join(CONFIGS_DIR, "shared", "plugins.zsh")] },
@@ -28,9 +32,7 @@ const MANAGED_FILES = [
     ],
   },
   { path: ".config/zsh/local/machine.zsh", templates: [join(CONFIGS_DIR, "local", "machine.zsh")] },
-  { path: ".config/suitup/aliases", templates: [join(CONFIGS_DIR, "aliases")] },
-  { path: ".config/suitup/zinit-plugins", templates: [join(CONFIGS_DIR, "zinit-plugins")] },
-  { path: ".config/suitup/config.vim", templates: [join(CONFIGS_DIR, "config.vim")] },
+  { path: ".config/zsh/local/config.vim", templates: [join(CONFIGS_DIR, "config.vim")] },
 ];
 
 function displayPath(base, relativePath) {
@@ -47,7 +49,7 @@ function matchesManagedTemplate(fullPath, templates) {
 }
 
 function listBackupDirs(base) {
-  const backupRoot = join(base, ".config", "suitup", "backups");
+  const backupRoot = join(base, ".config", "zsh", "backups");
   if (!existsSync(backupRoot)) {
     return [];
   }
@@ -172,7 +174,7 @@ function cleanVimrc(base, summary) {
     return;
   }
 
-  const suitupVimConfig = join(base, ".config", "suitup", "config.vim");
+  const suitupVimConfig = join(base, ".config", "zsh", "local", "config.vim");
   const content = readFileSafe(vimrc);
   const cleaned = content
     .replace(new RegExp(`^source ${escapeRegExp(suitupVimConfig)}\\s*\\n?`, "m"), "")
@@ -222,7 +224,7 @@ export function cleanSandbox(base) {
   cleanVimrc(base, summary);
   cleanManagedFiles(base, summary);
 
-  const backupsRoot = join(base, ".config", "suitup", "backups");
+  const backupsRoot = join(base, ".config", "zsh", "backups");
   if (existsSync(backupsRoot)) {
     rmSync(backupsRoot, { recursive: true, force: true });
   }
@@ -231,7 +233,7 @@ export function cleanSandbox(base) {
     new Set(
       MANAGED_FILES
         .map((managedFile) => dirname(managedFile.path))
-        .concat([".config/zsh/local", ".config/zsh/shared", ".config/zsh/core", ".config/zsh", ".config/suitup"])
+        .concat([".config/zsh/local", ".config/zsh/shared/tools", ".config/zsh/shared", ".config/zsh/core", ".config/zsh"])
     )
   ).sort((left, right) => right.length - left.length);
 

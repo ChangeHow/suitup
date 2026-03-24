@@ -24,7 +24,7 @@ export async function backupShellRcFiles({ home, reason = "setup" } = {}) {
     return null;
   }
 
-  const backupDir = join(base, ".config", "suitup", "backups", `${createBackupStamp()}-${reason}`);
+  const backupDir = join(base, ".config", "zsh", "backups", `${createBackupStamp()}-${reason}`);
   ensureDir(backupDir);
 
   for (const file of existingFiles) {
@@ -50,13 +50,11 @@ export async function backupShellRcFiles({ home, reason = "setup" } = {}) {
 export async function setupZshConfig({ home, promptTheme = "p10k" } = {}) {
   const base = home || homedir();
   const zshConfig = join(base, ".config", "zsh");
-  const suitupConfig = join(base, ".config", "suitup");
 
   // Ensure directories
-  for (const sub of ["core", "shared", "local"]) {
+  for (const sub of ["core", "shared", "shared/tools", "local"]) {
     ensureDir(join(zshConfig, sub));
   }
-  ensureDir(suitupConfig);
 
   // Copy core configs (skip if already exist)
   const coreFiles = ["perf.zsh", "env.zsh", "paths.zsh", "options.zsh"];
@@ -68,13 +66,25 @@ export async function setupZshConfig({ home, promptTheme = "p10k" } = {}) {
   // Copy shared configs (skip if already exist)
   const sharedFiles = [
     "tools.zsh",
-    "fzf.zsh",
     "completion.zsh",
     "highlighting.zsh",
   ];
   for (const file of sharedFiles) {
     const copied = copyIfNotExists(join(CONFIGS_DIR, "shared", file), join(zshConfig, "shared", file));
     if (!copied) p.log.info(`Skipped shared/${file} (already exists)`);
+  }
+
+  // Copy shared/tools/ module files (skip if already exist)
+  const toolFiles = [
+    "_loader.zsh",
+    "fzf.zsh",
+    "runtime.zsh",
+    "atuin.zsh",
+    "bun.zsh",
+  ];
+  for (const file of toolFiles) {
+    const copied = copyIfNotExists(join(CONFIGS_DIR, "shared", "tools", file), join(zshConfig, "shared", "tools", file));
+    if (!copied) p.log.info(`Skipped shared/tools/${file} (already exists)`);
   }
 
   const promptSource = promptTheme === "basic" ? "prompt-basic.zsh" : "prompt.zsh";
@@ -132,7 +142,7 @@ export async function writeZshrc(pluginManager = "zinit", { home } = {}) {
     }
 
     writeFile(zshrc, template);
-    p.log.success(".zshrc written (backup saved under ~/.config/suitup/backups/)");
+    p.log.success(".zshrc written (backup saved under ~/.config/zsh/backups/)");
   } else {
     writeFile(zshrc, template);
     p.log.success(".zshrc created");
