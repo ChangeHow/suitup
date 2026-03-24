@@ -27,11 +27,12 @@ describe("install.sh", () => {
     expect(content).toContain("launch_cli");
   });
 
-  test("defaults to quick init when no command is provided", () => {
+  test("prompts user to choose setup mode when no command is provided", () => {
     const content = readFileSync(INSTALL_SCRIPT, "utf-8");
 
-    expect(content).toContain('CLI_COMMAND="${1:-init}"');
-    expect(content).not.toContain("Choose install mode:");
+    expect(content).toContain("How would you like to run suitup?");
+    expect(content).toContain("interactive, choose each step yourself");
+    expect(content).toContain("non-interactive, install everything with recommended defaults");
   });
 
   test("passes init directly to the CLI and validates supported commands", () => {

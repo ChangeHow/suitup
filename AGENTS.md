@@ -76,3 +76,15 @@ This step must remain idempotent.
 
 - `README.md`: end-user usage, installed tools, resulting file layout
 - `AGENTS.md`: implementation details, architecture, contributor guidance
+
+## Documentation Sync — REQUIRED
+
+`README.md` is the source of truth. `README.zh-CN.md` is its Simplified Chinese translation.
+
+**You MUST update both files in the same commit** whenever changes affect user-facing content (features, commands, file paths, install behavior, directory layout). Updating one without the other is never acceptable.
+
+Checklist for README changes:
+- Paths and directory structures match between both files
+- Command tables and descriptions reflect the current behavior
+- `install.sh` default behavior is accurately described in both files
+- The installed file layout section reflects the current shipped config structure
