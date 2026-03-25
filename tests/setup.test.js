@@ -17,6 +17,7 @@ import {
   getInitialStepValues,
   getRecommendedAppValues,
   getRecommendedCliToolValues,
+  getWelcomeMessage,
   isZshShell,
 } from "../src/setup.js";
 
@@ -161,6 +162,15 @@ describe("Setup simulation in sandbox", () => {
       "raycast",
       "visual-studio-code",
     ]);
+  });
+
+  test("welcome message includes the ASCII suitup mark", () => {
+    const message = getWelcomeMessage();
+
+    expect(message).toContain("_____       _ __");
+    expect(message).toContain("/ ___/__  __(_) /___  ______");
+    expect(message).toContain("/____/\\__,_/_/\\__/\\__,_/ .___/");
+    expect(message).toContain("Suit up!");
   });
 
   test("detects completed suitup-managed setup steps", () => {

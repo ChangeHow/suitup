@@ -19,6 +19,19 @@ import { commandExists } from "./utils/shell.js";
 import { isZshShell } from "./utils/shell-context.js";
 export { isZshShell } from "./utils/shell-context.js";
 
+export const SUITUP_ASCII_LOGO = String.raw`
+   _____       _ __
+  / ___/__  __(_) /___  ______
+  \__ \/ / / / / __/ / / / __ \
+ ___/ / /_/ / / /_/ /_/ / /_/ /
+/____/\__,_/_/\__/\__,_/ .___/
+                      /_/
+`.trim();
+
+export function getWelcomeMessage() {
+  return `${pc.cyan(SUITUP_ASCII_LOGO)}\n${pc.bgCyan(pc.black(" Suit up! "))}`;
+}
+
 export function getRecommendedCliToolValues() {
   return [...CLI_TOOLS.essentials, ...CLI_TOOLS.shell].map((tool) => tool.value);
 }
@@ -126,7 +139,7 @@ export function getInitialStepValues(opts = {}) {
 }
 
 export async function runSetup({ defaults = false } = {}) {
-  p.intro(pc.bgCyan(pc.black(" Suit up! ")));
+  p.intro(getWelcomeMessage());
 
   if (!isZshShell()) {
     p.log.error("Suitup setup must be run from zsh.");
