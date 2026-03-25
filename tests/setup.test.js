@@ -24,6 +24,7 @@ import {
 } from "../src/setup.js";
 
 const CONFIGS_DIR = join(import.meta.dirname, "..", "configs");
+const ANSI_COLOR_CODE_PATTERN = /\u001b\[[0-9;]*m/g;
 
 describe("Setup simulation in sandbox", () => {
   let sandbox;
@@ -167,21 +168,51 @@ describe("Setup simulation in sandbox", () => {
   });
 
   test("pixel-art welcome logo uses the expected template", () => {
-    expect(SUITUP_PIXEL_LOGO).toHaveLength(11);
-    expect(SUITUP_PIXEL_LOGO.every((row) => row.length === 12)).toBe(true);
-    expect(SUITUP_PIXEL_LOGO.join("")).toMatch(/^[gdwrps]+$/);
-    expect(SUITUP_PIXEL_LOGO.some((row) => row.includes("s"))).toBe(true);
-    expect(SUITUP_PIXEL_LOGO.some((row) => row.includes("ppp"))).toBe(true);
-    expect(SUITUP_PIXEL_LOGO.some((row) => row.includes("rr"))).toBe(true);
+    expect(SUITUP_PIXEL_LOGO).toMatchInlineSnapshot(`
+      [
+        "gddwwddwwddg",
+        "gddwwwwwwddg",
+        "ggdwwdwwddgg",
+        "ggdwwrwwddgg",
+        "ggdwrwrwddgg",
+        "ggdwwrwwddgg",
+        "ggdwrwrwddgg",
+        "gggdwwrwddgg",
+        "gggdwrpppwgg",
+        "gggdrrpppwgs",
+        "gggddrpppwgg",
+      ]
+    `);
   });
 
   test("pixel-art welcome logo renders colored blocks and the status dot", () => {
     const logo = getWelcomeLogo();
-    expect(logo).toContain("\u001b[38;5;255m");
-    expect(logo).toContain("\u001b[38;5;236m");
-    expect(logo).toContain("\u001b[38;5;202m");
-    expect(logo).toContain("\u001b[38;5;224m");
-    expect(logo).toContain("\u001b[38;5;255m● ");
+    const expectedPixels = [
+      "\u001b[38;5;245m██\u001b[0m",
+      "\u001b[38;5;236m██\u001b[0m",
+      "\u001b[38;5;255m██\u001b[0m",
+      "\u001b[38;5;202m██\u001b[0m",
+      "\u001b[38;5;224m██\u001b[0m",
+      "\u001b[38;5;255m● \u001b[0m",
+    ];
+
+    expect(logo.replace(ANSI_COLOR_CODE_PATTERN, "")).toMatchInlineSnapshot(`
+      "████████████████████████
+      ████████████████████████
+      ████████████████████████
+      ████████████████████████
+      ████████████████████████
+      ████████████████████████
+      ████████████████████████
+      ████████████████████████
+      ████████████████████████
+      ██████████████████████● 
+      ████████████████████████"
+    `);
+
+    for (const pixel of expectedPixels) {
+      expect(logo).toContain(pixel);
+    }
   });
 
   test("welcome message displays the suit up badge below the logo", () => {
