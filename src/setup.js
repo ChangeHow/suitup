@@ -19,17 +19,50 @@ import { commandExists } from "./utils/shell.js";
 import { isZshShell } from "./utils/shell-context.js";
 export { isZshShell } from "./utils/shell-context.js";
 
-export const SUITUP_ASCII_LOGO = String.raw`
-   _____       _ __
-  / ___/__  __(_) /___  ______
-  \__ \/ / / / / __/ / / / __ \
- ___/ / /_/ / / /_/ /_/ / /_/ /
-/____/\__,_/_/\__/\__,_/ .___/
-                      /_/
-`.trim();
+export const SUITUP_PIXEL_LOGO = [
+  "gddwwddwwddg",
+  "gddwwwwwwddg",
+  "ggdwwdwwddgg",
+  "ggdwwrwwddgg",
+  "ggdwrwrwddgg",
+  "ggdwwrwwddgg",
+  "ggdwrwrwddgg",
+  "gggdwwrwddgg",
+  "gggdwrpppwgg",
+  "gggdrrpppwgs",
+  "gggddrpppwgg",
+];
+
+function colorize256(code, text) {
+  return `\x1b[38;5;${code}m${text}\x1b[0m`;
+}
+
+function renderPixel(pixel) {
+  switch (pixel) {
+    case "g":
+      return colorize256(245, "██");
+    case "d":
+      return colorize256(236, "██");
+    case "w":
+      return colorize256(255, "██");
+    case "r":
+      return colorize256(202, "██");
+    case "p":
+      return colorize256(224, "██");
+    case "s":
+      return colorize256(255, "● ");
+    default:
+      return "  ";
+  }
+}
+
+export function getWelcomeLogo() {
+  const renderRow = (row) => [...row].map(renderPixel).join("");
+  return SUITUP_PIXEL_LOGO.map(renderRow).join("\n");
+}
 
 export function getWelcomeMessage() {
-  return `${pc.cyan(SUITUP_ASCII_LOGO)}\n${pc.bgCyan(pc.black(" Suit up! "))}`;
+  return `${getWelcomeLogo()}\n${pc.bgCyan(pc.black(" Suit up! "))}`;
 }
 
 export function getRecommendedCliToolValues() {

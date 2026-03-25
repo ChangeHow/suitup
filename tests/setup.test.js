@@ -17,7 +17,9 @@ import {
   getInitialStepValues,
   getRecommendedAppValues,
   getRecommendedCliToolValues,
+  getWelcomeLogo,
   getWelcomeMessage,
+  SUITUP_PIXEL_LOGO,
   isZshShell,
 } from "../src/setup.js";
 
@@ -164,12 +166,26 @@ describe("Setup simulation in sandbox", () => {
     ]);
   });
 
-  test("welcome message includes the ASCII suitup mark", () => {
-    const message = getWelcomeMessage();
+  test("pixel-art welcome logo uses the expected template", () => {
+    expect(SUITUP_PIXEL_LOGO).toHaveLength(11);
+    expect(SUITUP_PIXEL_LOGO.every((row) => row.length === 12)).toBe(true);
+    expect(SUITUP_PIXEL_LOGO.join("")).toMatch(/^[gdwrps]+$/);
+    expect(SUITUP_PIXEL_LOGO.some((row) => row.includes("s"))).toBe(true);
+    expect(SUITUP_PIXEL_LOGO.some((row) => row.includes("ppp"))).toBe(true);
+    expect(SUITUP_PIXEL_LOGO.some((row) => row.includes("rr"))).toBe(true);
+  });
 
-    expect(message).toContain("_____       _ __");
-    expect(message).toContain("/ ___/__  __(_) /___  ______");
-    expect(message).toContain("/____/\\__,_/_/\\__/\\__,_/ .___/");
+  test("pixel-art welcome logo renders colored blocks and the status dot", () => {
+    const logo = getWelcomeLogo();
+    expect(logo).toContain("\u001b[38;5;255m");
+    expect(logo).toContain("\u001b[38;5;236m");
+    expect(logo).toContain("\u001b[38;5;202m");
+    expect(logo).toContain("\u001b[38;5;224m");
+    expect(logo).toContain("\u001b[38;5;255m● ");
+  });
+
+  test("welcome message displays the suit up badge below the logo", () => {
+    const message = getWelcomeMessage();
     expect(message).toContain("Suit up!");
   });
 
