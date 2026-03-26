@@ -172,7 +172,7 @@ export function getInitialStepValues(opts = {}) {
 }
 
 export async function runSetup({ defaults = false } = {}) {
-  p.intro(getWelcomeMessage());
+  p.note(getWelcomeMessage(), "Welcome");
 
   if (!isZshShell()) {
     p.log.error("Suitup setup must be run from zsh.");
