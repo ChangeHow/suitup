@@ -139,7 +139,7 @@ ensure_local_bin_on_path() {
 }
 
 install_node_runtime_linux() {
-  local arch base_url archive_name archive_path install_root install_dir
+  local arch base_url archive_name archive_path install_root install_dir shasums_path extract_dir
 
   arch="$(node_linux_arch)" || {
     echo "Unsupported Linux architecture for automatic Node.js installation: $(uname -m)" >&2
@@ -147,7 +147,14 @@ install_node_runtime_linux() {
   }
 
   base_url="https://nodejs.org/dist/latest-v20.x"
-  archive_name="$(curl -fsSL "${base_url}/SHASUMS256.txt" | awk '/ node-v[0-9]+\.[0-9]+\.[0-9]+-linux-'"${arch}"'\.tar\.xz$/ { print $2; exit }')"
+  shasums_path="${WORK_DIR}/node-shasums.txt"
+  log "Resolving latest official Node.js 20.x Linux archive..."
+  if ! curl --fail --show-error --silent --location "${base_url}/SHASUMS256.txt" --output "${shasums_path}"; then
+    echo "Failed to download Node.js release metadata from ${base_url}/SHASUMS256.txt." >&2
+    exit 1
+  fi
+
+  archive_name="$(awk '/ node-v[0-9]+\.[0-9]+\.[0-9]+-linux-'"${arch}"'\.tar\.xz$/ { print $2; exit }' "${shasums_path}")"
   if [[ -z "${archive_name}" ]]; then
     echo "Could not determine the latest Node.js 20.x Linux archive for architecture ${arch}." >&2
     exit 1
@@ -156,13 +163,26 @@ install_node_runtime_linux() {
   archive_path="${WORK_DIR}/${archive_name}"
   install_root="${HOME}/.local/share/suitup/node"
   install_dir="${install_root}/${archive_name%.tar.xz}"
+  extract_dir="${install_dir}.tmp"
 
   log "Downloading official Node.js 20.x Linux archive..."
   mkdir -p "${install_root}"
   if [[ ! -x "${install_dir}/bin/node" ]]; then
-    curl --fail --show-error --silent --location "${base_url}/${archive_name}" --output "${archive_path}"
-    mkdir -p "${install_dir}"
-    tar -xJf "${archive_path}" --strip-components=1 -C "${install_dir}"
+    if ! curl --fail --show-error --silent --location "${base_url}/${archive_name}" --output "${archive_path}"; then
+      echo "Failed to download Node.js archive ${archive_name}." >&2
+      exit 1
+    fi
+
+    rm -rf "${extract_dir}"
+    mkdir -p "${extract_dir}"
+    if ! tar -xJf "${archive_path}" --strip-components=1 -C "${extract_dir}"; then
+      rm -rf "${extract_dir}"
+      echo "Failed to extract Node.js archive ${archive_name}." >&2
+      exit 1
+    fi
+
+    rm -rf "${install_dir}"
+    mv "${extract_dir}" "${install_dir}"
   fi
 
   ensure_local_bin_on_path
