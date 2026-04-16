@@ -58,12 +58,20 @@ describe("install.sh", () => {
     expect(content).toContain("return 0");
   });
 
-  test("uses NodeSource repository for reliable Node.js installation on Linux", () => {
+  test("uses the official Node.js Linux archive for distro-agnostic bootstrap", () => {
     const content = readFileSync(INSTALL_SCRIPT, "utf-8");
 
-    expect(content).toContain("https://deb.nodesource.com/setup_lts.x");
-    expect(content).toContain("https://rpm.nodesource.com/setup_lts.x");
-    // NodeSource setup scripts are piped into bash with sudo
-    expect(content).toMatch(/curl.*nodesource.*\| sudo -E bash -/s);
+    expect(content).toContain('base_url="https://nodejs.org/dist/latest-v20.x"');
+    expect(content).toContain('install_root="${HOME}/.local/share/suitup/node"');
+    expect(content).toContain('ln -sfn "${install_dir}/bin/node" "${HOME}/.local/bin/node"');
+    expect(content).toContain('ln -sfn "${install_dir}/bin/npm" "${HOME}/.local/bin/npm"');
+  });
+
+  test("only requires a Linux package manager when zsh still needs to be installed", () => {
+    const content = readFileSync(INSTALL_SCRIPT, "utf-8");
+
+    expect(content).toContain('if [[ -z "${manager}" ]]; then');
+    expect(content).toContain("Install zsh manually, then rerun suitup.");
+    expect(content).not.toContain("Could not detect a supported package manager. Install zsh and Node.js 20+ manually, then rerun suitup.");
   });
 });
