@@ -48,7 +48,7 @@ When you run suitup locally from the repo, use a zsh session. The curl installer
 curl -fsSL https://raw.githubusercontent.com/ChangeHow/suitup/main/install.sh | bash
 ```
 
-The installer bootstraps missing `zsh` and Node.js/npm when possible, downloads a temporary copy of the repo, runs `npm ci`, then asks whether you want interactive `setup` or non-interactive `init` before launching inside `zsh`.
+The installer bootstraps missing `zsh` and Node.js/npm when possible, downloads a temporary copy of the repo, runs `npm ci`, then asks whether you want interactive `setup` or non-interactive `init` before launching inside `zsh`. On Linux, Node.js bootstrap now uses the official Node.js 20.x binary tarball so it is not tied to a specific distro repository.
 
 You can also pass a command directly to skip the prompt:
 
@@ -125,7 +125,8 @@ If you choose Powerlevel10k, suitup keeps prompt loading non-interactive during 
 Bootstrap details:
 
 - macOS: install Homebrew or skip package manager setup
-- Linux: choose `apt-get`, `dnf`, `yum`, `brew`, or skip
+- Linux: choose `apt-get`, `dnf`, `yum`, `brew`, or skip for package-manager-driven steps such as installing `zsh`
+- Linux: when Node.js 20+ is missing, the curl installer can bootstrap it from the official Node.js 20.x Linux archive into `~/.local/share/suitup/node/` and link binaries into `~/.local/bin/`
 - If Homebrew is already installed in a non-default location, suitup now tries common shellenv paths automatically during Zsh startup
 - Suitup now also writes a minimal `~/.zshenv` so non-interactive shells can still load shared env vars and PATH setup
 - When fnm installs Node.js, suitup keeps both the `fnm` binary and the installed default Node version on PATH so `fnm`, `node`, `npm`, and globally installed CLIs resolve correctly in both interactive and non-interactive shells

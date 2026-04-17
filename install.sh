@@ -102,6 +102,98 @@ install_with_manager() {
   esac
 }
 
+node_linux_arch() {
+  case "$(uname -m)" in
+    x86_64|amd64)
+      printf 'x64\n'
+      ;;
+    aarch64|arm64)
+      printf 'arm64\n'
+      ;;
+    armv7l)
+      printf 'armv7l\n'
+      ;;
+    ppc64le)
+      printf 'ppc64le\n'
+      ;;
+    s390x)
+      printf 's390x\n'
+      ;;
+    *)
+      return 1
+      ;;
+  esac
+}
+
+ensure_local_bin_on_path() {
+  local local_bin="${HOME}/.local/bin"
+
+  mkdir -p "${local_bin}"
+  case ":${PATH}:" in
+    *:"${local_bin}":*)
+      ;;
+    *)
+      export PATH="${local_bin}:${PATH}"
+      ;;
+  esac
+}
+
+install_node_runtime_linux() {
+  local arch base_url archive_name archive_path install_root install_dir shasums_path extract_dir
+
+  arch="$(node_linux_arch)" || {
+    echo "Unsupported Linux architecture for automatic Node.js installation: $(uname -m)" >&2
+    exit 1
+  }
+
+  base_url="https://nodejs.org/dist/latest-v20.x"
+  shasums_path="${WORK_DIR}/node-shasums.txt"
+  log "Resolving latest official Node.js 20.x Linux archive..."
+  if ! curl --fail --show-error --silent --location "${base_url}/SHASUMS256.txt" --output "${shasums_path}"; then
+    echo "Failed to download Node.js release metadata from ${base_url}/SHASUMS256.txt." >&2
+    exit 1
+  fi
+
+  archive_name="$(awk '/ node-v[0-9]+\.[0-9]+\.[0-9]+-linux-'"${arch}"'\.tar\.xz$/ { print $2; exit }' "${shasums_path}")"
+  if [[ -z "${archive_name}" ]]; then
+    echo "Could not determine the latest Node.js 20.x Linux archive for architecture ${arch}." >&2
+    exit 1
+  fi
+
+  archive_path="${WORK_DIR}/${archive_name}"
+  install_root="${HOME}/.local/share/suitup/node"
+  install_dir="${install_root}/${archive_name%.tar.xz}"
+  extract_dir="${install_dir}.tmp"
+
+  log "Downloading official Node.js 20.x Linux archive..."
+  mkdir -p "${install_root}"
+  if [[ ! -x "${install_dir}/bin/node" ]]; then
+    if ! curl --fail --show-error --silent --location "${base_url}/${archive_name}" --output "${archive_path}"; then
+      echo "Failed to download Node.js archive ${archive_name}." >&2
+      exit 1
+    fi
+
+    rm -rf "${extract_dir}"
+    mkdir -p "${extract_dir}"
+    if ! tar -xJf "${archive_path}" --strip-components=1 -C "${extract_dir}"; then
+      rm -rf "${extract_dir}"
+      echo "Failed to extract Node.js archive ${archive_name}." >&2
+      exit 1
+    fi
+
+    rm -rf "${install_dir}"
+    mv "${extract_dir}" "${install_dir}"
+  fi
+
+  ensure_local_bin_on_path
+  ln -sfn "${install_dir}/bin/node" "${HOME}/.local/bin/node"
+  ln -sfn "${install_dir}/bin/npm" "${HOME}/.local/bin/npm"
+  ln -sfn "${install_dir}/bin/npx" "${HOME}/.local/bin/npx"
+  if [[ -x "${install_dir}/bin/corepack" ]]; then
+    ln -sfn "${install_dir}/bin/corepack" "${HOME}/.local/bin/corepack"
+  fi
+}
+
 node_major() {
   if ! have_cmd node; then
     return 1
@@ -116,6 +208,11 @@ ensure_zsh() {
   fi
 
   local manager="$1"
+  if [[ -z "${manager}" ]]; then
+    echo "Could not detect a supported package manager to install zsh. Install zsh manually, then rerun suitup." >&2
+    exit 1
+  fi
+
   log "Installing zsh..."
   install_with_manager "${manager}" zsh
 }
@@ -136,21 +233,15 @@ ensure_node_runtime() {
     brew)
       install_with_manager "${manager}" node
       ;;
-    apt-get)
-      log "Adding NodeSource LTS repository..."
-      if ! curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -; then
-        echo "Failed to set up NodeSource repository for Node.js." >&2
+    "")
+      if [[ "${OS_NAME}" != "Linux" ]]; then
+        echo "No supported package manager available to install Node.js." >&2
         exit 1
       fi
-      install_with_manager "${manager}" nodejs
+      install_node_runtime_linux
       ;;
-    dnf|yum)
-      log "Adding NodeSource LTS repository..."
-      if ! curl -fsSL https://rpm.nodesource.com/setup_lts.x | sudo -E bash -; then
-        echo "Failed to set up NodeSource repository for Node.js." >&2
-        exit 1
-      fi
-      install_with_manager "${manager}" nodejs
+    apt-get|dnf|yum)
+      install_node_runtime_linux
       ;;
     *)
       echo "No supported package manager available to install Node.js." >&2
@@ -186,11 +277,6 @@ require_cmd tar
 require_cmd uname
 
 PACKAGE_MANAGER="$(detect_package_manager || true)"
-if [[ -z "${PACKAGE_MANAGER}" ]]; then
-  echo "Could not detect a supported package manager. Install zsh and Node.js 20+ manually, then rerun suitup." >&2
-  exit 1
-fi
-
 ensure_zsh "${PACKAGE_MANAGER}"
 ensure_node_runtime "${PACKAGE_MANAGER}"
 
