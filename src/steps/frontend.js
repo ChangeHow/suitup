@@ -29,6 +29,17 @@ function getFnmDefaultBinDir(home) {
   return join(getFnmDir(home), "aliases", "default", "bin");
 }
 
+function hasFnmDefaultRuntime(home) {
+  return existsSync(getFnmDefaultBinDir(home));
+}
+
+/**
+ * Remove stale ~/.local/bin shims that point at suitup's temporary bootstrap
+ * Node.js runtime once fnm has a default runtime available.
+ * The relative-path check ensures only files inside the bootstrap runtime tree
+ * are removed, even if a symlink points elsewhere.
+ * @param {string} home
+ */
 function cleanupBootstrapNodeShims(home) {
   const bootstrapRoot = join(home, ".local", "share", "suitup", "node");
   const localBin = join(home, ".local", "bin");
@@ -71,9 +82,8 @@ function getUserGlobalNpmEnv(home) {
   const fnmDefaultBin = getFnmDefaultBinDir(home);
   const pathParts = [binDir];
 
-  if (existsSync(fnmDefaultBin)) {
+  if (hasFnmDefaultRuntime(home)) {
     pathParts.unshift(fnmDefaultBin);
-    cleanupBootstrapNodeShims(home);
   }
 
   return {
@@ -153,6 +163,9 @@ export async function installFrontendTools(selectedTools = getAllFrontendToolVal
   } else {
     p.log.step("Installing pnpm...");
     try {
+      if (hasFnmDefaultRuntime(home)) {
+        cleanupBootstrapNodeShims(home);
+      }
       await runStream("npm install -g pnpm", { env: getUserGlobalNpmEnv(home) });
       p.log.success("pnpm installed");
     } catch {
@@ -168,6 +181,9 @@ export async function installFrontendTools(selectedTools = getAllFrontendToolVal
   } else {
     p.log.step("Installing git-cz...");
     try {
+      if (hasFnmDefaultRuntime(home)) {
+        cleanupBootstrapNodeShims(home);
+      }
       await runStream("npm install -g git-cz", { env: getUserGlobalNpmEnv(home) });
       p.log.success("git-cz installed");
     } catch {
