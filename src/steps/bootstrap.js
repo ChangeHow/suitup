@@ -44,12 +44,39 @@ async function ensureBrewOnMac({ defaults = false } = {}) {
 }
 
 function detectLinuxManagers() {
-  const managers = [];
+  const managers = ["brew"];
   if (commandExists("apt-get")) managers.push("apt-get");
   if (commandExists("dnf")) managers.push("dnf");
   if (commandExists("yum")) managers.push("yum");
-  if (isBrewAvailable()) managers.push("brew");
   return managers;
+}
+
+async function ensureBrewOnLinux({ defaults = false } = {}) {
+  if (isBrewAvailable()) {
+    p.log.success("Homebrew is already installed");
+    return { ready: true, freshlyInstalled: false };
+  }
+
+  if (!defaults) {
+    const choice = await p.select({
+      message: "Homebrew is not installed. How do you want to continue?",
+      options: [
+        { value: "install", label: "Install Homebrew", hint: "recommended — rerun suitup after install" },
+        { value: "skip", label: "Skip package manager", hint: "continue without brew" },
+      ],
+      initialValue: "install",
+    });
+
+    if (p.isCancel(choice) || choice === "skip") {
+      p.log.warn("Skipped Homebrew setup. Brew-based install steps will stay unavailable until Homebrew is installed.");
+      return { ready: false, freshlyInstalled: false };
+    }
+  }
+
+  p.log.step("Installing Homebrew...");
+  await runStream(BREW_INSTALL_COMMAND);
+  p.log.success("Homebrew installed");
+  return { ready: true, freshlyInstalled: true };
 }
 
 async function chooseLinuxManager({ defaults = false } = {}) {
@@ -125,6 +152,15 @@ export async function bootstrap({ platform = process.platform, defaults = false 
     manager = brewReady ? "brew" : "skip";
   } else if (platform === "linux") {
     manager = await chooseLinuxManager({ defaults });
+    if (manager === "brew") {
+      const brewResult = await ensureBrewOnLinux({ defaults });
+      manager = brewResult.ready ? "brew" : "skip";
+
+      if (brewResult.freshlyInstalled) {
+        p.log.info("Homebrew is ready. Rerun suitup so the remaining brew-based steps use the new environment.");
+        return { manager, shouldRerun: true };
+      }
+    }
   } else {
     p.log.warn(`Unsupported platform: ${platform}. Skipping package manager setup.`);
   }
@@ -145,4 +181,6 @@ export async function bootstrap({ platform = process.platform, defaults = false 
   } catch {
     p.log.warn("Could not set Zsh as default shell automatically");
   }
+
+  return { manager, shouldRerun: false };
 }
