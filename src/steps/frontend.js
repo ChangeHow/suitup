@@ -4,6 +4,8 @@ import { homedir } from "node:os";
 import { isAbsolute, join, relative, resolve } from "node:path";
 import { brewInstall, commandExists, run, runStream } from "../utils/shell.js";
 
+const BOOTSTRAP_NODE_BINARIES = ["node", "npm", "npx", "corepack"];
+
 export const FRONTEND_TOOLS = {
   runtime: [
     { value: "fnm", label: "fnm", hint: "Fast Node Manager" },
@@ -44,7 +46,7 @@ function cleanupBootstrapNodeShims(home) {
   const bootstrapRoot = join(home, ".local", "share", "suitup", "node");
   const localBin = join(home, ".local", "bin");
 
-  for (const name of ["node", "npm", "npx", "corepack"]) {
+  for (const name of BOOTSTRAP_NODE_BINARIES) {
     const shimPath = join(localBin, name);
     if (!existsSync(shimPath)) {
       continue;

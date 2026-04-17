@@ -20,6 +20,8 @@ import { installFrontendTools } from "../src/steps/frontend.js";
 import { brewInstall, commandExists, run, runStream } from "../src/utils/shell.js";
 import * as p from "@clack/prompts";
 
+const CURL_HTTP_ERROR = "curl exited with HTTP error 22";
+
 describe("frontend step", () => {
   let sandbox;
 
@@ -65,7 +67,7 @@ describe("frontend step", () => {
       if (name === "brew") return true;
       return true;
     });
-    runStream.mockImplementationOnce(() => Promise.reject(new Error("curl exited with HTTP error 22")));
+    runStream.mockImplementationOnce(() => Promise.reject(new Error(CURL_HTTP_ERROR)));
     brewInstall.mockReturnValue(true);
 
     await installFrontendTools(["fnm"], { home: sandbox });
@@ -81,7 +83,7 @@ describe("frontend step", () => {
       if (name === "fnm" || name === "brew") return false;
       return true;
     });
-    runStream.mockImplementationOnce(() => Promise.reject(new Error("curl exited with HTTP error 22")));
+    runStream.mockImplementationOnce(() => Promise.reject(new Error(CURL_HTTP_ERROR)));
 
     await installFrontendTools(["node"], { home: sandbox });
 
