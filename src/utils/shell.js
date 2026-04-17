@@ -63,7 +63,8 @@ export function brewInstall(name, { cask = false } = {}) {
 
 /**
  * Run a shell command and stream output to stdout/stderr in real-time.
- * Returns a promise that resolves on success.
+ * Returns a promise that resolves on success and rejects with ShellCommandError
+ * when the command exits non-zero or is interrupted.
  * @param {string} cmd
  * @param {{ env?: Record<string,string> }} [opts]
  */

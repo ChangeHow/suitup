@@ -104,10 +104,12 @@ describe("setup flow ordering", () => {
     vi.clearAllMocks();
     mockMultiSelect.mockResolvedValue(["zsh-config", "bootstrap", "cli-tools"]);
     mockSelect.mockResolvedValue("basic");
-    bootstrap.mockResolvedValue({ manager: "brew", shouldRerun: true });
+    mockGroupMultiselect.mockResolvedValue(["bat"]);
   });
 
   test("completes zsh config before Linux bootstrap rerun and skips later prompts", async () => {
+    bootstrap.mockResolvedValue({ manager: "brew", shouldRerun: true });
+
     await runSetup();
 
     expect(setupZshConfig).toHaveBeenCalledWith({ promptTheme: "basic" });
@@ -120,5 +122,22 @@ describe("setup flow ordering", () => {
     expect(mockOutro).toHaveBeenCalledWith(
       "Homebrew installed. Rerun suitup to continue with the remaining setup steps."
     );
+  });
+
+  test("continues with later selections when bootstrap does not require a rerun", async () => {
+    bootstrap.mockResolvedValue({ manager: "apt-get", shouldRerun: false });
+
+    await runSetup();
+
+    expect(mockGroupMultiselect).toHaveBeenCalledWith({
+      message: "Select CLI tools to install:",
+      required: true,
+      options: {
+        Essentials: [{ value: "bat", label: "bat" }],
+        "Shell Enhancement": [{ value: "fzf", label: "fzf" }],
+        Optional: [],
+      },
+    });
+    expect(installCliTools).toHaveBeenCalledWith(["bat"]);
   });
 });

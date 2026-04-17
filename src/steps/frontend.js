@@ -3,10 +3,6 @@ import { homedir } from "node:os";
 import { join } from "node:path";
 import { brewInstall, commandExists, run, runStream } from "../utils/shell.js";
 
-async function runStreamChecked(cmd) {
-  await runStream(cmd);
-}
-
 function getUserGlobalNpmEnv() {
   const prefix = join(homedir(), ".local");
   const binDir = join(prefix, "bin");
@@ -30,7 +26,7 @@ export async function installFrontendTools() {
   } else {
     p.log.step("Installing fnm...");
     try {
-      await runStreamChecked("curl -fsSL https://fnm.vercel.app/install | bash");
+      await runStream("curl -fsSL https://fnm.vercel.app/install | bash");
       p.log.success("fnm installed");
       fnmReady = true;
     } catch {
@@ -64,7 +60,7 @@ export async function installFrontendTools() {
   if (fnmReady) {
     p.log.step(`Installing Node.js v${ltsVersion} via fnm...`);
     try {
-      await runStreamChecked(`fnm install ${ltsVersion} && fnm use ${ltsVersion} && fnm default ${ltsVersion}`);
+      await runStream(`fnm install ${ltsVersion} && fnm use ${ltsVersion} && fnm default ${ltsVersion}`);
       p.log.success(`Node.js v${ltsVersion} installed`);
     } catch {
       p.log.warn("Could not install Node.js — fnm may need a shell restart first");

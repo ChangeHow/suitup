@@ -157,7 +157,6 @@ export async function bootstrap({ platform = process.platform, defaults = false 
       manager = brewResult.ready ? "brew" : "skip";
 
       if (brewResult.freshlyInstalled) {
-        p.log.info("Homebrew is ready. Rerun suitup so the remaining brew-based steps use the new environment.");
         return { manager, shouldRerun: true };
       }
     }
