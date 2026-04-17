@@ -125,19 +125,6 @@ node_linux_arch() {
   esac
 }
 
-ensure_local_bin_on_path() {
-  local local_bin="${HOME}/.local/bin"
-
-  mkdir -p "${local_bin}"
-  case ":${PATH}:" in
-    *:"${local_bin}":*)
-      ;;
-    *)
-      export PATH="${local_bin}:${PATH}"
-      ;;
-  esac
-}
-
 install_node_runtime_linux() {
   local arch base_url archive_name archive_path install_root install_dir shasums_path extract_dir
 
@@ -185,13 +172,7 @@ install_node_runtime_linux() {
     mv "${extract_dir}" "${install_dir}"
   fi
 
-  ensure_local_bin_on_path
-  ln -sfn "${install_dir}/bin/node" "${HOME}/.local/bin/node"
-  ln -sfn "${install_dir}/bin/npm" "${HOME}/.local/bin/npm"
-  ln -sfn "${install_dir}/bin/npx" "${HOME}/.local/bin/npx"
-  if [[ -x "${install_dir}/bin/corepack" ]]; then
-    ln -sfn "${install_dir}/bin/corepack" "${HOME}/.local/bin/corepack"
-  fi
+  export PATH="${install_dir}/bin:${PATH}"
 }
 
 node_major() {

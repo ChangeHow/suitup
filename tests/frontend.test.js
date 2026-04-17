@@ -1,4 +1,7 @@
-import { describe, test, expect, vi, beforeEach } from "vitest";
+import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
+import { existsSync, mkdirSync, symlinkSync, writeFileSync, mkdtempSync, rmSync } from "node:fs";
+import { join } from "node:path";
+import { tmpdir } from "node:os";
 
 vi.mock("@clack/prompts", () => ({
   log: { success: vi.fn(), step: vi.fn(), info: vi.fn(), warn: vi.fn(), error: vi.fn() },
@@ -17,19 +20,24 @@ import { installFrontendTools } from "../src/steps/frontend.js";
 import { brewInstall, commandExists, run, runStream } from "../src/utils/shell.js";
 import * as p from "@clack/prompts";
 
-const CURL_HTTP_ERROR_CODE = 22;
-
 describe("frontend step", () => {
+  let sandbox;
+
   beforeEach(() => {
     vi.clearAllMocks();
+    sandbox = mkdtempSync(join(tmpdir(), "suitup-frontend-"));
     // Default: fetch LTS version fails gracefully
     run.mockImplementation(() => { throw new Error("no curl"); });
+  });
+
+  afterEach(() => {
+    rmSync(sandbox, { recursive: true, force: true });
   });
 
   test("skips all tools when already installed", async () => {
     commandExists.mockReturnValue(true);
 
-    await installFrontendTools();
+    await installFrontendTools(undefined, { home: sandbox });
 
     // runStream should only be called for Node install via fnm (always runs)
     const calls = runStream.mock.calls.map((c) => c[0]);
@@ -45,7 +53,7 @@ describe("frontend step", () => {
       return true; // pnpm and git-cz are installed
     });
 
-    await installFrontendTools();
+    await installFrontendTools(["fnm"], { home: sandbox });
 
     const calls = runStream.mock.calls.map((c) => c[0]);
     expect(calls.some((c) => c.includes("fnm.vercel.app"))).toBe(true);
@@ -57,10 +65,10 @@ describe("frontend step", () => {
       if (name === "brew") return true;
       return true;
     });
-    runStream.mockImplementationOnce(() => Promise.reject(new Error(String(CURL_HTTP_ERROR_CODE))));
+    runStream.mockImplementationOnce(() => Promise.reject(new Error("22")));
     brewInstall.mockReturnValue(true);
 
-    await installFrontendTools();
+    await installFrontendTools(["fnm"], { home: sandbox });
 
     expect(brewInstall).toHaveBeenCalledWith("fnm");
     expect(p.log.success).not.toHaveBeenCalledWith("fnm installed");
@@ -73,9 +81,9 @@ describe("frontend step", () => {
       if (name === "fnm" || name === "brew") return false;
       return true;
     });
-    runStream.mockImplementationOnce(() => Promise.reject(new Error(String(CURL_HTTP_ERROR_CODE))));
+    runStream.mockImplementationOnce(() => Promise.reject(new Error("22")));
 
-    await installFrontendTools();
+    await installFrontendTools(["node"], { home: sandbox });
 
     expect(brewInstall).not.toHaveBeenCalled();
     expect(p.log.success).not.toHaveBeenCalledWith("fnm installed");
@@ -86,7 +94,7 @@ describe("frontend step", () => {
   test("sets fnm default after installing node", async () => {
     commandExists.mockReturnValue(true);
 
-    await installFrontendTools();
+    await installFrontendTools(["node"], { home: sandbox });
 
     const calls = runStream.mock.calls.map((c) => c[0]);
     expect(calls.some((c) => c.includes("fnm default"))).toBe(true);
@@ -98,7 +106,7 @@ describe("frontend step", () => {
       return true;
     });
 
-    await installFrontendTools();
+    await installFrontendTools(["pnpm"], { home: sandbox });
 
     expect(runStream).toHaveBeenCalledWith(
       "npm install -g pnpm",
@@ -117,7 +125,7 @@ describe("frontend step", () => {
       return true;
     });
 
-    await installFrontendTools();
+    await installFrontendTools(["git-cz"], { home: sandbox });
 
     expect(runStream).toHaveBeenCalledWith(
       "npm install -g git-cz",
@@ -125,6 +133,50 @@ describe("frontend step", () => {
         env: expect.objectContaining({
           npm_config_prefix: expect.stringContaining(".local"),
           NPM_CONFIG_PREFIX: expect.stringContaining(".local"),
+        }),
+      })
+    );
+  });
+
+  test("only installs the selected frontend tools", async () => {
+    commandExists.mockImplementation((name) => {
+      if (name === "git-cz") return false;
+      return true;
+    });
+
+    await installFrontendTools(["git-cz"], { home: sandbox });
+
+    const calls = runStream.mock.calls.map((call) => call[0]);
+    expect(calls.some((cmd) => cmd.includes("fnm install"))).toBe(false);
+    expect(calls).toContain("npm install -g git-cz");
+    expect(calls.some((cmd) => cmd.includes("npm install -g pnpm"))).toBe(false);
+  });
+
+  test("removes legacy bootstrap node shims when fnm default node exists", async () => {
+    const bootstrapBin = join(sandbox, ".local", "share", "suitup", "node", "node-v20.0.0-linux-x64", "bin");
+    const fnmDefaultBin = join(sandbox, ".local", "share", "fnm", "aliases", "default", "bin");
+    const localBin = join(sandbox, ".local", "bin");
+
+    mkdirSync(bootstrapBin, { recursive: true });
+    mkdirSync(fnmDefaultBin, { recursive: true });
+    mkdirSync(localBin, { recursive: true });
+    writeFileSync(join(bootstrapBin, "node"), "", "utf-8");
+    writeFileSync(join(fnmDefaultBin, "npm"), "", "utf-8");
+    symlinkSync(join(bootstrapBin, "node"), join(localBin, "node"));
+
+    commandExists.mockImplementation((name) => {
+      if (name === "pnpm") return false;
+      return true;
+    });
+
+    await installFrontendTools(["pnpm"], { home: sandbox });
+
+    expect(existsSync(join(localBin, "node"))).toBe(false);
+    expect(runStream).toHaveBeenCalledWith(
+      "npm install -g pnpm",
+      expect.objectContaining({
+        env: expect.objectContaining({
+          PATH: expect.stringContaining(fnmDefaultBin),
         }),
       })
     );

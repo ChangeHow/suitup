@@ -23,6 +23,7 @@ const setupZshConfig = vi.hoisted(() => vi.fn());
 const writeZshrc = vi.hoisted(() => vi.fn());
 const writeZshenv = vi.hoisted(() => vi.fn());
 const installCliTools = vi.hoisted(() => vi.fn());
+const installFrontendTools = vi.hoisted(() => vi.fn());
 
 vi.mock("@clack/prompts", () => ({
   note: mockNote,
@@ -78,7 +79,15 @@ vi.mock("../src/steps/apps.js", () => ({
 }));
 
 vi.mock("../src/steps/frontend.js", () => ({
-  installFrontendTools: vi.fn(),
+  FRONTEND_TOOLS: {
+    runtime: [
+      { value: "fnm", label: "fnm" },
+      { value: "node", label: "Node.js" },
+    ],
+    packageManagers: [{ value: "pnpm", label: "pnpm" }],
+    git: [{ value: "git-cz", label: "git-cz" }],
+  },
+  installFrontendTools,
 }));
 
 vi.mock("../src/steps/ssh.js", () => ({
@@ -139,5 +148,26 @@ describe("setup flow ordering", () => {
       },
     });
     expect(installCliTools).toHaveBeenCalledWith(["bat"]);
+  });
+
+  test("prompts for frontend tool selection and passes chosen tools through", async () => {
+    mockMultiSelect.mockResolvedValue(["frontend"]);
+    mockGroupMultiselect.mockResolvedValue(["fnm", "pnpm"]);
+
+    await runSetup();
+
+    expect(mockGroupMultiselect).toHaveBeenCalledWith({
+      message: "Select frontend tools to install:",
+      required: true,
+      options: {
+        Runtime: [
+          { value: "fnm", label: "fnm" },
+          { value: "node", label: "Node.js" },
+        ],
+        "Package Managers": [{ value: "pnpm", label: "pnpm" }],
+        Git: [{ value: "git-cz", label: "git-cz" }],
+      },
+    });
+    expect(installFrontendTools).toHaveBeenCalledWith(["fnm", "pnpm"]);
   });
 });

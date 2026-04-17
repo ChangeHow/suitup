@@ -17,6 +17,7 @@ import {
   getInitialStepValues,
   getRecommendedAppValues,
   getRecommendedCliToolValues,
+  getRecommendedFrontendToolValues,
   getWelcomeLogo,
   getWelcomeMessage,
   SUITUP_PIXEL_LOGO,
@@ -170,6 +171,15 @@ describe("Setup simulation in sandbox", () => {
       "iterm2",
       "raycast",
       "visual-studio-code",
+    ]);
+  });
+
+  test("quick init uses recommended frontend tools", () => {
+    expect(getRecommendedFrontendToolValues()).toEqual([
+      "fnm",
+      "node",
+      "pnpm",
+      "git-cz",
     ]);
   });
 

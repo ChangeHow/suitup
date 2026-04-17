@@ -63,8 +63,8 @@ describe("install.sh", () => {
 
     expect(content).toContain('base_url="https://nodejs.org/dist/latest-v20.x"');
     expect(content).toContain('install_root="${HOME}/.local/share/suitup/node"');
-    expect(content).toContain('ln -sfn "${install_dir}/bin/node" "${HOME}/.local/bin/node"');
-    expect(content).toContain('ln -sfn "${install_dir}/bin/npm" "${HOME}/.local/bin/npm"');
+    expect(content).toContain('export PATH="${install_dir}/bin:${PATH}"');
+    expect(content).not.toContain('ln -sfn "${install_dir}/bin/node" "${HOME}/.local/bin/node"');
   });
 
   test("only requires a Linux package manager when zsh still needs to be installed", () => {

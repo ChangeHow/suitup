@@ -22,6 +22,10 @@ setopt HIST_REDUCE_BLANKS
 # Completion options
 setopt COMPLETE_IN_WORD
 setopt ALWAYS_TO_END
-setopt CORRECT
+if [[ "$OSTYPE" == linux* ]]; then
+  unsetopt CORRECT
+else
+  setopt CORRECT
+fi
 setopt GLOB_COMPLETE
 setopt NO_CASE_GLOB
