@@ -1,7 +1,7 @@
 import * as p from "@clack/prompts";
 import { existsSync, lstatSync, readlinkSync, rmSync } from "node:fs";
 import { homedir } from "node:os";
-import { join, resolve } from "node:path";
+import { isAbsolute, join, relative, resolve } from "node:path";
 import { brewInstall, commandExists, run, runStream } from "../utils/shell.js";
 
 export const FRONTEND_TOOLS = {
@@ -44,8 +44,10 @@ function cleanupBootstrapNodeShims(home) {
         continue;
       }
 
-      const targetPath = resolve(localBin, readlinkSync(shimPath));
-      if (!targetPath.startsWith(`${bootstrapRoot}/`)) {
+      const targetPath = readlinkSync(shimPath);
+      const resolvedPath = isAbsolute(targetPath) ? targetPath : resolve(localBin, targetPath);
+      const relativeTarget = relative(bootstrapRoot, resolvedPath);
+      if (relativeTarget.startsWith("..") || isAbsolute(relativeTarget)) {
         continue;
       }
 

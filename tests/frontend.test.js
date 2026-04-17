@@ -161,8 +161,10 @@ describe("frontend step", () => {
     mkdirSync(fnmDefaultBin, { recursive: true });
     mkdirSync(localBin, { recursive: true });
     writeFileSync(join(bootstrapBin, "node"), "", "utf-8");
+    writeFileSync(join(bootstrapBin, "npm"), "", "utf-8");
     writeFileSync(join(fnmDefaultBin, "npm"), "", "utf-8");
     symlinkSync(join(bootstrapBin, "node"), join(localBin, "node"));
+    symlinkSync("../share/suitup/node/node-v20.0.0-linux-x64/bin/npm", join(localBin, "npm"));
 
     commandExists.mockImplementation((name) => {
       if (name === "pnpm") return false;
@@ -172,6 +174,7 @@ describe("frontend step", () => {
     await installFrontendTools(["pnpm"], { home: sandbox });
 
     expect(existsSync(join(localBin, "node"))).toBe(false);
+    expect(existsSync(join(localBin, "npm"))).toBe(false);
     expect(runStream).toHaveBeenCalledWith(
       "npm install -g pnpm",
       expect.objectContaining({
