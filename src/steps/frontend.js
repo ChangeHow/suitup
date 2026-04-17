@@ -3,6 +3,10 @@ import { homedir } from "node:os";
 import { join } from "node:path";
 import { brewInstall, commandExists, run, runStream } from "../utils/shell.js";
 
+/**
+ * Build an npm environment that installs global packages into ~/.local.
+ * @returns {NodeJS.ProcessEnv}
+ */
 function getUserGlobalNpmEnv() {
   const prefix = join(homedir(), ".local");
   const binDir = join(prefix, "bin");

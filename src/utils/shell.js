@@ -1,5 +1,10 @@
 import { execSync, spawn } from "node:child_process";
 
+/**
+ * Error thrown when a streamed shell command fails or is interrupted.
+ * @param {string} cmd
+ * @param {{ code?: number | null, signal?: NodeJS.Signals | null }} [details]
+ */
 export class ShellCommandError extends Error {
   constructor(cmd, { code = null, signal = null } = {}) {
     const interrupted = signal === "SIGINT" || code === 130;

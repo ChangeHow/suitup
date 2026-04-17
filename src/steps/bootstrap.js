@@ -51,6 +51,11 @@ function detectLinuxManagers() {
   return managers;
 }
 
+/**
+ * Install Homebrew on Linux when requested.
+ * @param {{ defaults?: boolean }} [opts]
+ * @returns {Promise<{ ready: boolean, freshlyInstalled: boolean }>}
+ */
 async function ensureBrewOnLinux({ defaults = false } = {}) {
   if (isBrewAvailable()) {
     p.log.success("Homebrew is already installed");
