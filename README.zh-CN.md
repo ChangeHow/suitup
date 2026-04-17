@@ -106,8 +106,8 @@ node src/cli.js
 
 交互式步骤如下：
 
-1. **Bootstrap** — 包管理器 + Zsh
-2. **Zsh Config** — 创建 `~/.config/zsh/` 分层结构
+1. **Zsh Config** — 创建 `~/.config/zsh/` 分层结构
+2. **Bootstrap** — 包管理器 + Zsh
 3. **Plugin Manager** — zinit（推荐）或跳过，仅保留原生 zsh
 4. **Prompt Preset** — Powerlevel10k（推荐）或基础 zsh prompt
 5. **CLI Tools** — bat、eza、fzf、fd、zoxide、atuin、ripgrep 等
@@ -126,10 +126,12 @@ Bootstrap 细节：
 
 - macOS：安装 Homebrew，或跳过包管理器初始化
 - Linux：可选 `apt-get`、`dnf`、`yum`、`brew`，或直接跳过这些基于包管理器的步骤（例如安装 `zsh`）
+- Linux：如果你选择 Homebrew 且系统里还没有安装，suitup 会先安装 Homebrew，然后提示你重新运行 setup，再继续后续依赖 brew 的步骤
 - Linux：如果缺少 Node.js 20+，curl 安装脚本可以从官方 Node.js 20.x Linux 压缩包引导安装到 `~/.local/share/suitup/node/`，并把二进制链接到 `~/.local/bin/`
 - 如果 Homebrew 已经安装在非默认位置，suitup 会在 Zsh 启动时自动尝试常见 `shellenv` 路径
 - suitup 也会生成一个精简的 `~/.zshenv`，保证非交互式 shell 也能加载共享环境变量和 PATH
 - 当 fnm 安装 Node.js 后，suitup 会把 `fnm` 自身和该默认 Node 版本一起放进 PATH，确保交互式/非交互式 shell 下的 `fnm`、`node`、`npm` 和全局 CLI 都能正确解析
+- Frontend 工具安装会使用 `~/.local/` 下的用户级 npm prefix，这样安装 `pnpm` 和 `git-cz` 不需要 sudo，也不会写入系统级 npm 目录
 
 ### Append（追加）
 

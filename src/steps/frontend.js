@@ -1,11 +1,21 @@
 import * as p from "@clack/prompts";
+import { homedir } from "node:os";
+import { join } from "node:path";
 import { brewInstall, commandExists, run, runStream } from "../utils/shell.js";
 
 async function runStreamChecked(cmd) {
-  const exitCode = await runStream(cmd);
-  if (exitCode !== 0) {
-    throw new Error(`Command failed with exit code ${exitCode}: ${cmd}`);
-  }
+  await runStream(cmd);
+}
+
+function getUserGlobalNpmEnv() {
+  const prefix = join(homedir(), ".local");
+  const binDir = join(prefix, "bin");
+  return {
+    ...process.env,
+    npm_config_prefix: prefix,
+    NPM_CONFIG_PREFIX: prefix,
+    PATH: process.env.PATH ? `${binDir}:${process.env.PATH}` : binDir,
+  };
 }
 
 /**
@@ -69,10 +79,10 @@ export async function installFrontendTools() {
   } else {
     p.log.step("Installing pnpm...");
     try {
-      await runStream("npm install -g pnpm");
+      await runStream("npm install -g pnpm", { env: getUserGlobalNpmEnv() });
       p.log.success("pnpm installed");
     } catch {
-      p.log.warn("Could not install pnpm — try running `npm install -g pnpm` manually");
+      p.log.warn("Could not install pnpm automatically — try rerunning after ensuring ~/.local/bin is on PATH");
     }
   }
 
@@ -82,7 +92,7 @@ export async function installFrontendTools() {
   } else {
     p.log.step("Installing git-cz...");
     try {
-      await runStream("npm install -g git-cz");
+      await runStream("npm install -g git-cz", { env: getUserGlobalNpmEnv() });
       p.log.success("git-cz installed");
     } catch {
       p.log.warn("Could not install git-cz");

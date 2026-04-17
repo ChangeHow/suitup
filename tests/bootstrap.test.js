@@ -91,6 +91,7 @@ describe("bootstrap step", () => {
     p.select.mockResolvedValue("apt-get");
     commandExists.mockImplementation((name) => {
       if (name === "apt-get") return true;
+      if (name === "brew") return false;
       if (name === "zsh") return false;
       return false;
     });
@@ -105,22 +106,32 @@ describe("bootstrap step", () => {
     expect(runStream).toHaveBeenCalledWith(expect.stringContaining("apt-get install -y zsh"));
   });
 
-  test("defaults mode auto-selects the first detected Linux package manager", async () => {
+  test("offers Homebrew on Linux even when it is not installed yet", async () => {
+    p.select.mockResolvedValueOnce("brew").mockResolvedValueOnce("install");
     commandExists.mockImplementation((name) => {
-      if (name === "apt-get") return true;
-      if (name === "zsh") return false;
+      if (name === "brew") return false;
+      if (name === "zsh") return true;
       return false;
     });
-    run.mockImplementation((cmd) => {
-      if (cmd.includes("echo $SHELL")) return "/bin/zsh";
-      if (cmd.includes("which zsh")) return "/bin/zsh";
-      return "";
+
+    const result = await bootstrap({ platform: "linux" });
+
+    expect(runStream).toHaveBeenCalledWith(expect.stringContaining("Homebrew/install"));
+    expect(result).toEqual({ manager: "brew", shouldRerun: true });
+  });
+
+  test("defaults mode auto-selects the first detected Linux package manager", async () => {
+    commandExists.mockImplementation((name) => {
+      if (name === "brew") return false;
+      if (name === "zsh") return true;
+      return false;
     });
 
-    await bootstrap({ platform: "linux", defaults: true });
+    const result = await bootstrap({ platform: "linux", defaults: true });
 
     expect(p.select).not.toHaveBeenCalled();
-    expect(runStream).toHaveBeenCalledWith(expect.stringContaining("apt-get install -y zsh"));
+    expect(runStream).toHaveBeenCalledWith(expect.stringContaining("Homebrew/install"));
+    expect(result).toEqual({ manager: "brew", shouldRerun: true });
   });
 
   test("allows skipping package manager setup", async () => {

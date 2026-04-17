@@ -147,6 +147,12 @@ describe("Setup simulation in sandbox", () => {
     expect(getDefaultSteps("darwin")).toContain("apps");
   });
 
+  test("runs zsh config before bootstrap in the default step order", () => {
+    const steps = getDefaultSteps("linux");
+    expect(steps.indexOf("zsh-config")).toBeLessThan(steps.indexOf("bootstrap"));
+    expect(steps.indexOf("bootstrap")).toBeLessThan(steps.indexOf("plugins"));
+  });
+
   test("quick init uses recommended CLI tools only", () => {
     expect(getRecommendedCliToolValues()).toEqual([
       "bat",

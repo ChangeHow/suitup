@@ -106,8 +106,8 @@ node src/cli.js
 
 Interactive step-by-step setup with selectable steps:
 
-1. **Bootstrap** — package manager + Zsh
-2. **Zsh Config** — creates `~/.config/zsh/` with layered config architecture
+1. **Zsh Config** — creates `~/.config/zsh/` with layered config architecture
+2. **Bootstrap** — package manager + Zsh
 3. **Plugin Manager** — zinit (recommended) or skip for native zsh only
 4. **Prompt Preset** — Powerlevel10k (recommended) or a basic zsh prompt
 5. **CLI Tools** — bat, eza, fzf, fd, zoxide, atuin, ripgrep...
@@ -126,10 +126,12 @@ Bootstrap details:
 
 - macOS: install Homebrew or skip package manager setup
 - Linux: choose `apt-get`, `dnf`, `yum`, `brew`, or skip for package-manager-driven steps such as installing `zsh`
+- Linux: if you choose Homebrew and it is not installed yet, suitup installs Homebrew first and then asks you to rerun setup before the remaining brew-based steps
 - Linux: when Node.js 20+ is missing, the curl installer can bootstrap it from the official Node.js 20.x Linux archive into `~/.local/share/suitup/node/` and link binaries into `~/.local/bin/`
 - If Homebrew is already installed in a non-default location, suitup now tries common shellenv paths automatically during Zsh startup
 - Suitup now also writes a minimal `~/.zshenv` so non-interactive shells can still load shared env vars and PATH setup
 - When fnm installs Node.js, suitup keeps both the `fnm` binary and the installed default Node version on PATH so `fnm`, `node`, `npm`, and globally installed CLIs resolve correctly in both interactive and non-interactive shells
+- Frontend tool installs use a user-local npm prefix under `~/.local/` so `pnpm` and `git-cz` do not require sudo or writes to system npm directories
 
 ### Append
 

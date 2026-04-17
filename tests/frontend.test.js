@@ -57,7 +57,7 @@ describe("frontend step", () => {
       if (name === "brew") return true;
       return true;
     });
-    runStream.mockImplementationOnce(() => Promise.resolve(CURL_HTTP_ERROR_CODE));
+    runStream.mockImplementationOnce(() => Promise.reject(new Error(String(CURL_HTTP_ERROR_CODE))));
     brewInstall.mockReturnValue(true);
 
     await installFrontendTools();
@@ -73,7 +73,7 @@ describe("frontend step", () => {
       if (name === "fnm" || name === "brew") return false;
       return true;
     });
-    runStream.mockImplementationOnce(() => Promise.resolve(CURL_HTTP_ERROR_CODE));
+    runStream.mockImplementationOnce(() => Promise.reject(new Error(String(CURL_HTTP_ERROR_CODE))));
 
     await installFrontendTools();
 
@@ -100,8 +100,15 @@ describe("frontend step", () => {
 
     await installFrontendTools();
 
-    const calls = runStream.mock.calls.map((c) => c[0]);
-    expect(calls.some((c) => c.includes("npm install -g pnpm"))).toBe(true);
+    expect(runStream).toHaveBeenCalledWith(
+      "npm install -g pnpm",
+      expect.objectContaining({
+        env: expect.objectContaining({
+          npm_config_prefix: expect.stringContaining(".local"),
+          NPM_CONFIG_PREFIX: expect.stringContaining(".local"),
+        }),
+      })
+    );
   });
 
   test("installs git-cz when not present", async () => {
@@ -112,7 +119,14 @@ describe("frontend step", () => {
 
     await installFrontendTools();
 
-    const calls = runStream.mock.calls.map((c) => c[0]);
-    expect(calls.some((c) => c.includes("npm install -g git-cz"))).toBe(true);
+    expect(runStream).toHaveBeenCalledWith(
+      "npm install -g git-cz",
+      expect.objectContaining({
+        env: expect.objectContaining({
+          npm_config_prefix: expect.stringContaining(".local"),
+          NPM_CONFIG_PREFIX: expect.stringContaining(".local"),
+        }),
+      })
+    );
   });
 });

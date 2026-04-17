@@ -78,8 +78,8 @@ export function getRecommendedAppValues() {
  */
 export function getDefaultSteps(platform = process.platform) {
   return [
-    "bootstrap",
     "zsh-config",
+    "bootstrap",
     "plugins",
     "cli-tools",
     ...(platform === "linux" ? [] : ["apps"]),
@@ -194,8 +194,8 @@ export async function runSetup({ defaults = false } = {}) {
         message: "Select setup steps:",
         required: true,
         options: [
-          { value: "bootstrap", label: "Bootstrap", hint: "Package manager + Zsh" },
           { value: "zsh-config", label: "Zsh Config Structure", hint: "~/.config/zsh/" },
+          { value: "bootstrap", label: "Bootstrap", hint: "Package manager + Zsh" },
           { value: "plugins", label: "Plugin Manager", hint: "recommended zinit or skip" },
           { value: "cli-tools", label: "CLI Tools", hint: "bat, eza, fzf, fd, zoxide, atuin..." },
           { value: "apps", label: "GUI Apps", hint: "iTerm2, Raycast, VS Code..." },
@@ -272,6 +272,23 @@ export async function runSetup({ defaults = false } = {}) {
     promptTheme = "basic";
   }
 
+  // --- Execute prerequisite steps before later selections ---
+  p.log.step(pc.bold("Starting installation..."));
+
+  if (steps.includes("zsh-config")) {
+    await setupZshConfig({ promptTheme });
+    await writeZshrc(pluginManager);
+    await writeZshenv();
+  }
+
+  if (steps.includes("bootstrap")) {
+    const bootstrapResult = await bootstrap({ defaults });
+    if (bootstrapResult?.shouldRerun) {
+      p.outro("Homebrew installed. Rerun suitup to continue with the remaining setup steps.");
+      return;
+    }
+  }
+
   // --- Step 3: CLI tool selection (if selected) ---
   let selectedTools = [];
   if (steps.includes("cli-tools")) {
@@ -317,17 +334,6 @@ export async function runSetup({ defaults = false } = {}) {
     }
   }
 
-  // --- Execute selected steps ---
-  p.log.step(pc.bold("Starting installation..."));
-
-  if (steps.includes("bootstrap")) {
-    await bootstrap({ defaults });
-  }
-
-  if (steps.includes("zsh-config")) {
-    await setupZshConfig({ promptTheme });
-  }
-
   if (steps.includes("plugins")) {
     if (pluginManager === "zinit") {
       await installZinit();
@@ -360,12 +366,6 @@ export async function runSetup({ defaults = false } = {}) {
 
   if (steps.includes("dock")) {
     await cleanDock();
-  }
-
-  // --- Write .zshrc ---
-  if (steps.includes("zsh-config")) {
-    await writeZshrc(pluginManager);
-    await writeZshenv();
   }
 
   if (promptTheme === "p10k" && !existsSync(join(homedir(), ".p10k.zsh"))) {
