@@ -169,7 +169,7 @@ export async function installFrontendTools(selectedTools = getAllFrontendToolVal
       await runStream("npm install -g git-cz", { env: getUserGlobalNpmEnv(home) });
       p.log.success("git-cz installed");
     } catch {
-      p.log.warn("Could not install git-cz");
+      p.log.warn("Could not install git-cz automatically — try rerunning after ensuring ~/.local/bin is on PATH");
     }
   }
 }

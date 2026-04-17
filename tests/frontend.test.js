@@ -65,7 +65,7 @@ describe("frontend step", () => {
       if (name === "brew") return true;
       return true;
     });
-    runStream.mockImplementationOnce(() => Promise.reject(new Error("22")));
+    runStream.mockImplementationOnce(() => Promise.reject(new Error("curl exited with HTTP error 22")));
     brewInstall.mockReturnValue(true);
 
     await installFrontendTools(["fnm"], { home: sandbox });
@@ -81,7 +81,7 @@ describe("frontend step", () => {
       if (name === "fnm" || name === "brew") return false;
       return true;
     });
-    runStream.mockImplementationOnce(() => Promise.reject(new Error("22")));
+    runStream.mockImplementationOnce(() => Promise.reject(new Error("curl exited with HTTP error 22")));
 
     await installFrontendTools(["node"], { home: sandbox });
 
