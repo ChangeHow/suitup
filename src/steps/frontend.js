@@ -58,6 +58,7 @@ function cleanupBootstrapNodeShims(home) {
       const targetPath = readlinkSync(shimPath);
       const resolvedPath = isAbsolute(targetPath) ? targetPath : resolve(localBin, targetPath);
       const relativeTarget = relative(bootstrapRoot, resolvedPath);
+      // A target outside bootstrapRoot produces ../-prefixed or absolute output.
       if (relativeTarget.startsWith("..") || isAbsolute(relativeTarget)) {
         continue;
       }

@@ -164,7 +164,7 @@ describe("frontend step", () => {
     writeFileSync(join(bootstrapBin, "npm"), "", "utf-8");
     writeFileSync(join(fnmDefaultBin, "npm"), "", "utf-8");
     symlinkSync(join(bootstrapBin, "node"), join(localBin, "node"));
-    symlinkSync("../share/suitup/node/node-v20.0.0-linux-x64/bin/npm", join(localBin, "npm"));
+    symlinkSync(join(bootstrapBin, "npm"), join(localBin, "npm"));
 
     commandExists.mockImplementation((name) => {
       if (name === "pnpm") return false;
