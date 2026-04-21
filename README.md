@@ -106,13 +106,13 @@ node src/cli.js
 
 Interactive step-by-step setup with selectable steps:
 
-1. **Bootstrap** — package manager + Zsh
-2. **Zsh Config** — creates `~/.config/zsh/` with layered config architecture
+1. **Zsh Config** — creates `~/.config/zsh/` with layered config architecture
+2. **Bootstrap** — package manager + Zsh
 3. **Plugin Manager** — zinit (recommended) or skip for native zsh only
 4. **Prompt Preset** — Powerlevel10k (recommended) or a basic zsh prompt
 5. **CLI Tools** — bat, eza, fzf, fd, zoxide, atuin, ripgrep...
 6. **GUI Apps** — iTerm2, Raycast, VS Code, fonts...
-7. **Frontend Tools** — fnm, pnpm, git-cz
+7. **Frontend Tools** — choose fnm, Node.js via fnm, pnpm, git-cz
 8. **Shell Aliases** — git, eza, fzf shortcuts
 9. **SSH Key** — generate GitHub SSH key
 10. **Vim Config** — basic vim setup
@@ -122,14 +122,19 @@ Before suitup updates shell startup config, it backs up existing zsh startup fil
 
 If you choose Powerlevel10k, suitup keeps prompt loading non-interactive during setup. When `~/.p10k.zsh` is missing, it falls back to a basic prompt until you run `p10k configure` yourself.
 
+On Linux, suitup disables zsh spelling correction by default to avoid disruptive IME-related corrections while typing commands.
+
 Bootstrap details:
 
 - macOS: install Homebrew or skip package manager setup
 - Linux: choose `apt-get`, `dnf`, `yum`, `brew`, or skip for package-manager-driven steps such as installing `zsh`
-- Linux: when Node.js 20+ is missing, the curl installer can bootstrap it from the official Node.js 20.x Linux archive into `~/.local/share/suitup/node/` and link binaries into `~/.local/bin/`
+- Linux: if you choose Homebrew and it is not installed yet, suitup installs Homebrew first and then asks you to rerun setup before the remaining brew-based steps
+- Linux: when Node.js 20+ is missing, the curl installer can bootstrap it from the official Node.js 20.x Linux archive into `~/.local/share/suitup/node/` and use it only for the installer session
+- The Linux bootstrap Node runtime is now kept isolated for the installer itself so it does not shadow a later fnm-managed Node.js install
 - If Homebrew is already installed in a non-default location, suitup now tries common shellenv paths automatically during Zsh startup
 - Suitup now also writes a minimal `~/.zshenv` so non-interactive shells can still load shared env vars and PATH setup
 - When fnm installs Node.js, suitup keeps both the `fnm` binary and the installed default Node version on PATH so `fnm`, `node`, `npm`, and globally installed CLIs resolve correctly in both interactive and non-interactive shells
+- Frontend tool installs use a user-local npm prefix under `~/.local/` so `pnpm` and `git-cz` do not require sudo or writes to system npm directories
 
 ### Append
 

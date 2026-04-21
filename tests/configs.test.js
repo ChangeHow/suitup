@@ -169,6 +169,13 @@ describe("Static config templates", () => {
     expect(content).toContain("reserved-word");
   });
 
+  test("core/options.zsh disables spelling correction on Linux only", () => {
+    const content = readFileSync(join(CONFIGS_DIR, "core", "options.zsh"), "utf-8");
+    expect(content).toContain('[[ "$OSTYPE" == linux* ]]');
+    expect(content).toContain("unsetopt CORRECT");
+    expect(content).toContain("setopt CORRECT");
+  });
+
   test("local/machine.zsh stays machine-local and avoids work-specific examples", () => {
     const content = readFileSync(join(CONFIGS_DIR, "local", "machine.zsh"), "utf-8");
     expect(content).not.toContain("work/*");
