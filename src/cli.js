@@ -12,6 +12,7 @@ import { runClean } from "./clean.js";
 import { runMigratePaths } from "./migrate-paths.js";
 import { getHelpText, resolveCommand } from "./cli-config.js";
 import { requireZshShell } from "./utils/shell-context.js";
+import { ShellCommandError } from "./utils/shell.js";
 
 export async function main(argv = process.argv) {
   const command = resolveCommand(argv[2]);
@@ -54,6 +55,10 @@ const isDirectRun = process.argv[1]
 
 if (isDirectRun) {
   main().catch((error) => {
+    if (error instanceof ShellCommandError && error.interrupted) {
+      console.error("Installation interrupted.");
+      process.exit(130);
+    }
     console.error(error);
     process.exit(1);
   });

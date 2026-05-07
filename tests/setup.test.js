@@ -17,6 +17,7 @@ import {
   getInitialStepValues,
   getRecommendedAppValues,
   getRecommendedCliToolValues,
+  getRecommendedFrontendToolValues,
   getWelcomeLogo,
   getWelcomeMessage,
   SUITUP_PIXEL_LOGO,
@@ -147,6 +148,12 @@ describe("Setup simulation in sandbox", () => {
     expect(getDefaultSteps("darwin")).toContain("apps");
   });
 
+  test("runs zsh config before bootstrap in the default step order", () => {
+    const steps = getDefaultSteps("linux");
+    expect(steps.indexOf("zsh-config")).toBeLessThan(steps.indexOf("bootstrap"));
+    expect(steps.indexOf("bootstrap")).toBeLessThan(steps.indexOf("plugins"));
+  });
+
   test("quick init uses recommended CLI tools only", () => {
     expect(getRecommendedCliToolValues()).toEqual([
       "bat",
@@ -164,6 +171,15 @@ describe("Setup simulation in sandbox", () => {
       "iterm2",
       "raycast",
       "visual-studio-code",
+    ]);
+  });
+
+  test("quick init uses recommended frontend tools", () => {
+    expect(getRecommendedFrontendToolValues()).toEqual([
+      "fnm",
+      "node",
+      "pnpm",
+      "git-cz",
     ]);
   });
 

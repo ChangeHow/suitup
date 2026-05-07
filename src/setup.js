@@ -8,7 +8,7 @@ import { bootstrap } from "./steps/bootstrap.js";
 import { installZinit } from "./steps/plugin-manager.js";
 import { CLI_TOOLS, installCliTools } from "./steps/cli-tools.js";
 import { APPS, installApps } from "./steps/apps.js";
-import { installFrontendTools } from "./steps/frontend.js";
+import { FRONTEND_TOOLS, installFrontendTools } from "./steps/frontend.js";
 import { setupSsh } from "./steps/ssh.js";
 import { setupVim } from "./steps/vim.js";
 import { setupAliases } from "./steps/aliases.js";
@@ -73,13 +73,17 @@ export function getRecommendedAppValues() {
   return APPS.recommended.map((app) => app.value);
 }
 
+export function getRecommendedFrontendToolValues() {
+  return Object.values(FRONTEND_TOOLS).flat().map((tool) => tool.value);
+}
+
 /**
  * Full interactive setup flow.
  */
 export function getDefaultSteps(platform = process.platform) {
   return [
-    "bootstrap",
     "zsh-config",
+    "bootstrap",
     "plugins",
     "cli-tools",
     ...(platform === "linux" ? [] : ["apps"]),
@@ -194,12 +198,12 @@ export async function runSetup({ defaults = false } = {}) {
         message: "Select setup steps:",
         required: true,
         options: [
-          { value: "bootstrap", label: "Bootstrap", hint: "Package manager + Zsh" },
           { value: "zsh-config", label: "Zsh Config Structure", hint: "~/.config/zsh/" },
+          { value: "bootstrap", label: "Bootstrap", hint: "Package manager + Zsh" },
           { value: "plugins", label: "Plugin Manager", hint: "recommended zinit or skip" },
           { value: "cli-tools", label: "CLI Tools", hint: "bat, eza, fzf, fd, zoxide, atuin..." },
           { value: "apps", label: "GUI Apps", hint: "iTerm2, Raycast, VS Code..." },
-          { value: "frontend", label: "Frontend Tools", hint: "fnm, pnpm, git-cz" },
+          { value: "frontend", label: "Frontend Tools", hint: "fnm, Node.js, pnpm, git-cz" },
           { value: "aliases", label: "Shell Aliases", hint: "git, eza, fzf shortcuts" },
           { value: "ssh", label: "SSH Key", hint: "generate GitHub SSH key" },
           { value: "vim", label: "Vim Config", hint: "basic vim setup" },
@@ -272,6 +276,23 @@ export async function runSetup({ defaults = false } = {}) {
     promptTheme = "basic";
   }
 
+  // --- Execute prerequisite steps before later selections ---
+  p.log.step(pc.bold("Starting installation..."));
+
+  if (steps.includes("zsh-config")) {
+    await setupZshConfig({ promptTheme });
+    await writeZshrc(pluginManager);
+    await writeZshenv();
+  }
+
+  if (steps.includes("bootstrap")) {
+    const bootstrapResult = await bootstrap({ defaults });
+    if (bootstrapResult?.shouldRerun) {
+      p.outro("Homebrew installed. Rerun suitup to continue with the remaining setup steps.");
+      return;
+    }
+  }
+
   // --- Step 3: CLI tool selection (if selected) ---
   let selectedTools = [];
   if (steps.includes("cli-tools")) {
@@ -317,15 +338,27 @@ export async function runSetup({ defaults = false } = {}) {
     }
   }
 
-  // --- Execute selected steps ---
-  p.log.step(pc.bold("Starting installation..."));
-
-  if (steps.includes("bootstrap")) {
-    await bootstrap({ defaults });
-  }
-
-  if (steps.includes("zsh-config")) {
-    await setupZshConfig({ promptTheme });
+  // --- Step 5: Frontend tool selection (if selected) ---
+  let selectedFrontendTools = [];
+  if (steps.includes("frontend")) {
+    if (defaults) {
+      selectedFrontendTools = getRecommendedFrontendToolValues();
+    } else {
+      const frontendChoice = await p.groupMultiselect({
+        message: "Select frontend tools to install:",
+        required: true,
+        options: {
+          Runtime: FRONTEND_TOOLS.runtime,
+          "Package Managers": FRONTEND_TOOLS.packageManagers,
+          Git: FRONTEND_TOOLS.git,
+        },
+      });
+      if (p.isCancel(frontendChoice)) {
+        p.cancel("Setup cancelled.");
+        process.exit(0);
+      }
+      selectedFrontendTools = frontendChoice;
+    }
   }
 
   if (steps.includes("plugins")) {
@@ -343,7 +376,7 @@ export async function runSetup({ defaults = false } = {}) {
   }
 
   if (steps.includes("frontend")) {
-    await installFrontendTools();
+    await installFrontendTools(selectedFrontendTools);
   }
 
   if (steps.includes("aliases")) {
@@ -360,12 +393,6 @@ export async function runSetup({ defaults = false } = {}) {
 
   if (steps.includes("dock")) {
     await cleanDock();
-  }
-
-  // --- Write .zshrc ---
-  if (steps.includes("zsh-config")) {
-    await writeZshrc(pluginManager);
-    await writeZshenv();
   }
 
   if (promptTheme === "p10k" && !existsSync(join(homedir(), ".p10k.zsh"))) {

@@ -106,13 +106,13 @@ node src/cli.js
 
 交互式步骤如下：
 
-1. **Bootstrap** — 包管理器 + Zsh
-2. **Zsh Config** — 创建 `~/.config/zsh/` 分层结构
+1. **Zsh Config** — 创建 `~/.config/zsh/` 分层结构
+2. **Bootstrap** — 包管理器 + Zsh
 3. **Plugin Manager** — zinit（推荐）或跳过，仅保留原生 zsh
 4. **Prompt Preset** — Powerlevel10k（推荐）或基础 zsh prompt
 5. **CLI Tools** — bat、eza、fzf、fd、zoxide、atuin、ripgrep 等
 6. **GUI Apps** — iTerm2、Raycast、VS Code、字体等
-7. **Frontend Tools** — fnm、pnpm、git-cz
+7. **Frontend Tools** — 可选 fnm、通过 fnm 安装的 Node.js、pnpm、git-cz
 8. **Shell Aliases** — git、eza、fzf 等快捷命令
 9. **SSH Key** — 生成 GitHub SSH 密钥
 10. **Vim Config** — 基础 Vim 配置
@@ -122,14 +122,19 @@ node src/cli.js
 
 如果你选择 Powerlevel10k，suitup 会保持安装过程非交互；当缺少 `~/.p10k.zsh` 时，会先回退到基础 prompt，等你之后自行运行 `p10k configure` 再启用。
 
+在 Linux 上，suitup 默认会关闭 zsh 的拼写纠错，避免输入命令时受到 IME 相关误纠正的干扰。
+
 Bootstrap 细节：
 
 - macOS：安装 Homebrew，或跳过包管理器初始化
 - Linux：可选 `apt-get`、`dnf`、`yum`、`brew`，或直接跳过这些基于包管理器的步骤（例如安装 `zsh`）
-- Linux：如果缺少 Node.js 20+，curl 安装脚本可以从官方 Node.js 20.x Linux 压缩包引导安装到 `~/.local/share/suitup/node/`，并把二进制链接到 `~/.local/bin/`
+- Linux：如果你选择 Homebrew 且系统里还没有安装，suitup 会先安装 Homebrew，然后提示你重新运行 setup，再继续后续依赖 brew 的步骤
+- Linux：如果缺少 Node.js 20+，curl 安装脚本可以从官方 Node.js 20.x Linux 压缩包引导安装到 `~/.local/share/suitup/node/`，并只在安装脚本当前会话内使用它
+- Linux：初始化脚本使用的临时 Node 运行时现在会与后续 fnm 管理的 Node 隔离，避免互相抢占
 - 如果 Homebrew 已经安装在非默认位置，suitup 会在 Zsh 启动时自动尝试常见 `shellenv` 路径
 - suitup 也会生成一个精简的 `~/.zshenv`，保证非交互式 shell 也能加载共享环境变量和 PATH
 - 当 fnm 安装 Node.js 后，suitup 会把 `fnm` 自身和该默认 Node 版本一起放进 PATH，确保交互式/非交互式 shell 下的 `fnm`、`node`、`npm` 和全局 CLI 都能正确解析
+- Frontend 工具安装会使用 `~/.local/` 下的用户级 npm prefix，这样安装 `pnpm` 和 `git-cz` 不需要 sudo，也不会写入系统级 npm 目录
 
 ### Append（追加）
 
