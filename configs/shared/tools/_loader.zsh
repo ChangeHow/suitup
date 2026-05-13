@@ -26,23 +26,42 @@ _source_cached_tool_init() {
   local cache_name="$1"
   local binary_name="$2"
   local init_command="$3"
-  local binary_path
   local cache_file="$_zsh_tools_cache_dir/${cache_name}.zsh"
   local tmp_file="${cache_file}.tmp"
   local version_file="$_zsh_tools_cache_dir/${cache_name}.version"
-  local current_version
 
+  # Fast path: if cache and version file exist, source directly.
+  # The version check is deferred to a background refresh so startup stays fast.
+  if [[ -s "$cache_file" && -s "$version_file" ]]; then
+    source "$cache_file"
+
+    # Background refresh: if the cache is older than 24 hours, verify the
+    # binary version and rebuild when it has changed.
+    () {
+      emulate -L zsh
+      if [[ -n "$(command find "$cache_file" -mmin +1440 -print 2>/dev/null)" ]]; then
+        local binary_path current_version cached_version
+        binary_path=$(command -v "$binary_name") || return 0
+        current_version=$("$binary_path" --version 2>/dev/null | head -1) || current_version="unknown"
+        cached_version=$(<"$version_file")
+        [[ "$current_version" == "$cached_version" ]] && return 0
+
+        if eval "$init_command" >| "$tmp_file" 2>/dev/null; then
+          mv "$tmp_file" "$cache_file"
+          echo -n "$current_version" > "$version_file"
+        else
+          rm -f "$tmp_file"
+        fi
+      fi
+    } &!
+
+    return
+  fi
+
+  # Slow path: cache missing — check version and build synchronously.
+  local binary_path current_version
   binary_path=$(command -v "$binary_name") || return 0
   current_version=$("$binary_path" --version 2>/dev/null | head -1) || current_version="unknown"
-
-  if [[ -s "$cache_file" && -s "$version_file" ]]; then
-    local cached_version
-    cached_version=$(<"$version_file")
-    if [[ "$current_version" == "$cached_version" ]]; then
-      source "$cache_file"
-      return
-    fi
-  fi
 
   if eval "$init_command" >| "$tmp_file" 2>/dev/null; then
     mv "$tmp_file" "$cache_file"

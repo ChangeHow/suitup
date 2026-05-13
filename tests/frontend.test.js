@@ -24,16 +24,27 @@ const CURL_HTTP_ERROR = "curl exited with HTTP error 22";
 
 describe("frontend step", () => {
   let sandbox;
+  let originalFnmDir;
+  let originalXdgDataHome;
 
   beforeEach(() => {
     vi.clearAllMocks();
     sandbox = mkdtempSync(join(tmpdir(), "suitup-frontend-"));
     // Default: fetch LTS version fails gracefully
     run.mockImplementation(() => { throw new Error("no curl"); });
+    // Isolate from host fnm installation so tests use the sandbox path
+    originalFnmDir = process.env.FNM_DIR;
+    originalXdgDataHome = process.env.XDG_DATA_HOME;
+    delete process.env.FNM_DIR;
+    delete process.env.XDG_DATA_HOME;
   });
 
   afterEach(() => {
     rmSync(sandbox, { recursive: true, force: true });
+    if (originalFnmDir !== undefined) process.env.FNM_DIR = originalFnmDir;
+    else delete process.env.FNM_DIR;
+    if (originalXdgDataHome !== undefined) process.env.XDG_DATA_HOME = originalXdgDataHome;
+    else delete process.env.XDG_DATA_HOME;
   });
 
   test("skips all tools when already installed", async () => {
