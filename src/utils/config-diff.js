@@ -158,7 +158,7 @@ export async function applyManagedConfigUpdate({
   source,
   dest,
   label,
-  unsupportedReason = "existing file is not marked as suitup-managed, so suitup cannot safely distinguish shipped lines from user-owned config",
+  unsupportedReason = "not marked as suitup-managed",
   confirm = true,
   home = homedir(),
 } = {}) {
@@ -176,7 +176,7 @@ export async function applyManagedConfigUpdate({
   }
 
   if (!isSuitupManagedConfig(existing)) {
-    p.log.info(`Skipped ${label}: ${unsupportedReason}.`);
+    p.log.info(`Skipped ${label}: ${unsupportedReason}. Suitup cannot safely distinguish shipped lines from user-owned config.`);
     return { changed: false, reason: "unsupported" };
   }
 

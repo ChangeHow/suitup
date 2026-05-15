@@ -123,6 +123,8 @@ node src/cli.js
 
 当对 suitup 管理的 zsh 文件重复运行 setup 时，suitup 会按行合并新版内置配置中的新增内容。它会渲染 unified diff 预览，并在写入前请求确认。用户自己新增的行会被保留。未标记为 suitup 管理的文件会被跳过并说明原因，因为 suitup 无法可靠地区分哪些行来自内置配置、哪些行属于用户自有配置。
 
+Prompt / theme 文件不会做行级合并，因为其中常包含生成内容或用户调校状态，无法可靠自动协调。
+
 如果你选择 Powerlevel10k，suitup 会保持安装过程非交互；当缺少 `~/.p10k.zsh` 时，会先回退到基础 prompt，等你之后自行运行 `p10k configure` 再启用。
 
 在 Linux 上，suitup 默认会关闭 zsh 的拼写纠错，避免输入命令时受到 IME 相关误纠正的干扰。
