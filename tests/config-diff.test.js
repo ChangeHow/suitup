@@ -18,6 +18,10 @@ vi.mock("@clack/prompts", () => ({
 
 import { applyManagedConfigUpdate, mergeLineAdditions, renderUnifiedDiff } from "../src/utils/config-diff.js";
 
+function stripAnsiCodes(line) {
+  return line.replace(/\u001b\[[0-9;]*m/g, "");
+}
+
 describe("managed config diff updates", () => {
   let sandbox;
   let source;
@@ -105,7 +109,7 @@ describe("managed config diff updates", () => {
   test("given before and after content, renderUnifiedDiff shows additions and removals", () => {
     const diff = renderUnifiedDiff("a\nold\n", "a\nnew\n", { from: "before", to: "after" });
 
-    expect(diff.split("\n").map((line) => line.replace(/\u001b\[[0-9;]*m/g, ""))).toEqual([
+    expect(diff.split("\n").map(stripAnsiCodes)).toEqual([
       "--- before",
       "+++ after",
       "  a",
