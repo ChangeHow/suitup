@@ -106,7 +106,7 @@ export async function setupZshConfig({ home, promptTheme = "p10k" } = {}) {
   if (!existingPrompt) {
     copyFile(join(CONFIGS_DIR, "shared", promptSource), promptDest);
   } else {
-    p.log.info("Skipped shared/prompt.zsh: prompt files are intentionally not line-merged because prompt/theme files commonly contain generated or user-tuned state that suitup cannot safely reconcile.");
+    p.log.info("Skipped shared/prompt.zsh: prompt files are not line-merged to preserve user customizations.");
   }
 
   // Create local placeholder (don't overwrite existing)

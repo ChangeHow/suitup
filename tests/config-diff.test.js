@@ -93,7 +93,7 @@ describe("managed config diff updates", () => {
     expect(result).toEqual({ changed: false, reason: "unsupported" });
     expect(readFileSync(dest, "utf-8")).toBe("# my aliases\nalias mine=''\n");
     expect(mockConfirm).not.toHaveBeenCalled();
-    expect(mockInfo.mock.calls.map((call) => call[0]).join("\n")).toContain("cannot safely distinguish shipped lines from user-owned config");
+    expect(mockInfo.mock.calls.map((call) => call[0]).join("\n")).toMatch(/Skipped aliases: .*user-owned config/);
   });
 
   test("given existing and shipped content, mergeLineAdditions only adds shipped lines and does not remove local lines", () => {

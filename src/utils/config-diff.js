@@ -119,7 +119,7 @@ export function renderUnifiedDiff(beforeContent, afterContent, { from = "current
 }
 
 function displayPath(filePath, home = homedir()) {
-  return filePath.startsWith(home) ? filePath.replace(home, "~") : filePath;
+  return filePath.startsWith(home) ? `~${filePath.slice(home.length)}` : filePath;
 }
 
 export function isSuitupManagedConfig(content) {
