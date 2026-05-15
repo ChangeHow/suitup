@@ -105,9 +105,12 @@ describe("managed config diff updates", () => {
   test("given before and after content, renderUnifiedDiff shows additions and removals", () => {
     const diff = renderUnifiedDiff("a\nold\n", "a\nnew\n", { from: "before", to: "after" });
 
-    expect(diff).toContain("--- before");
-    expect(diff).toContain("+++ after");
-    expect(diff).toContain("- old");
-    expect(diff).toContain("+ new");
+    expect(diff.split("\n").map((line) => line.replace(/\u001b\[[0-9;]*m/g, ""))).toEqual([
+      "--- before",
+      "+++ after",
+      "  a",
+      "- old",
+      "+ new",
+    ]);
   });
 });

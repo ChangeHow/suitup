@@ -121,7 +121,7 @@ node src/cli.js
 
 在 suitup 修改 Shell 启动配置前，会先把现有 `.zshrc`、`.zprofile`、`.zshenv`、`.zlogin` 等 zsh 启动文件备份到 `~/.config/zsh/backups/`。
 
-当对 suitup 管理的 zsh 文件重复运行 setup 时，suitup 会按行合并新版内置配置中的新增内容，渲染 unified diff 预览，并在写入前请求确认。用户自己新增的行会被保留。未标记为 suitup 管理的文件会被跳过并说明原因，因为 suitup 无法可靠地区分哪些行来自内置配置、哪些行属于用户自有配置。
+当对 suitup 管理的 zsh 文件重复运行 setup 时，suitup 会按行合并新版内置配置中的新增内容。它会渲染 unified diff 预览，并在写入前请求确认。用户自己新增的行会被保留。未标记为 suitup 管理的文件会被跳过并说明原因，因为 suitup 无法可靠地区分哪些行来自内置配置、哪些行属于用户自有配置。
 
 如果你选择 Powerlevel10k，suitup 会保持安装过程非交互；当缺少 `~/.p10k.zsh` 时，会先回退到基础 prompt，等你之后自行运行 `p10k configure` 再启用。
 

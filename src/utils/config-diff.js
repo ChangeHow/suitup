@@ -118,7 +118,7 @@ export function renderUnifiedDiff(beforeContent, afterContent, { from = "current
   return diff.join("\n");
 }
 
-function displayPath(filePath, home = homedir()) {
+export function displayPath(filePath, home = homedir()) {
   return filePath.startsWith(home) ? `~${filePath.slice(home.length)}` : filePath;
 }
 
