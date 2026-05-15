@@ -3,7 +3,8 @@ import pc from "picocolors";
 import { existsSync, readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
-import { appendIfMissing, ensureDir, readFileSafe, copyFile, copyIfNotExists, writeFile } from "./utils/fs.js";
+import { appendIfMissing, ensureDir, readFileSafe, copyIfNotExists, writeFile } from "./utils/fs.js";
+import { applyManagedConfigUpdate } from "./utils/config-diff.js";
 import { CONFIGS_DIR } from "./constants.js";
 import { backupShellRcFiles } from "./steps/zsh-config.js";
 import { installZinit } from "./steps/plugin-manager.js";
@@ -104,9 +105,13 @@ const BLOCKS = [
     hint: "source ~/.config/zsh/shared/aliases.zsh",
     group: "Suitup Configs",
     marker: "suitup/aliases",
-    apply() {
+    async apply() {
       ensureDir(ZSH_SHARED_DIR);
-      copyFile(join(CONFIGS_DIR, "shared", "aliases.zsh"), join(ZSH_SHARED_DIR, "aliases.zsh"));
+      await applyManagedConfigUpdate({
+        source: join(CONFIGS_DIR, "shared", "aliases.zsh"),
+        dest: join(ZSH_SHARED_DIR, "aliases.zsh"),
+        label: "aliases",
+      });
       return appendIfMissing(
         ZSHRC,
         '\n# >>> suitup/aliases >>>\nsource_if_exists "$HOME/.config/zsh/shared/aliases.zsh"\n# <<< suitup/aliases <<<\n',
@@ -120,9 +125,13 @@ const BLOCKS = [
     hint: "source ~/.config/zsh/shared/plugins.zsh",
     group: "Suitup Configs",
     marker: "suitup/zinit-plugins",
-    apply() {
+    async apply() {
       ensureDir(ZSH_SHARED_DIR);
-      copyFile(join(CONFIGS_DIR, "shared", "plugins.zsh"), join(ZSH_SHARED_DIR, "plugins.zsh"));
+      await applyManagedConfigUpdate({
+        source: join(CONFIGS_DIR, "shared", "plugins.zsh"),
+        dest: join(ZSH_SHARED_DIR, "plugins.zsh"),
+        label: "zinit plugin config",
+      });
       return appendIfMissing(
         ZSHRC,
         '\n# >>> suitup/zinit-plugins >>>\nsource_if_exists "$HOME/.config/zsh/shared/plugins.zsh"\n# <<< suitup/zinit-plugins <<<\n',

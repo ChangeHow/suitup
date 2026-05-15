@@ -58,11 +58,13 @@ The template should keep the same loading order unless there is a strong reason 
 `src/steps/zsh-config.js` is responsible for:
 
 - creating `~/.config/zsh/core`, `shared`, and `local`
-- copying shipped config files without overwriting user-modified files
+- copying or line-merging shipped config files without overwriting user-modified files
 - generating `.zshrc` from the selected template
 - backing up an existing non-suitup `.zshrc` before overwrite
 
 This step must remain idempotent.
+
+Suitup-managed zsh files support additive line merging with a diff preview and confirmation. Prompt/theme files are intentionally excluded because they often contain generated or user-tuned state that cannot be safely reconciled line by line.
 
 ## Testing Notes
 

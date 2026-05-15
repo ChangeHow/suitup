@@ -3,7 +3,8 @@ import { existsSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import { runStream } from "../utils/shell.js";
-import { copyIfNotExists, ensureDir } from "../utils/fs.js";
+import { ensureDir } from "../utils/fs.js";
+import { applyManagedConfigUpdate } from "../utils/config-diff.js";
 import { CONFIGS_DIR } from "../constants.js";
 
 /**
@@ -29,13 +30,12 @@ export async function installZinit({ home } = {}) {
     p.log.success("zinit installed");
   }
 
-  // Copy plugin config (skip if already exists)
   const dest = join(base, ".config", "zsh", "shared", "plugins.zsh");
   ensureDir(join(base, ".config", "zsh", "shared"));
-  const copied = copyIfNotExists(join(CONFIGS_DIR, "shared", "plugins.zsh"), dest);
-  if (copied) {
-    p.log.success("zinit plugin config written to ~/.config/zsh/shared/plugins.zsh");
-  } else {
-    p.log.info("zinit plugin config already exists, skipped");
-  }
+  await applyManagedConfigUpdate({
+    source: join(CONFIGS_DIR, "shared", "plugins.zsh"),
+    dest,
+    label: "zinit plugin config",
+    home: base,
+  });
 }
