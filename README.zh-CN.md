@@ -17,6 +17,7 @@
 - suitup 只支持 zsh；所有命令都需要在 zsh 会话中运行
 - 模块化步骤选择，只安装你需要的内容
 - **追加模式**：向现有 `.zshrc` 追加推荐配置，不强制覆盖
+- **Diff 预览更新**：重复运行时会先展示安全的 suitup 配置增量，再确认应用
 - **PATH 迁移模式**：把 `.zshrc` 里的 PATH / 工具初始化行迁移到 `~/.config/zsh/core/paths.zsh`
 - **验证模式**：检查安装完整性
 - **清理模式**：删除 suitup 生成的配置
@@ -120,6 +121,8 @@ node src/cli.js
 
 在 suitup 修改 Shell 启动配置前，会先把现有 `.zshrc`、`.zprofile`、`.zshenv`、`.zlogin` 等 zsh 启动文件备份到 `~/.config/zsh/backups/`。
 
+当对 suitup 管理的 zsh 文件重复运行 setup 时，suitup 会按行合并新版内置配置中的新增内容，渲染 unified diff 预览，并在写入前请求确认。用户自己新增的行会被保留。未标记为 suitup 管理的文件会被跳过并说明原因，因为 suitup 无法可靠地区分哪些行来自内置配置、哪些行属于用户自有配置。
+
 如果你选择 Powerlevel10k，suitup 会保持安装过程非交互；当缺少 `~/.p10k.zsh` 时，会先回退到基础 prompt，等你之后自行运行 `p10k configure` 再启用。
 
 在 Linux 上，suitup 默认会关闭 zsh 的拼写纠错，避免输入命令时受到 IME 相关误纠正的干扰。
@@ -154,6 +157,8 @@ node src/cli.js append
 - 环境变量
 - 启动性能报告
 - FZF 配置
+
+对于 aliases、zinit plugins 等 suitup 管理的共享配置文件，append 模式也会在应用安全的行级增量前展示 diff 预览。Prompt / theme 文件不会做行级合并，因为其中常包含生成内容或用户调校状态，无法可靠自动协调。
 
 ### Verify（验证）
 

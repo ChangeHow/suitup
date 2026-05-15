@@ -17,6 +17,7 @@ Named after Barney's catchphrase from [How I Met Your Mother](https://www.themov
 - Suitup is zsh-only; run all suitup commands from a zsh session
 - Modular step selection — install only what you need
 - **Append mode** — add recommended configs to an existing `.zshrc` without replacing it
+- **Diff preview updates** — reruns show safe suitup config additions before applying them
 - **Migrate PATH mode** — move PATH/tool bootstrap lines out of `.zshrc` into `~/.config/zsh/core/paths.zsh`
 - **Verify mode** — check your installation integrity
 - **Clean mode** — remove suitup config files
@@ -120,6 +121,8 @@ Interactive step-by-step setup with selectable steps:
 
 Before suitup updates shell startup config, it backs up existing zsh startup files such as `.zshrc`, `.zprofile`, `.zshenv`, and `.zlogin` to `~/.config/zsh/backups/`.
 
+When rerunning setup against suitup-managed zsh files, suitup line-merges new shipped additions, renders a unified diff preview, and asks for confirmation before writing. Existing user-added lines are preserved. Files that are not marked as suitup-managed are skipped with a reason because suitup cannot safely distinguish shipped config from user-owned config.
+
 If you choose Powerlevel10k, suitup keeps prompt loading non-interactive during setup. When `~/.p10k.zsh` is missing, it falls back to a basic prompt until you run `p10k configure` yourself.
 
 On Linux, suitup disables zsh spelling correction by default to avoid disruptive IME-related corrections while typing commands.
@@ -154,6 +157,8 @@ Uses idempotent marker blocks (`# >>> suitup/... >>>`) to safely append selected
 - Environment variables
 - Startup performance monitor
 - FZF configuration
+
+For suitup-managed shared config files such as aliases and zinit plugins, append mode also previews safe line additions before applying them. Prompt/theme files are not line-merged because they often contain generated or user-tuned state that cannot be reliably reconciled.
 
 ### Verify
 
