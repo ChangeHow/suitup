@@ -4,6 +4,10 @@ import { existsSync } from "node:fs";
 import { homedir } from "node:os";
 import { readFileSafe, writeFile, copyFile } from "./fs.js";
 
+/**
+ * Split file content into normalized LF lines, omitting the synthetic empty
+ * item created by a trailing newline. Empty content returns an empty list.
+ */
 function splitContent(content) {
   const normalized = content.replace(/\r\n/g, "\n");
   if (normalized.endsWith("\n")) {
@@ -12,11 +16,19 @@ function splitContent(content) {
   return normalized.length > 0 ? normalized.split("\n") : [];
 }
 
+/**
+ * Join normalized lines and optionally restore a final newline to match shell
+ * config file conventions.
+ */
 function joinContent(lines, preferFinalNewline = true) {
   const content = lines.join("\n");
   return preferFinalNewline ? `${content}\n` : content;
 }
 
+/**
+ * Compute longest-common-subsequence index pairs using dynamic programming.
+ * Returns [leftIndex, rightIndex] pairs in order; O(left * right).
+ */
 function getLcsPairs(left, right) {
   const dp = Array.from({ length: left.length + 1 }, () => Array(right.length + 1).fill(0));
 
@@ -45,6 +57,10 @@ function getLcsPairs(left, right) {
   return pairs;
 }
 
+/**
+ * Add shipped lines into existing content relative to the LCS anchors.
+ * Existing lines are kept in order and never removed, so user additions remain.
+ */
 export function mergeLineAdditions(existingContent, shippedContent) {
   if (existingContent === shippedContent) {
     return existingContent;
@@ -84,6 +100,10 @@ export function mergeLineAdditions(existingContent, shippedContent) {
   return joinContent(merged, existingContent.endsWith("\n") || shippedContent.endsWith("\n"));
 }
 
+/**
+ * Render a colorized unified-style diff with context, removals, and additions.
+ * `from` and `to` label the current and proposed file names in the header.
+ */
 export function renderUnifiedDiff(beforeContent, afterContent, { from = "current", to = "proposed" } = {}) {
   const beforeLines = splitContent(beforeContent);
   const afterLines = splitContent(afterContent);
@@ -118,6 +138,9 @@ export function renderUnifiedDiff(beforeContent, afterContent, { from = "current
   return diff.join("\n");
 }
 
+/**
+ * Convert paths under the active home directory to "~" for readable prompts.
+ */
 export function displayPath(filePath, home = homedir()) {
   return filePath.startsWith(home) ? `~${filePath.slice(home.length)}` : filePath;
 }
