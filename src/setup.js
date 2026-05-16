@@ -17,6 +17,8 @@ import { setupZshConfig, writeZshrc, writeZshenv } from "./steps/zsh-config.js";
 import { readFileSafe } from "./utils/fs.js";
 import { commandExists } from "./utils/shell.js";
 import { isZshShell } from "./utils/shell-context.js";
+import { CONFIGS_DIR } from "./constants.js";
+import { isSuitupManagedConfig, mergeLineAdditions } from "./utils/config-diff.js";
 export { isZshShell } from "./utils/shell-context.js";
 
 export const SUITUP_PIXEL_LOGO = [
@@ -170,9 +172,59 @@ export function detectCompletedSteps({
   return [...completed];
 }
 
+function hasManagedConfigAdditions(source, dest) {
+  if (!existsSync(dest)) {
+    return false;
+  }
+
+  const existing = readFileSafe(dest);
+  const shipped = readFileSafe(source);
+  if (existing === shipped || !isSuitupManagedConfig(existing)) {
+    return false;
+  }
+
+  return mergeLineAdditions(existing, shipped) !== existing;
+}
+
+export function detectPendingStepUpdates({ home = homedir() } = {}) {
+  const pending = new Set();
+  const zshConfigDir = join(home, ".config", "zsh");
+  const zshConfigFiles = [
+    [join(CONFIGS_DIR, "zshrc.template"), join(home, ".zshrc")],
+    [join(CONFIGS_DIR, "zshenv.template"), join(home, ".zshenv")],
+    ...["perf.zsh", "env.zsh", "paths.zsh", "options.zsh"].map((file) => [
+      join(CONFIGS_DIR, "core", file),
+      join(zshConfigDir, "core", file),
+    ]),
+    ...["tools.zsh", "completion.zsh", "highlighting.zsh"].map((file) => [
+      join(CONFIGS_DIR, "shared", file),
+      join(zshConfigDir, "shared", file),
+    ]),
+    ...["_loader.zsh", "fzf.zsh", "runtime.zsh", "atuin.zsh", "bun.zsh"].map((file) => [
+      join(CONFIGS_DIR, "shared", "tools", file),
+      join(zshConfigDir, "shared", "tools", file),
+    ]),
+  ];
+
+  if (zshConfigFiles.some(([source, dest]) => hasManagedConfigAdditions(source, dest))) {
+    pending.add("zsh-config");
+  }
+
+  if (hasManagedConfigAdditions(join(CONFIGS_DIR, "shared", "plugins.zsh"), join(zshConfigDir, "shared", "plugins.zsh"))) {
+    pending.add("plugins");
+  }
+
+  if (hasManagedConfigAdditions(join(CONFIGS_DIR, "shared", "aliases.zsh"), join(zshConfigDir, "shared", "aliases.zsh"))) {
+    pending.add("aliases");
+  }
+
+  return [...pending];
+}
+
 export function getInitialStepValues(opts = {}) {
   const completed = new Set(detectCompletedSteps(opts));
-  return getDefaultSteps(opts.platform).filter((step) => !completed.has(step));
+  const pendingUpdates = new Set(detectPendingStepUpdates(opts));
+  return getDefaultSteps(opts.platform).filter((step) => !completed.has(step) || pendingUpdates.has(step));
 }
 
 export async function runSetup({ defaults = false } = {}) {
@@ -188,8 +240,13 @@ export async function runSetup({ defaults = false } = {}) {
   // --- Step 1: Select setup steps ---
   const completedSteps = detectCompletedSteps();
   const initialValues = getInitialStepValues();
-  if (completedSteps.length > 0) {
-    p.log.info(`Deselected already configured steps: ${completedSteps.join(", ")}`);
+  const pendingUpdates = detectPendingStepUpdates();
+  const deselectedSteps = completedSteps.filter((step) => !initialValues.includes(step));
+  if (deselectedSteps.length > 0) {
+    p.log.info(`Deselected already configured steps: ${deselectedSteps.join(", ")}`);
+  }
+  if (pendingUpdates.length > 0) {
+    p.log.info(`Preselected steps with suitup config additions: ${pendingUpdates.join(", ")}`);
   }
 
   const steps = defaults
