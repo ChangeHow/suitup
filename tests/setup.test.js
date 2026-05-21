@@ -360,6 +360,63 @@ describe("Setup simulation in sandbox", () => {
     }
   });
 
+  test("flags managed tool module edits as zsh-config pending", () => {
+    const completedSandbox = createSandbox();
+    try {
+      mkdirSync(join(completedSandbox.path, ".config", "zsh", "core"), { recursive: true });
+      mkdirSync(join(completedSandbox.path, ".config", "zsh", "shared"), { recursive: true });
+      mkdirSync(join(completedSandbox.path, ".config", "zsh", "local"), { recursive: true });
+      mkdirSync(join(completedSandbox.path, ".config", "zsh", "shared", "tools"), { recursive: true });
+
+      copyFileSync(join(CONFIGS_DIR, "zshrc.template"), join(completedSandbox.path, ".zshrc"));
+      copyFileSync(join(CONFIGS_DIR, "zshenv.template"), join(completedSandbox.path, ".zshenv"));
+      for (const file of ["perf.zsh", "env.zsh", "paths.zsh", "options.zsh"]) {
+        copyFileSync(
+          join(CONFIGS_DIR, "core", file),
+          join(completedSandbox.path, ".config", "zsh", "core", file)
+        );
+      }
+      for (const file of ["tools.zsh", "completion.zsh", "highlighting.zsh", "aliases.zsh", "plugins.zsh", "prompt.zsh"]) {
+        copyFileSync(
+          join(CONFIGS_DIR, "shared", file),
+          join(completedSandbox.path, ".config", "zsh", "shared", file)
+        );
+      }
+      for (const file of ["_loader.zsh", "fzf.zsh", "runtime.zsh", "atuin.zsh", "bun.zsh"]) {
+        copyFileSync(
+          join(CONFIGS_DIR, "shared", "tools", file),
+          join(completedSandbox.path, ".config", "zsh", "shared", "tools", file)
+        );
+      }
+      copyFileSync(
+        join(CONFIGS_DIR, "local", "machine.zsh"),
+        join(completedSandbox.path, ".config", "zsh", "local", "machine.zsh")
+      );
+
+      const loaderPath = join(completedSandbox.path, ".config", "zsh", "shared", "tools", "_loader.zsh");
+      const loader = readFileSync(loaderPath, "utf-8");
+      writeFileSync(
+        loaderPath,
+        loader.replace(
+          "# This file contains common helpers used by multiple tool modules.",
+          "# This file contains common helpers used by multiple tool modules, now with an added note."
+        )
+      );
+
+      const opts = {
+        home: completedSandbox.path,
+        platform: "darwin",
+        commandExistsFn(name) {
+          return ["zsh", "brew"].includes(name);
+        },
+      };
+
+      expect(detectPendingStepUpdates(opts)).toContain("zsh-config");
+    } finally {
+      completedSandbox.cleanup();
+    }
+  });
+
   test("does not treat non-suitup shell files as completed zsh config", () => {
     mkdirSync(join(sandbox, ".config", "zsh", "core"), { recursive: true });
     mkdirSync(join(sandbox, ".config", "zsh", "shared"), { recursive: true });

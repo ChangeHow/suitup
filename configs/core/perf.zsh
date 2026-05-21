@@ -76,7 +76,7 @@ _zsh_report() {
   _print_duration_row 'total' "$total_ms"
   echo '└────────────────────────────┘'
 
-  if [[ "${_zsh_completion_cache_mode:-}" == 'cache-hit' && -n "${_zsh_compdump_file:-}" ]]; then
+  if [[ "${SUITUP_SHOW_COMPLETION_CACHE_HINT:-0}" == '1' && "${_zsh_completion_cache_mode:-}" == 'cache-hit' && -n "${_zsh_compdump_file:-}" ]]; then
     printf 'completion cache hit; remove %s to rebuild\n' "$_zsh_compdump_file"
   fi
 }
