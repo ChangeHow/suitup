@@ -38,7 +38,7 @@ jobs:
             zsh -fc 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"; autoload -Uz compaudit; compaudit'
           )
           if (( ${#insecure_dirs[@]} )); then
-            chmod go-w "${insecure_dirs[@]}"
+            sudo chmod go-w "${insecure_dirs[@]}"
           fi
 
       - name: Prepare benchmark homes
