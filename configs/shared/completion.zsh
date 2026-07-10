@@ -7,13 +7,16 @@ autoload -Uz compinit
 
 _zsh_compdump_file="${XDG_CACHE_HOME:-$HOME/.cache}/zsh/.zcompdump"
 typeset -g _zsh_completion_cache_mode='refresh'
+typeset -a _zsh_fresh_compdump=("$_zsh_compdump_file"(Nm-7))
 
-if [[ -s "$_zsh_compdump_file" && -n "$(command find "$_zsh_compdump_file" -mtime -7 -print 2>/dev/null)" ]]; then
+if (( ${#_zsh_fresh_compdump} )); then
   _zsh_completion_cache_mode='cache-hit'
   compinit -C -d "$_zsh_compdump_file"
 else
   compinit -d "$_zsh_compdump_file"
+  zcompile "$_zsh_compdump_file"
 fi
+unset _zsh_fresh_compdump
 
 bindkey -M emacs '^I' expand-or-complete
 bindkey -M viins '^I' expand-or-complete

@@ -161,6 +161,7 @@ export async function applyManagedConfigUpdate({
   unsupportedReason = "not marked as suitup-managed",
   confirm = true,
   home = homedir(),
+  redactPreview,
 } = {}) {
   if (!existsSync(dest)) {
     copyFile(source, dest);
@@ -187,7 +188,9 @@ export async function applyManagedConfigUpdate({
   }
 
   const shownPath = displayPath(dest, home);
-  p.log.info(`Previewing suitup additions for ${shownPath}:\n${renderUnifiedDiff(existing, merged, { from: `${shownPath} current`, to: `${shownPath} proposed` })}`);
+  const previewExisting = redactPreview ? redactPreview(existing) : existing;
+  const previewMerged = redactPreview ? redactPreview(merged) : merged;
+  p.log.info(`Previewing suitup additions for ${shownPath}:\n${renderUnifiedDiff(previewExisting, previewMerged, { from: `${shownPath} current`, to: `${shownPath} proposed` })}`);
 
   if (confirm) {
     const shouldApply = await p.confirm({

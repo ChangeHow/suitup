@@ -1,5 +1,5 @@
 import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
-import { existsSync, readFileSync, writeFileSync, mkdirSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync, mkdirSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { createSandbox } from "./helpers.js";
 
@@ -16,8 +16,10 @@ vi.mock("@clack/prompts", () => ({
 }));
 
 import { backupShellRcFiles, setupZshConfig, writeZshrc, writeZshenv } from "../src/steps/zsh-config.js";
+import { initializeUserAliases, redactAliasValues } from "../src/steps/aliases.js";
 import { setupAliases } from "../src/steps/aliases.js";
 import { setupVim } from "../src/steps/vim.js";
+import * as p from "@clack/prompts";
 
 describe("zsh-config step", () => {
   let sandbox;
@@ -48,6 +50,72 @@ describe("zsh-config step", () => {
     expect(existsSync(join(sandbox.path, ".config", "zsh", "shared", "highlighting.zsh"))).toBe(true);
     expect(existsSync(join(sandbox.path, ".config", "zsh", "shared", "prompt.zsh"))).toBe(true);
     expect(existsSync(join(sandbox.path, ".config", "zsh", "local", "machine.zsh"))).toBe(true);
+    expect(existsSync(join(sandbox.path, ".config", "zsh", "local", "aliases.zsh"))).toBe(true);
+  });
+
+  test("migrates only user aliases from the legacy Suitup file", async () => {
+    const legacyDir = join(sandbox.path, ".config", "suitup");
+    mkdirSync(legacyDir, { recursive: true });
+    writeFileSync(
+      join(legacyDir, "aliases"),
+      'alias gst="git status"\nalias my-project="cd ~/project"\nexport TOKEN="secret"\n',
+      "utf-8"
+    );
+
+    await setupZshConfig({ home: sandbox.path });
+
+    const userAliases = join(sandbox.path, ".config", "zsh", "local", "aliases.zsh");
+    const content = readFileSync(userAliases, "utf-8");
+    expect(content).toContain('alias my-project="cd ~/project"');
+    expect(content).not.toContain('alias gst="git status"');
+    expect(content).not.toContain("TOKEN");
+    expect(statSync(userAliases).mode & 0o777).toBe(0o600);
+    expect(p.log.warn).toHaveBeenCalledWith(expect.stringContaining("aliases that overlap current Suitup aliases"));
+  });
+
+  test("preserves an existing user aliases file", async () => {
+    const userAliases = join(sandbox.path, ".config", "zsh", "local", "aliases.zsh");
+    mkdirSync(join(sandbox.path, ".config", "zsh", "local"), { recursive: true });
+    writeFileSync(userAliases, 'alias mine="echo mine"\n', "utf-8");
+
+    await setupZshConfig({ home: sandbox.path });
+
+    expect(readFileSync(userAliases, "utf-8")).toBe('alias mine="echo mine"\n');
+    expect(statSync(userAliases).mode & 0o777).toBe(0o600);
+  });
+
+  test("merges missing legacy aliases into an existing user aliases file once", () => {
+    const userAliases = join(sandbox.path, ".config", "zsh", "local", "aliases.zsh");
+    const legacyDir = join(sandbox.path, ".config", "suitup");
+    mkdirSync(join(sandbox.path, ".config", "zsh", "local"), { recursive: true });
+    mkdirSync(legacyDir, { recursive: true });
+    writeFileSync(userAliases, 'alias mine="echo mine"\n', "utf-8");
+    writeFileSync(join(legacyDir, "aliases"), 'alias mine="old"\nalias another="echo another"\n', "utf-8");
+
+    const first = initializeUserAliases({ home: sandbox.path });
+    expect(first.migratedAliases).toEqual(["another"]);
+    expect(first.conflictingAliases).toBe(0);
+    expect(initializeUserAliases({ home: sandbox.path }).migratedAliases).toEqual([]);
+    const content = readFileSync(userAliases, "utf-8");
+    expect(content).toContain('alias mine="echo mine"');
+    expect(content.match(/alias another=/g)).toHaveLength(1);
+  });
+
+  test("rejects legacy aliases that would make the user file invalid", () => {
+    const legacyDir = join(sandbox.path, ".config", "suitup");
+    mkdirSync(legacyDir, { recursive: true });
+    writeFileSync(join(legacyDir, "aliases"), "alias broken='unterminated\n", "utf-8");
+
+    const result = initializeUserAliases({ home: sandbox.path });
+    const content = readFileSync(join(sandbox.path, ".config", "zsh", "local", "aliases.zsh"), "utf-8");
+    expect(result.migratedAliases).toEqual([]);
+    expect(content).not.toContain("unterminated");
+  });
+
+  test("redacts alias values from previews", () => {
+    const redacted = redactAliasValues('alias deploy="TOKEN=secret deploy"\nexport TOKEN=secret\n');
+    expect(redacted).toContain("alias deploy=<redacted>");
+    expect(redacted).not.toContain("secret");
   });
 
   test("copies the optimized startup config files", async () => {

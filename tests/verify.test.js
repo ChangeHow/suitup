@@ -60,6 +60,7 @@ describe("Verify in sandbox", () => {
       ["shared/aliases.zsh", ".config/zsh/shared/aliases.zsh"],
       ["shared/prompt.zsh", ".config/zsh/shared/prompt.zsh"],
       ["local/machine.zsh", ".config/zsh/local/machine.zsh"],
+      ["local/aliases.zsh", ".config/zsh/local/aliases.zsh"],
     ];
 
     for (const [src, dest] of fileMappings) {
@@ -80,6 +81,7 @@ describe("Verify in sandbox", () => {
     const dirs = [
       ".config/zsh/core",
       ".config/zsh/shared",
+      ".config/zsh/local",
     ];
     for (const dir of dirs) {
       mkdirSync(join(sandbox, dir), { recursive: true });
@@ -95,6 +97,7 @@ describe("Verify in sandbox", () => {
       ["shared/plugins.zsh", ".config/zsh/shared/plugins.zsh"],
       ["shared/aliases.zsh", ".config/zsh/shared/aliases.zsh"],
       ["shared/prompt.zsh", ".config/zsh/shared/prompt.zsh"],
+      ["local/aliases.zsh", ".config/zsh/local/aliases.zsh"],
     ];
 
     for (const [src, dest] of zshFiles) {

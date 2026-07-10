@@ -139,7 +139,8 @@ export function detectCompletedSteps({
     existsSync(join(zshConfigDir, "shared", "completion.zsh")) &&
     existsSync(join(zshConfigDir, "shared", "highlighting.zsh")) &&
     existsSync(join(zshConfigDir, "shared", "prompt.zsh")) &&
-    existsSync(join(zshConfigDir, "local", "machine.zsh"))
+    existsSync(join(zshConfigDir, "local", "machine.zsh")) &&
+    existsSync(join(zshConfigDir, "local", "aliases.zsh"))
   ) {
     completed.add("zsh-config");
   }

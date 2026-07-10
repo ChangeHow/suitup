@@ -4,17 +4,22 @@
 
 # Homebrew can live outside the default PATH on fresh macOS/Linux installs.
 # Load its shellenv early so later tool detection works after suitup rewrites ~/.zshrc.
-for _suitup_brew_bin in \
-  "${HOMEBREW_PREFIX:+$HOMEBREW_PREFIX/bin/brew}" \
-  /opt/homebrew/bin/brew \
-  /home/linuxbrew/.linuxbrew/bin/brew \
-  /usr/local/bin/brew
-do
-  [[ -n "$_suitup_brew_bin" && -x "$_suitup_brew_bin" ]] || continue
-  eval "$("$_suitup_brew_bin" shellenv zsh)"
-  break
-done
-unset _suitup_brew_bin
+if [[ -z "${_SUITUP_BREW_ENV_CHECKED:-}" ]]; then
+  typeset -g _SUITUP_BREW_ENV_CHECKED=1
+  if (( ! $+commands[brew] )); then
+    for _suitup_brew_bin in \
+      "${HOMEBREW_PREFIX:+$HOMEBREW_PREFIX/bin/brew}" \
+      /opt/homebrew/bin/brew \
+      /home/linuxbrew/.linuxbrew/bin/brew \
+      /usr/local/bin/brew
+    do
+      [[ -n "$_suitup_brew_bin" && -x "$_suitup_brew_bin" ]] || continue
+      eval "$("$_suitup_brew_bin" shellenv zsh)"
+      break
+    done
+    unset _suitup_brew_bin
+  fi
+fi
 
 # fnm (Fast Node Manager) — keep the fnm binary itself on PATH after suitup
 # rewrites ~/.zshrc, then expose the default Node installation to all shells

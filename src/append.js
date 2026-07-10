@@ -11,6 +11,7 @@ import { installZinit } from "./steps/plugin-manager.js";
 import { installCliTools } from "./steps/cli-tools.js";
 import { installFrontendTools } from "./steps/frontend.js";
 import { commandExists } from "./utils/shell.js";
+import { initializeUserAliases, redactAliasValues } from "./steps/aliases.js";
 
 const ZSHRC = join(homedir(), ".zshrc");
 const ZSH_SHARED_DIR = join(homedir(), ".config", "zsh", "shared");
@@ -67,6 +68,20 @@ export function ensurePluginsSource({ home } = {}) {
   );
 }
 
+export function ensureUserAliasesSource({ home } = {}) {
+  const base = home || homedir();
+  initializeUserAliases({ home: base });
+  const zshrc = join(base, ".zshrc");
+  if (readFileSafe(zshrc).includes(".config/zsh/local/aliases.zsh")) {
+    return false;
+  }
+  return appendIfMissing(
+    zshrc,
+    '\n# >>> suitup/user-aliases >>>\nsource_if_exists "$HOME/.config/zsh/local/aliases.zsh"\n# <<< suitup/user-aliases <<<\n',
+    "suitup/user-aliases"
+  );
+}
+
 export function getMissingToolsInitCommands(commandExistsFn = commandExists) {
   return TOOLS_INIT_COMMANDS.filter((tool) => !commandExistsFn(tool));
 }
@@ -111,12 +126,14 @@ const BLOCKS = [
         source: join(CONFIGS_DIR, "shared", "aliases.zsh"),
         dest: join(ZSH_SHARED_DIR, "aliases.zsh"),
         label: "aliases",
+        redactPreview: redactAliasValues,
       });
-      return appendIfMissing(
+      const sharedChanged = appendIfMissing(
         ZSHRC,
         '\n# >>> suitup/aliases >>>\nsource_if_exists "$HOME/.config/zsh/shared/aliases.zsh"\n# <<< suitup/aliases <<<\n',
         "suitup/aliases"
       );
+      return ensureUserAliasesSource() || sharedChanged;
     },
   },
   {

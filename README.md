@@ -23,6 +23,7 @@ Named after Barney's catchphrase from [How I Met Your Mother](https://www.themov
 - **Clean mode** — remove suitup config files
 - `--help` output for quick command discovery
 - Backs up existing zsh startup files to `~/.config/zsh/backups/` before changing shell startup config
+- Keeps personal aliases in `~/.config/zsh/local/aliases.zsh`, outside suitup-managed updates and clean/reset removal
 - Powerlevel10k is optional; recommended because its async git status stays responsive in large repositories
 - Idempotent — safe to run multiple times
 - No private/company-specific content — clean, generic configs
@@ -152,6 +153,7 @@ node src/cli.js append
 Uses idempotent marker blocks (`# >>> suitup/... >>>`) to safely append selected configs and re-run related installers when required tools are missing:
 
 - Suitup aliases
+- User aliases (`edit-user-alias` opens `~/.config/zsh/local/aliases.zsh`)
 - Zinit plugins
 - Powerlevel10k prompt or basic prompt preset (replaces `~/.config/zsh/shared/prompt.zsh`)
 - Tool initialization (atuin, fzf, zoxide, fnm)
@@ -159,6 +161,8 @@ Uses idempotent marker blocks (`# >>> suitup/... >>>`) to safely append selected
 - Environment variables
 - Startup performance monitor
 - FZF configuration
+
+The startup timing table is shown only when startup takes at least `100ms`. Set `SUITUP_STARTUP_REPORT_THRESHOLD_MS=0` to always show it.
 
 For suitup-managed shared config files such as aliases and zinit plugins, append mode also previews safe line additions before applying them. Prompt/theme files are not line-merged because they often contain generated or user-tuned state that cannot be reliably reconciled.
 
@@ -198,6 +202,7 @@ Attempts a safe uninstall of suitup-managed config:
 - removes suitup-generated `~/.config/zsh/` files when they still match shipped templates
 - strips `# >>> suitup/... >>>` blocks from an existing `~/.zshrc` if you used `append`
 - preserves user-modified files instead of deleting them blindly
+- preserves `~/.config/zsh/local/aliases.zsh`
 
 ### Help
 
@@ -265,6 +270,7 @@ After setup, your shell config looks like:
     prompt.zsh                    # Prompt/theme (p10k)
   local/
     machine.zsh                   # Machine-specific overrides
+    aliases.zsh                   # User aliases, preserved across updates/reset
     config.vim                    # Vim config
     secrets.zsh                   # API keys (create manually, gitignored)
 ```

@@ -23,6 +23,7 @@
 - **清理模式**：删除 suitup 生成的配置
 - 提供 `--help`，方便快速查看命令
 - 修改 Shell 启动配置前，会先把现有 zsh 启动文件备份到 `~/.config/zsh/backups/`
+- 个人 alias 保存在 `~/.config/zsh/local/aliases.zsh`，不会被 suitup 更新或 clean/reset 删除
 - Powerlevel10k 为可选项；推荐开启，因为它在大型 Git 仓库里的异步 git 状态会更流畅
 - 幂等执行，可安全重复运行
 - 不包含私有/公司特定内容
@@ -152,6 +153,7 @@ node src/cli.js append
 通过幂等标记块（`# >>> suitup/... >>>`）安全追加；如果相关工具缺失，也会一起重试安装：
 
 - aliases
+- 用户 alias（`edit-user-alias` 会打开 `~/.config/zsh/local/aliases.zsh`）
 - zinit 插件
 - Powerlevel10k prompt 或基础 prompt 预设（会替换 `~/.config/zsh/shared/prompt.zsh`）
 - 工具初始化（atuin、fzf、zoxide、fnm）
@@ -159,6 +161,8 @@ node src/cli.js append
 - 环境变量
 - 启动性能报告
 - FZF 配置
+
+启动耗时达到 `100ms` 时才会显示计时表；设置 `SUITUP_STARTUP_REPORT_THRESHOLD_MS=0` 可始终显示。
 
 对于 aliases、zinit plugins 等 suitup 管理的共享配置文件，append 模式也会在应用安全的行级增量前展示 diff 预览。Prompt / theme 文件不会做行级合并，因为其中常包含生成内容或用户调校状态，无法可靠自动协调。
 
@@ -198,6 +202,7 @@ node src/cli.js clean
 - 对仍与项目模板一致的文件，删除 `~/.config/zsh/` 下的 suitup 生成内容
 - 如果你用过 `append`，会从现有 `~/.zshrc` 中移除 `# >>> suitup/... >>>` 标记块
 - 对用户自己改过的文件会保留，不会盲删
+- 保留 `~/.config/zsh/local/aliases.zsh`
 
 ### Help（帮助）
 
@@ -263,6 +268,7 @@ node src/cli.js --help
     prompt.zsh                    # 提示符主题（p10k）
   local/
     machine.zsh                   # 机器本地覆盖
+    aliases.zsh                   # 用户 alias，更新/reset 时保留
     config.vim                    # Vim 配置
     secrets.zsh                   # 个人密钥（手动创建，不纳入 git）
 ```

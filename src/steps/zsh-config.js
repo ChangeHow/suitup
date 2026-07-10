@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { copyFile, ensureDir, writeIfNotExists, readFileSafe, writeFile } from "../utils/fs.js";
 import { applyManagedConfigUpdate } from "../utils/config-diff.js";
 import { CONFIGS_DIR } from "../constants.js";
+import { initializeUserAliases } from "./aliases.js";
 
 const SHELL_RC_FILES = [
   ".zshrc",
@@ -114,6 +115,7 @@ export async function setupZshConfig({ home, promptTheme = "p10k" } = {}) {
     join(zshConfig, "local", "machine.zsh"),
     readFileSafe(join(CONFIGS_DIR, "local", "machine.zsh"))
   );
+  initializeUserAliases({ home: base });
 
   p.log.success("Zsh config structure created at ~/.config/zsh/");
 }

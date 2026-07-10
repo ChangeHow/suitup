@@ -34,6 +34,7 @@ The actual config lives under `~/.config/zsh/`.
 ### Local files
 
 - `configs/local/machine.zsh`: machine-specific overrides placeholder
+- `configs/local/aliases.zsh`: user-owned aliases, initialized once and preserved across clean/reset
 - `~/.config/zsh/local/secrets.zsh` is user-managed and intentionally not shipped by suitup
 
 ## Templates
