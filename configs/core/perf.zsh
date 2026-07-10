@@ -63,7 +63,18 @@ _zsh_report() {
 
   local -F 6 end=${EPOCHREALTIME:-0}
   local -F 6 total_ms=$(( (end - _zsh_start_time) * 1000.0 ))
+  local -F 6 threshold_ms=${SUITUP_STARTUP_REPORT_THRESHOLD_MS:-100}
+  local show_completion_hint=false
   local i
+
+  if [[ "${SUITUP_SHOW_COMPLETION_CACHE_HINT:-0}" == '1' && "${_zsh_completion_cache_mode:-}" == 'cache-hit' && -n "${_zsh_compdump_file:-}" ]]; then
+    show_completion_hint=true
+  fi
+
+  if (( total_ms < threshold_ms )); then
+    [[ "$show_completion_hint" == 'true' ]] && printf 'completion cache hit; remove %s to rebuild\n' "$_zsh_compdump_file"
+    return 0
+  fi
 
   echo ''
   echo '┌────────────────────────────┐'
@@ -76,7 +87,7 @@ _zsh_report() {
   _print_duration_row 'total' "$total_ms"
   echo '└────────────────────────────┘'
 
-  if [[ "${SUITUP_SHOW_COMPLETION_CACHE_HINT:-0}" == '1' && "${_zsh_completion_cache_mode:-}" == 'cache-hit' && -n "${_zsh_compdump_file:-}" ]]; then
+  if [[ "$show_completion_hint" == 'true' ]]; then
     printf 'completion cache hit; remove %s to rebuild\n' "$_zsh_compdump_file"
   fi
 }

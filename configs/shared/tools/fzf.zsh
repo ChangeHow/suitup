@@ -50,8 +50,6 @@ export FZF_CTRL_T_OPTS="
   --bind 'ctrl-u:preview-page-up'
 "
 
-_source_cached_tool_init fzf-init fzf 'fzf --zsh'
-
 _fzf_ctrl_t_command='if [[ -d "$FZF_CTRL_T_BASE" ]]; then
   fd --type d --hidden --follow \
     --base-directory "$FZF_CTRL_T_BASE" \
@@ -108,18 +106,29 @@ _fzf_ctrl_t_select_from() {
   local base_dir="$1"
   local insert_prefix="$2"
   local query="$3"
-  local item
+  local item selected
+  local -a fzf_command=(fzf)
+
+  if [[ -n "${TMUX_PANE-}" && ( "${FZF_TMUX:-0}" != 0 || -n "${FZF_TMUX_OPTS-}" ) ]] && (( $+commands[fzf-tmux] )); then
+    fzf_command=(fzf-tmux ${(z)${FZF_TMUX_OPTS:--d${FZF_TMUX_HEIGHT:-40%}}} --)
+  fi
 
   FZF_CTRL_T_BASE="$base_dir" \
   FZF_CTRL_T_PREVIEW_ROOT="$base_dir" \
   FZF_DEFAULT_COMMAND="$_fzf_ctrl_t_command" \
-  FZF_DEFAULT_OPTS=$(__fzf_defaults "--reverse --scheme=path" "${FZF_CTRL_T_OPTS-} -m --query=${(qqq)query}") \
-  FZF_DEFAULT_OPTS_FILE='' $(__fzfcmd) < /dev/tty | while read -r item; do
-    echo -n -E "${(q)insert_prefix$item} "
+  FZF_DEFAULT_OPTS="${FZF_DEFAULT_OPTS-} --reverse --scheme=path ${FZF_CTRL_T_OPTS-} -m --query=${(qqq)query}" \
+  FZF_DEFAULT_OPTS_FILE='' command "${fzf_command[@]}" < /dev/tty | while read -r item; do
+    selected="${insert_prefix}${item}"
+    print -rn -- "${(q)selected} "
   done
   local ret=$?
   echo
   return $ret
+}
+
+_fzf_ctrl_t_select_default() {
+  [[ "$PWD" == "$HOME" ]] && return
+  _fzf_ctrl_t_select_from "$PWD" "" ""
 }
 
 fzf-file-widget() {
@@ -128,7 +137,7 @@ fzf-file-widget() {
   local token base_dir insert_prefix query lbuf selected ret
 
   if [[ ${LBUFFER[-1]} == ' ' ]]; then
-    LBUFFER="${LBUFFER}$(__fzf_select)"
+    LBUFFER="${LBUFFER}$(_fzf_ctrl_t_select_default)"
     ret=$?
     zle reset-prompt
     return $ret
@@ -137,7 +146,7 @@ fzf-file-widget() {
   tokens=(${(z)LBUFFER})
   token="${tokens[-1]-}"
   if [[ -z "$token" ]] || ! _fzf_ctrl_t_path_context "$token"; then
-    LBUFFER="${LBUFFER}$(__fzf_select)"
+    LBUFFER="${LBUFFER}$(_fzf_ctrl_t_select_default)"
     ret=$?
     zle reset-prompt
     return $ret

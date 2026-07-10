@@ -129,13 +129,32 @@ else
     (( \${_zsh_stage_durations[1]:-0} > 0 ))
   "
 
-  _run "_zsh_report outputs a timing table containing 'total'" "
-    source '$PERF_ZSH'
-    _stage 'env'
-    _stage 'tools'
-    out=\$(_zsh_report 2>&1)
-    [[ \"\$out\" == *'total'* ]]
-  "
+_run "_zsh_report outputs a timing table containing 'total'" "
+  source '$PERF_ZSH'
+  SUITUP_STARTUP_REPORT_THRESHOLD_MS=0
+  _stage 'env'
+  _stage 'tools'
+  out=\$(_zsh_report 2>&1)
+  [[ \"\$out\" == *'total'* ]]
+"
+
+_run "_zsh_report hides fast startup timings by default" "
+  source '$PERF_ZSH'
+  _stage 'env'
+  out=\$(_zsh_report 2>&1)
+  rc=\$?
+  [[ -z \"\$out\" && \$rc == 0 ]]
+"
+
+_run "explicit completion cache hint remains visible for fast startup" "
+  source '$PERF_ZSH'
+  SUITUP_SHOW_COMPLETION_CACHE_HINT=1
+  _zsh_completion_cache_mode='cache-hit'
+  _zsh_compdump_file='/tmp/.zcompdump'
+  _stage 'completion'
+  out=\$(_zsh_report 2>&1)
+  [[ \"\$out\" == *'completion cache hit'* && \"\$out\" != *'total'* ]]
+"
 
   _run "_zsh_report is idempotent (second call produces no extra output)" "
     source '$PERF_ZSH'

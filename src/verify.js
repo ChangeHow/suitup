@@ -29,6 +29,7 @@ const CHECKS = {
     { path: ".config/zsh/shared/aliases.zsh", label: "~/.config/zsh/shared/aliases.zsh" },
     { path: ".config/zsh/shared/prompt.zsh", label: "~/.config/zsh/shared/prompt.zsh" },
     { path: ".config/zsh/local/machine.zsh", label: "~/.config/zsh/local/machine.zsh" },
+    { path: ".config/zsh/local/aliases.zsh", label: "~/.config/zsh/local/aliases.zsh" },
   ],
   tools: [
     { cmd: "brew", label: "Homebrew" },

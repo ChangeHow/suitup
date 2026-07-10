@@ -79,6 +79,10 @@ describe("Setup simulation in sandbox", () => {
       join(CONFIGS_DIR, "local", "machine.zsh"),
       join(sandbox, ".config/zsh/local", "machine.zsh")
     );
+    copyFileSync(
+      join(CONFIGS_DIR, "local", "aliases.zsh"),
+      join(sandbox, ".config/zsh/local", "aliases.zsh")
+    );
 
     // Copy .zshrc
     copyFileSync(
@@ -105,6 +109,7 @@ describe("Setup simulation in sandbox", () => {
       ".config/zsh/shared/plugins.zsh",
       ".config/zsh/shared/prompt.zsh",
       ".config/zsh/local/machine.zsh",
+      ".config/zsh/local/aliases.zsh",
     ];
 
     for (const file of expectedFiles) {
@@ -128,6 +133,7 @@ describe("Setup simulation in sandbox", () => {
     expect(content).toContain("shared/aliases.zsh");
     expect(content).toContain("shared/completion.zsh");
     expect(content).toContain("shared/prompt.zsh");
+    expect(content).toContain("local/aliases.zsh");
     expect(content).toContain("_zsh_report");
     expect(content).toContain('source_if_exists "${ZINIT_HOME}/zinit.zsh"');
 
@@ -258,6 +264,7 @@ describe("Setup simulation in sandbox", () => {
     writeFileSync(join(sandbox, ".config", "zsh", "shared", "aliases.zsh"), "", "utf-8");
     writeFileSync(join(sandbox, ".config", "zsh", "shared", "prompt.zsh"), "", "utf-8");
     writeFileSync(join(sandbox, ".config", "zsh", "local", "machine.zsh"), "", "utf-8");
+    writeFileSync(join(sandbox, ".config", "zsh", "local", "aliases.zsh"), "", "utf-8");
 
     const detected = detectCompletedSteps({
       home: sandbox,
@@ -297,6 +304,7 @@ describe("Setup simulation in sandbox", () => {
       }
       writeFileSync(join(completedSandbox.path, ".config", "zsh", "shared", "prompt.zsh"), "", "utf-8");
       writeFileSync(join(completedSandbox.path, ".config", "zsh", "local", "machine.zsh"), "", "utf-8");
+      writeFileSync(join(completedSandbox.path, ".config", "zsh", "local", "aliases.zsh"), "", "utf-8");
       writeFileSync(join(completedSandbox.path, ".config", "zsh", "shared", "aliases.zsh"), "", "utf-8");
 
       const initialSteps = getInitialStepValues({
@@ -337,6 +345,7 @@ describe("Setup simulation in sandbox", () => {
       }
       writeFileSync(join(completedSandbox.path, ".config", "zsh", "shared", "prompt.zsh"), "", "utf-8");
       writeFileSync(join(completedSandbox.path, ".config", "zsh", "local", "machine.zsh"), "", "utf-8");
+      writeFileSync(join(completedSandbox.path, ".config", "zsh", "local", "aliases.zsh"), "", "utf-8");
       writeFileSync(join(completedSandbox.path, ".config", "zsh", "shared", "aliases.zsh"), "", "utf-8");
       writeFileSync(
         join(completedSandbox.path, ".config", "zsh", "shared", "completion.zsh"),
@@ -391,6 +400,10 @@ describe("Setup simulation in sandbox", () => {
       copyFileSync(
         join(CONFIGS_DIR, "local", "machine.zsh"),
         join(completedSandbox.path, ".config", "zsh", "local", "machine.zsh")
+      );
+      copyFileSync(
+        join(CONFIGS_DIR, "local", "aliases.zsh"),
+        join(completedSandbox.path, ".config", "zsh", "local", "aliases.zsh")
       );
 
       const loaderPath = join(completedSandbox.path, ".config", "zsh", "shared", "tools", "_loader.zsh");

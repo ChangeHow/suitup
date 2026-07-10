@@ -133,14 +133,17 @@ describe("clean command", () => {
   test("preserves user-modified managed files", () => {
     mkdirSync(join(sandbox.path, ".config", "zsh", "core"), { recursive: true });
     mkdirSync(join(sandbox.path, ".config", "zsh", "shared"), { recursive: true });
+    mkdirSync(join(sandbox.path, ".config", "zsh", "local"), { recursive: true });
     writeFileSync(join(sandbox.path, ".config", "zsh", "core", "env.zsh"), "# custom env\n", "utf-8");
     writeFileSync(join(sandbox.path, ".config", "zsh", "shared", "aliases.zsh"), "# custom aliases\n", "utf-8");
+    writeFileSync(join(sandbox.path, ".config", "zsh", "local", "aliases.zsh"), 'alias mine="echo mine"\n', "utf-8");
     writeFileSync(join(sandbox.path, ".zshenv"), "# my zshenv\nexport FOO=bar\n", "utf-8");
 
     const summary = cleanSandbox(sandbox.path);
 
     expect(readFileSync(join(sandbox.path, ".config", "zsh", "core", "env.zsh"), "utf-8")).toBe("# custom env\n");
     expect(readFileSync(join(sandbox.path, ".config", "zsh", "shared", "aliases.zsh"), "utf-8")).toBe("# custom aliases\n");
+    expect(readFileSync(join(sandbox.path, ".config", "zsh", "local", "aliases.zsh"), "utf-8")).toBe('alias mine="echo mine"\n');
     expect(readFileSync(join(sandbox.path, ".zshenv"), "utf-8")).toContain("export FOO=bar");
     expect(summary.preserved).toContain("~/.config/zsh/core/env.zsh");
     expect(summary.preserved).toContain("~/.config/zsh/shared/aliases.zsh");

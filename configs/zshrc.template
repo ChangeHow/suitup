@@ -51,6 +51,7 @@ source_if_exists "$ZSH_CONFIG/shared/completion.zsh"
 # ---------------------------------------------------------------------------
 source_if_exists "$ZSH_CONFIG/local/secrets.zsh"
 source_if_exists "$ZSH_CONFIG/local/machine.zsh"
+source_if_exists "$ZSH_CONFIG/local/aliases.zsh"
 
 # ---------------------------------------------------------------------------
 # Prompt (last — must not be affected by earlier setup noise)

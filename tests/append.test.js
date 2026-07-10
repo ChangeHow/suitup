@@ -36,6 +36,7 @@ vi.mock("../src/utils/shell.js", () => ({
 
 import {
   ensurePromptSource,
+  ensureUserAliasesSource,
   ensureToolsInitDependencies,
   getMissingToolsInitCommands,
   needsToolsInitRepair,
@@ -114,6 +115,22 @@ describe("Append mode utilities", () => {
     expect(result).toBe(true);
     expect(existsSync(newFile)).toBe(true);
     expect(readFileSync(newFile, "utf-8")).toContain("new content");
+  });
+
+  test("ensureUserAliasesSource initializes and sources the user aliases file", () => {
+    writeFileSync(zshrcPath, "# existing config\n", "utf-8");
+
+    expect(ensureUserAliasesSource({ home: sandbox })).toBe(true);
+    expect(existsSync(join(sandbox, ".config", "zsh", "local", "aliases.zsh"))).toBe(true);
+    expect(readFileSync(zshrcPath, "utf-8")).toContain("suitup/user-aliases");
+    expect(ensureUserAliasesSource({ home: sandbox })).toBe(false);
+  });
+
+  test("ensureUserAliasesSource does not duplicate a manually sourced file", () => {
+    writeFileSync(zshrcPath, 'source "$HOME/.config/zsh/local/aliases.zsh"\n', "utf-8");
+
+    expect(ensureUserAliasesSource({ home: sandbox })).toBe(false);
+    expect(readFileSync(zshrcPath, "utf-8").match(/local\/aliases\.zsh/g)).toHaveLength(1);
   });
 
   test("multiple different blocks can be appended independently", () => {
