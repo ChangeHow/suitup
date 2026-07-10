@@ -17,20 +17,45 @@ concurrency:
 jobs:
   zsh-startup:
     name: Zsh startup
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
-      - name: Install benchmark tools
-        run: sudo apt-get update && sudo apt-get install -y hyperfine zsh
+      - name: Install benchmark environment
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          sudo apt-get update
+          sudo apt-get install -y hyperfine zsh
+          eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+          brew install atuin fnm fzf zoxide
 
       - name: Prepare benchmark homes
         shell: bash
         run: |
           set -euo pipefail
+
+          clone_at() {
+            local repository="$1"
+            local revision="$2"
+            local destination="$3"
+
+            git init --quiet "$destination"
+            git -C "$destination" remote add origin "$repository"
+            git -C "$destination" fetch --quiet --depth=1 origin "$revision"
+            git -C "$destination" checkout --quiet --detach FETCH_HEAD
+          }
+
+          zinit_template="$RUNNER_TEMP/zinit-template/.local/share/zinit"
+          mkdir -p "$zinit_template/plugins"
+          clone_at https://github.com/zdharma-continuum/zinit.git fcd2501fa347c51a7048452becad61f86ed0ad0c "$zinit_template/zinit.git"
+          clone_at https://github.com/zsh-users/zsh-autosuggestions.git 85919cd1ffa7d2d5412f6d3fe437ebdbeeec4fc5 "$zinit_template/plugins/zsh-users---zsh-autosuggestions"
+          clone_at https://github.com/zsh-users/zsh-syntax-highlighting.git 1d85c692615a25fe2293bdd44b34c217d5d2bf04 "$zinit_template/plugins/zsh-users---zsh-syntax-highlighting"
+          clone_at https://github.com/romkatv/powerlevel10k.git 9253fb1c5034410c43a0c681ff8294181c54016c "$zinit_template/plugins/romkatv---powerlevel10k"
 
           prepare_ref() {
             local ref="$1"
@@ -39,8 +64,9 @@ jobs:
             local home="$RUNNER_TEMP/home-$label"
 
             git worktree add --quiet --detach "$source" "$ref"
-            mkdir -p "$home/.config/zsh"
+            mkdir -p "$home/.config/zsh" "$home/.local/share"
             cp -R "$source/configs/core" "$source/configs/shared" "$source/configs/local" "$home/.config/zsh/"
+            cp -R "$zinit_template" "$home/.local/share/"
             cp "$source/configs/zshrc.template" "$home/.zshrc"
             cp "$source/configs/zshenv.template" "$home/.zshenv"
           }
@@ -48,6 +74,17 @@ jobs:
           prepare_ref HEAD current
           prepare_ref origin/main main
           prepare_ref HEAD^ previous
+
+          for label in current main previous; do
+            home="$RUNNER_TEMP/home-$label"
+            env HOME="$home" ZDOTDIR="$home" SUITUP_STARTUP_REPORT_THRESHOLD_MS=999999 zsh -i -c exit >/dev/null 2>&1
+            test -s "$home/.cache/zsh/.zcompdump"
+            test -s "$home/.cache/zsh/atuin-init.zsh"
+            test -s "$home/.cache/zsh/fnm-init.zsh"
+            test -s "$home/.cache/zsh/zoxide-init.zsh"
+          done
+
+          sleep 1
 
       - name: Compare startup time
         shell: bash
@@ -57,22 +94,43 @@ jobs:
           current="current ($(git rev-parse --short HEAD))"
           main="main ($(git rev-parse --short origin/main))"
           previous="previous commit ($(git rev-parse --short HEAD^))"
+          current_command="env HOME='$RUNNER_TEMP/home-current' ZDOTDIR='$RUNNER_TEMP/home-current' SUITUP_STARTUP_REPORT_THRESHOLD_MS=999999 zsh -i -c exit"
+          main_command="env HOME='$RUNNER_TEMP/home-main' ZDOTDIR='$RUNNER_TEMP/home-main' SUITUP_STARTUP_REPORT_THRESHOLD_MS=999999 zsh -i -c exit"
+          previous_command="env HOME='$RUNNER_TEMP/home-previous' ZDOTDIR='$RUNNER_TEMP/home-previous' SUITUP_STARTUP_REPORT_THRESHOLD_MS=999999 zsh -i -c exit"
 
           hyperfine \
             --warmup 5 \
             --runs 30 \
-            --export-json benchmark.json \
-            --export-markdown benchmark.md \
-            --command-name "$current" "env HOME='$RUNNER_TEMP/home-current' ZDOTDIR='$RUNNER_TEMP/home-current' SUITUP_STARTUP_REPORT_THRESHOLD_MS=999999 zsh -i -c exit" \
-            --command-name "$main" "env HOME='$RUNNER_TEMP/home-main' ZDOTDIR='$RUNNER_TEMP/home-main' SUITUP_STARTUP_REPORT_THRESHOLD_MS=999999 zsh -i -c exit" \
-            --command-name "$previous" "env HOME='$RUNNER_TEMP/home-previous' ZDOTDIR='$RUNNER_TEMP/home-previous' SUITUP_STARTUP_REPORT_THRESHOLD_MS=999999 zsh -i -c exit"
+            --export-json warm-benchmark.json \
+            --export-markdown warm-benchmark.md \
+            --command-name "$current" "$current_command" \
+            --command-name "$main" "$main_command" \
+            --command-name "$previous" "$previous_command"
+
+          hyperfine \
+            --prepare "rm -rf '$RUNNER_TEMP/home-current/.cache/zsh' '$RUNNER_TEMP/home-main/.cache/zsh' '$RUNNER_TEMP/home-previous/.cache/zsh'" \
+            --warmup 2 \
+            --runs 10 \
+            --export-json cache-miss-benchmark.json \
+            --export-markdown cache-miss-benchmark.md \
+            --command-name "$current" "$current_command" \
+            --command-name "$main" "$main_command" \
+            --command-name "$previous" "$previous_command"
 
           {
             echo "## Zsh startup benchmark"
             echo
-            echo "Warm-cache startup measured on the same runner. Lower is better."
+            echo "Ubuntu 24.04 with Linuxbrew, atuin, fnm, fzf, zoxide, zinit, and the shipped plugins. Lower is better."
             echo
-            cat benchmark.md
+            echo "### Warm startup (daily use)"
+            echo
+            cat warm-benchmark.md
+            echo
+            echo "### Cache-miss startup"
+            echo
+            echo "Completion and tool-init caches are removed before every run; installed tools and plugins remain."
+            echo
+            cat cache-miss-benchmark.md
           } | tee benchmark-comment.md >> "$GITHUB_STEP_SUMMARY"
 
       - name: Comment benchmark on PR
@@ -82,10 +140,12 @@ jobs:
         run: gh pr comment "${{ github.event.pull_request.number }}" --edit-last --create-if-none --body-file benchmark-comment.md
 
       - name: Upload benchmark results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: zsh-startup-benchmark
           path: |
-            benchmark.json
-            benchmark.md
+            warm-benchmark.json
+            warm-benchmark.md
+            cache-miss-benchmark.json
+            cache-miss-benchmark.md
           retention-days: 30
