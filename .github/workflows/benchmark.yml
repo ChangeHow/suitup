@@ -34,6 +34,13 @@ jobs:
           eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
           brew install atuin fnm fzf zoxide
 
+          mapfile -t insecure_dirs < <(
+            zsh -fc 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"; autoload -Uz compaudit; compaudit'
+          )
+          if (( ${#insecure_dirs[@]} )); then
+            chmod go-w "${insecure_dirs[@]}"
+          fi
+
       - name: Prepare benchmark homes
         shell: bash
         run: |
@@ -50,12 +57,20 @@ jobs:
             git -C "$destination" checkout --quiet --detach FETCH_HEAD
           }
 
-          zinit_template="$RUNNER_TEMP/zinit-template/.local/share/zinit"
+          fixture_template="$RUNNER_TEMP/fixture-template"
+          zinit_template="$fixture_template/.local/share/zinit"
           mkdir -p "$zinit_template/plugins"
           clone_at https://github.com/zdharma-continuum/zinit.git fcd2501fa347c51a7048452becad61f86ed0ad0c "$zinit_template/zinit.git"
           clone_at https://github.com/zsh-users/zsh-autosuggestions.git 85919cd1ffa7d2d5412f6d3fe437ebdbeeec4fc5 "$zinit_template/plugins/zsh-users---zsh-autosuggestions"
           clone_at https://github.com/zsh-users/zsh-syntax-highlighting.git 1d85c692615a25fe2293bdd44b34c217d5d2bf04 "$zinit_template/plugins/zsh-users---zsh-syntax-highlighting"
           clone_at https://github.com/romkatv/powerlevel10k.git 9253fb1c5034410c43a0c681ff8294181c54016c "$zinit_template/plugins/romkatv---powerlevel10k"
+
+          (
+            export FNM_DIR="$fixture_template/.local/share/fnm"
+            eval "$(/home/linuxbrew/.linuxbrew/bin/fnm env --shell bash)"
+            /home/linuxbrew/.linuxbrew/bin/fnm install --lts --use
+            /home/linuxbrew/.linuxbrew/bin/fnm default "$(/home/linuxbrew/.linuxbrew/bin/fnm current)"
+          )
 
           prepare_ref() {
             local ref="$1"
@@ -66,7 +81,7 @@ jobs:
             git worktree add --quiet --detach "$source" "$ref"
             mkdir -p "$home/.config/zsh" "$home/.local/share"
             cp -R "$source/configs/core" "$source/configs/shared" "$source/configs/local" "$home/.config/zsh/"
-            cp -R "$zinit_template" "$home/.local/share/"
+            cp -R "$zinit_template" "$fixture_template/.local/share/fnm" "$home/.local/share/"
             cp "$source/configs/zshrc.template" "$home/.zshrc"
             cp "$source/configs/zshenv.template" "$home/.zshenv"
           }
