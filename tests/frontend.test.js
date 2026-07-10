@@ -12,12 +12,11 @@ vi.mock("../src/utils/shell.js", () => ({
   commandExists: vi.fn(),
   brewInstalled: vi.fn(),
   brewInstall: vi.fn(() => true),
-  run: vi.fn(() => ""),
   runStream: vi.fn(() => Promise.resolve(0)),
 }));
 
 import { installFrontendTools } from "../src/steps/frontend.js";
-import { brewInstall, commandExists, run, runStream } from "../src/utils/shell.js";
+import { brewInstall, commandExists, runStream } from "../src/utils/shell.js";
 import * as p from "@clack/prompts";
 
 const CURL_HTTP_ERROR = "curl exited with HTTP error 22";
@@ -30,8 +29,6 @@ describe("frontend step", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     sandbox = mkdtempSync(join(tmpdir(), "suitup-frontend-"));
-    // Default: fetch LTS version fails gracefully
-    run.mockImplementation(() => { throw new Error("no curl"); });
     // Isolate from host fnm installation so tests use the sandbox path
     originalFnmDir = process.env.FNM_DIR;
     originalXdgDataHome = process.env.XDG_DATA_HOME;
@@ -104,13 +101,13 @@ describe("frontend step", () => {
     expect(p.log.warn).toHaveBeenCalledWith("Skipping Node.js install because fnm is unavailable");
   });
 
-  test("sets fnm default after installing node", async () => {
+  test("installs the latest LTS and sets it as the fnm default", async () => {
     commandExists.mockReturnValue(true);
 
     await installFrontendTools(["node"], { home: sandbox });
 
     const calls = runStream.mock.calls.map((c) => c[0]);
-    expect(calls.some((c) => c.includes("fnm default"))).toBe(true);
+    expect(calls).toContain('fnm install --lts --use && fnm default "$(fnm current)"');
   });
 
   test("installs pnpm when not present", async () => {

@@ -2,7 +2,7 @@ import * as p from "@clack/prompts";
 import { existsSync, lstatSync, readlinkSync, rmSync } from "node:fs";
 import { homedir } from "node:os";
 import { isAbsolute, join, relative, resolve } from "node:path";
-import { brewInstall, commandExists, run, runStream } from "../utils/shell.js";
+import { brewInstall, commandExists, runStream } from "../utils/shell.js";
 
 const BOOTSTRAP_NODE_BINARIES = ["node", "npm", "npx", "corepack"];
 
@@ -130,26 +130,12 @@ export async function installFrontendTools(selectedTools = getAllFrontendToolVal
     }
   }
 
-  // Fetch latest LTS version
-  let ltsVersion = "22";
-  if (wanted.has("node")) {
-    try {
-      const raw = run(
-        'curl -sf https://nodejs.org/dist/index.json | jq -r \'[.[] | select(.lts != false)][0].version\' | sed \'s/^v//\'',
-        { quiet: true }
-      );
-      if (raw) ltsVersion = raw;
-    } catch {
-      p.log.warn(`Could not fetch latest LTS version, defaulting to ${ltsVersion}`);
-    }
-  }
-
   // Install Node via fnm
   if (wanted.has("node") && fnmReady) {
-    p.log.step(`Installing Node.js v${ltsVersion} via fnm...`);
+    p.log.step("Installing the latest Node.js LTS via fnm...");
     try {
-      await runStream(`fnm install ${ltsVersion} && fnm use ${ltsVersion} && fnm default ${ltsVersion}`);
-      p.log.success(`Node.js v${ltsVersion} installed`);
+      await runStream('fnm install --lts --use && fnm default "$(fnm current)"');
+      p.log.success("Latest Node.js LTS installed");
       cleanupBootstrapNodeShims(home);
     } catch {
       p.log.warn("Could not install Node.js — fnm may need a shell restart first");
