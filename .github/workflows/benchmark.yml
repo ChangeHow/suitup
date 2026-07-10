@@ -77,11 +77,22 @@ jobs:
 
           for label in current main previous; do
             home="$RUNNER_TEMP/home-$label"
-            env HOME="$home" ZDOTDIR="$home" SUITUP_STARTUP_REPORT_THRESHOLD_MS=999999 zsh -i -c exit >/dev/null 2>&1
-            test -s "$home/.cache/zsh/.zcompdump"
-            test -s "$home/.cache/zsh/atuin-init.zsh"
-            test -s "$home/.cache/zsh/fnm-init.zsh"
-            test -s "$home/.cache/zsh/zoxide-init.zsh"
+            startup_log="$RUNNER_TEMP/$label-startup.log"
+
+            if ! env HOME="$home" ZDOTDIR="$home" SUITUP_STARTUP_REPORT_THRESHOLD_MS=999999 zsh -i -c exit >"$startup_log" 2>&1; then
+              cat "$startup_log"
+              exit 1
+            fi
+
+            for cache in .zcompdump atuin-init.zsh fnm-init.zsh zoxide-init.zsh; do
+              if [[ ! -s "$home/.cache/zsh/$cache" ]]; then
+                echo "::error::Missing $cache after warming $label"
+                env HOME="$home" ZDOTDIR="$home" zsh -i -c 'command -v brew atuin fnm fzf zoxide'
+                ls -la "$home/.cache/zsh" || true
+                cat "$startup_log"
+                exit 1
+              fi
+            done
           done
 
           sleep 1
