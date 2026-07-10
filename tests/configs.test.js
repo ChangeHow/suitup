@@ -222,6 +222,7 @@ describe("Static config templates", () => {
     expect(content).toContain("compinit");
     expect(content).toContain(".zcompdump");
     expect(content).toContain("zcompile");
+    expect(content).toContain("(N.m-7L+0)");
     expect(content).not.toContain("command find");
     expect(content).toContain("expand-or-complete");
   });

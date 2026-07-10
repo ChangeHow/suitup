@@ -7,7 +7,7 @@ autoload -Uz compinit
 
 _zsh_compdump_file="${XDG_CACHE_HOME:-$HOME/.cache}/zsh/.zcompdump"
 typeset -g _zsh_completion_cache_mode='refresh'
-typeset -a _zsh_fresh_compdump=("$_zsh_compdump_file"(Nm-7))
+typeset -a _zsh_fresh_compdump=("$_zsh_compdump_file"(N.m-7L+0))
 
 if (( ${#_zsh_fresh_compdump} )); then
   _zsh_completion_cache_mode='cache-hit'
