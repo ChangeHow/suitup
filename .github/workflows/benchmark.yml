@@ -1,0 +1,84 @@
+name: Benchmark
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: benchmark-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  zsh-startup:
+    name: Zsh startup
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Install benchmark tools
+        run: sudo apt-get update && sudo apt-get install -y hyperfine zsh
+
+      - name: Prepare benchmark homes
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          prepare_ref() {
+            local ref="$1"
+            local label="$2"
+            local source="$RUNNER_TEMP/suitup-$label"
+            local home="$RUNNER_TEMP/home-$label"
+
+            git worktree add --quiet --detach "$source" "$ref"
+            mkdir -p "$home/.config/zsh"
+            cp -R "$source/configs/core" "$source/configs/shared" "$source/configs/local" "$home/.config/zsh/"
+            cp "$source/configs/zshrc.template" "$home/.zshrc"
+            cp "$source/configs/zshenv.template" "$home/.zshenv"
+          }
+
+          prepare_ref HEAD current
+          prepare_ref origin/main main
+          prepare_ref HEAD^ previous
+
+      - name: Compare startup time
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          current="current ($(git rev-parse --short HEAD))"
+          main="main ($(git rev-parse --short origin/main))"
+          previous="previous commit ($(git rev-parse --short HEAD^))"
+
+          hyperfine \
+            --warmup 5 \
+            --runs 30 \
+            --export-json benchmark.json \
+            --export-markdown benchmark.md \
+            --command-name "$current" "env HOME='$RUNNER_TEMP/home-current' ZDOTDIR='$RUNNER_TEMP/home-current' SUITUP_STARTUP_REPORT_THRESHOLD_MS=999999 zsh -i -c exit" \
+            --command-name "$main" "env HOME='$RUNNER_TEMP/home-main' ZDOTDIR='$RUNNER_TEMP/home-main' SUITUP_STARTUP_REPORT_THRESHOLD_MS=999999 zsh -i -c exit" \
+            --command-name "$previous" "env HOME='$RUNNER_TEMP/home-previous' ZDOTDIR='$RUNNER_TEMP/home-previous' SUITUP_STARTUP_REPORT_THRESHOLD_MS=999999 zsh -i -c exit"
+
+          {
+            echo "## Zsh startup benchmark"
+            echo
+            echo "Warm-cache startup measured on the same runner. Lower is better."
+            echo
+            cat benchmark.md
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v4
+        with:
+          name: zsh-startup-benchmark
+          path: |
+            benchmark.json
+            benchmark.md
+          retention-days: 30
