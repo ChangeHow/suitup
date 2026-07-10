@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: read
+  pull-requests: write
 
 concurrency:
   group: benchmark-${{ github.workflow }}-${{ github.ref }}
@@ -72,7 +73,13 @@ jobs:
             echo "Warm-cache startup measured on the same runner. Lower is better."
             echo
             cat benchmark.md
-          } >> "$GITHUB_STEP_SUMMARY"
+          } | tee benchmark-comment.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Comment benchmark on PR
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh pr comment "${{ github.event.pull_request.number }}" --edit-last --create-if-none --body-file benchmark-comment.md
 
       - name: Upload benchmark results
         uses: actions/upload-artifact@v4
