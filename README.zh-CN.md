@@ -113,7 +113,7 @@ node src/cli.js
 3. **Plugin Manager** — zinit（推荐）或跳过，仅保留原生 zsh
 4. **Prompt Preset** — Powerlevel10k（推荐）或基础 zsh prompt
 5. **CLI Tools** — bat、eza、fzf、fd、zoxide、atuin、ripgrep 等
-6. **GUI Apps** — iTerm2、Raycast、VS Code、字体等
+6. **GUI Apps** — 可选的 Ghostty、Raycast、VS Code、字体等
 7. **Frontend Tools** — 可选 fnm、通过 fnm 安装的 Node.js、pnpm、git-cz
 8. **Shell Aliases** — git、eza、fzf 等快捷命令
 9. **SSH Key** — 生成 GitHub SSH 密钥
@@ -234,7 +234,7 @@ node src/cli.js --help
 
 ### GUI 应用
 
-可在安装过程中选择：iTerm2、Raycast、VS Code、Itsycal、Monaspace 字体等。
+安装过程中可按需选择 Ghostty、Raycast、VS Code、Itsycal、Monaspace 字体等。选择 Ghostty 后，suitup 会询问是否使用可复用的预设初始化；应用预设前会备份已有的 `~/.config/ghostty` 配置。
 
 ### 前端工具链
 

@@ -260,7 +260,7 @@ export async function runSetup({ defaults = false } = {}) {
           { value: "bootstrap", label: "Bootstrap", hint: "Package manager + Zsh" },
           { value: "plugins", label: "Plugin Manager", hint: "recommended zinit or skip" },
           { value: "cli-tools", label: "CLI Tools", hint: "bat, eza, fzf, fd, zoxide, atuin..." },
-          { value: "apps", label: "GUI Apps", hint: "iTerm2, Raycast, VS Code..." },
+          { value: "apps", label: "GUI Apps", hint: "Ghostty, Raycast, VS Code..." },
           { value: "frontend", label: "Frontend Tools", hint: "fnm, Node.js, pnpm, git-cz" },
           { value: "aliases", label: "Shell Aliases", hint: "git, eza, fzf shortcuts" },
           { value: "ssh", label: "SSH Key", hint: "generate GitHub SSH key" },
@@ -382,6 +382,7 @@ export async function runSetup({ defaults = false } = {}) {
     } else {
       const appChoice = await p.groupMultiselect({
         message: "Select apps to install:",
+        required: false,
         options: {
           Recommended: APPS.recommended,
           Optional: APPS.optional,
@@ -430,7 +431,7 @@ export async function runSetup({ defaults = false } = {}) {
   }
 
   if (steps.includes("apps")) {
-    await installApps(selectedApps);
+    await installApps(selectedApps, { configureGhostty: !defaults });
   }
 
   if (steps.includes("frontend")) {

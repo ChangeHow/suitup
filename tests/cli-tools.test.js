@@ -14,24 +14,14 @@ vi.mock("../src/utils/shell.js", () => ({
 }));
 
 import { installCliTools } from "../src/steps/cli-tools.js";
-import { brewInstalled, brewInstall } from "../src/utils/shell.js";
+import { brewInstall } from "../src/utils/shell.js";
 
 describe("cli-tools step", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  test("skips tools that are already installed", async () => {
-    brewInstalled.mockReturnValue(true);
-
-    await installCliTools(["bat", "eza", "fzf"]);
-
-    expect(brewInstall).not.toHaveBeenCalled();
-  });
-
-  test("installs tools that are not present", async () => {
-    brewInstalled.mockReturnValue(false);
-
+  test("installs or updates every selected tool", async () => {
     await installCliTools(["bat", "eza"]);
 
     expect(brewInstall).toHaveBeenCalledTimes(2);
@@ -39,14 +29,11 @@ describe("cli-tools step", () => {
     expect(brewInstall).toHaveBeenCalledWith("eza");
   });
 
-  test("mixed: skips installed and installs missing", async () => {
-    brewInstalled.mockImplementation((name) => name === "bat");
+  test("continues when a selected tool fails", async () => {
+    brewInstall.mockImplementation((name) => name !== "fzf");
 
-    await installCliTools(["bat", "fzf", "fd"]);
+    await installCliTools(["fzf", "fd"]);
 
     expect(brewInstall).toHaveBeenCalledTimes(2);
-    expect(brewInstall).toHaveBeenCalledWith("fzf");
-    expect(brewInstall).toHaveBeenCalledWith("fd");
-    expect(brewInstall).not.toHaveBeenCalledWith("bat");
   });
 });

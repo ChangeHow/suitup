@@ -83,7 +83,7 @@ install_with_manager() {
 
   case "${manager}" in
     brew)
-      brew install "$@"
+      brew install --no-ask "$@"
       ;;
     apt-get)
       sudo apt-get update

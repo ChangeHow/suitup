@@ -32,7 +32,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y hyperfine zsh
           eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-          brew install atuin fnm fzf zoxide
+          brew install --no-ask atuin fnm fzf zoxide
 
           mapfile -t insecure_dirs < <(
             zsh -fc 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"; autoload -Uz compaudit; compaudit'

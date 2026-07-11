@@ -24,6 +24,7 @@ const writeZshrc = vi.hoisted(() => vi.fn());
 const writeZshenv = vi.hoisted(() => vi.fn());
 const installCliTools = vi.hoisted(() => vi.fn());
 const installFrontendTools = vi.hoisted(() => vi.fn());
+const installApps = vi.hoisted(() => vi.fn());
 
 vi.mock("@clack/prompts", () => ({
   note: mockNote,
@@ -71,11 +72,11 @@ vi.mock("../src/steps/cli-tools.js", () => ({
 
 vi.mock("../src/steps/apps.js", () => ({
   APPS: {
-    recommended: [],
+    recommended: [{ value: "ghostty", label: "Ghostty" }],
     optional: [],
     fonts: [],
   },
-  installApps: vi.fn(),
+  installApps,
 }));
 
 vi.mock("../src/steps/frontend.js", () => ({
@@ -169,5 +170,23 @@ describe("setup flow ordering", () => {
       },
     });
     expect(installFrontendTools).toHaveBeenCalledWith(["fnm", "pnpm"]);
+  });
+
+  test("allows skipping all GUI apps", async () => {
+    mockMultiSelect.mockResolvedValue(["apps"]);
+    mockGroupMultiselect.mockResolvedValue([]);
+
+    await runSetup();
+
+    expect(mockGroupMultiselect).toHaveBeenCalledWith({
+      message: "Select apps to install:",
+      required: false,
+      options: {
+        Recommended: [{ value: "ghostty", label: "Ghostty" }],
+        Optional: [],
+        Fonts: [],
+      },
+    });
+    expect(installApps).toHaveBeenCalledWith([], { configureGhostty: true });
   });
 });

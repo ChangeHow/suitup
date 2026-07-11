@@ -51,6 +51,12 @@ describe("Static config templates", () => {
     }
   });
 
+  test("ss alias excludes large directories with the fzf walker", () => {
+    const content = readFileSync(join(CONFIGS_DIR, "shared", "aliases.zsh"), "utf-8");
+
+    expect(content).toContain("--walker-skip .git,node_modules");
+  });
+
   test("shared/plugins.zsh exists and has correct content", () => {
     const file = join(CONFIGS_DIR, "shared", "plugins.zsh");
     expect(existsSync(file)).toBe(true);
