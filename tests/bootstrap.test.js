@@ -84,7 +84,7 @@ describe("bootstrap step", () => {
 
     await bootstrap({ platform: "darwin" });
 
-    expect(runStream).toHaveBeenCalledWith(expect.stringContaining("brew install zsh"));
+    expect(runStream).toHaveBeenCalledWith(expect.stringContaining("brew install --no-ask zsh"));
   });
 
   test("supports Linux package manager selection", async () => {

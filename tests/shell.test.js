@@ -1,14 +1,14 @@
 import { EventEmitter } from "node:events";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-const spawn = vi.hoisted(() => vi.fn());
+const { execSync, spawn } = vi.hoisted(() => ({ execSync: vi.fn(), spawn: vi.fn() }));
 
 vi.mock("node:child_process", () => ({
-  execSync: vi.fn(),
+  execSync,
   spawn,
 }));
 
-import { runStream } from "../src/utils/shell.js";
+import { brewInstall, runStream } from "../src/utils/shell.js";
 
 function createChild() {
   const child = new EventEmitter();
@@ -16,7 +16,7 @@ function createChild() {
   return child;
 }
 
-describe("runStream", () => {
+describe("shell utilities", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -43,5 +43,13 @@ describe("runStream", () => {
       exitCode: 130,
       command: "sleep 10",
     });
+  });
+
+  test("installs Homebrew packages without prompting", () => {
+    expect(brewInstall("jq")).toBe(true);
+    expect(execSync).toHaveBeenCalledWith("brew install --no-ask jq", { stdio: "inherit" });
+
+    expect(brewInstall("ghostty", { cask: true })).toBe(true);
+    expect(execSync).toHaveBeenCalledWith("brew install --no-ask --cask ghostty", { stdio: "inherit" });
   });
 });

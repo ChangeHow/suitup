@@ -57,7 +57,7 @@ export function brewInstalled(name) {
  * Install a Homebrew formula or cask. Returns true on success.
  */
 export function brewInstall(name, { cask = false } = {}) {
-  const args = cask ? ["install", "--cask", name] : ["install", name];
+  const args = cask ? ["install", "--no-ask", "--cask", name] : ["install", "--no-ask", name];
   try {
     execSync(`brew ${args.join(" ")}`, { stdio: "inherit" });
     return true;

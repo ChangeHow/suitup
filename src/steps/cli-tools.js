@@ -1,5 +1,5 @@
 import * as p from "@clack/prompts";
-import { brewInstalled, brewInstall } from "../utils/shell.js";
+import { brewInstall } from "../utils/shell.js";
 
 /** All available CLI tools with metadata. */
 export const CLI_TOOLS = {
@@ -27,17 +27,13 @@ export const CLI_TOOLS = {
  */
 export async function installCliTools(tools) {
   for (const tool of tools) {
-    if (brewInstalled(tool)) {
-      p.log.success(`${tool} is already installed`);
+    const s = p.spinner();
+    s.start(`Installing or updating ${tool}...`);
+    const ok = brewInstall(tool);
+    if (ok) {
+      s.stop(`${tool} is ready`);
     } else {
-      const s = p.spinner();
-      s.start(`Installing ${tool}...`);
-      const ok = brewInstall(tool);
-      if (ok) {
-        s.stop(`${tool} installed`);
-      } else {
-        s.stop(`Failed to install ${tool}`);
-      }
+      s.stop(`Failed to install ${tool}`);
     }
   }
 }
