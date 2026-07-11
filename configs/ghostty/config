@@ -1,0 +1,5 @@
+# Ghostty modular configuration
+config-file = "conf.d/general.conf"
+config-file = "conf.d/appearance.conf"
+config-file = "conf.d/window.conf"
+config-file = "conf.d/keybindings.conf"

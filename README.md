@@ -113,7 +113,7 @@ Interactive step-by-step setup with selectable steps:
 3. **Plugin Manager** — zinit (recommended) or skip for native zsh only
 4. **Prompt Preset** — Powerlevel10k (recommended) or a basic zsh prompt
 5. **CLI Tools** — bat, eza, fzf, fd, zoxide, atuin, ripgrep...
-6. **GUI Apps** — iTerm2, Raycast, VS Code, fonts...
+6. **GUI Apps** — optional Ghostty, Raycast, VS Code, fonts...
 7. **Frontend Tools** — choose fnm, Node.js via fnm, pnpm, git-cz
 8. **Shell Aliases** — git, eza, fzf shortcuts
 9. **SSH Key** — generate GitHub SSH key
@@ -234,7 +234,7 @@ Prints the command list and available options.
 
 ### GUI apps
 
-Selectable during setup: iTerm2, Raycast, VS Code, Itsycal, Monaspace font, and more.
+Optionally selectable during setup: Ghostty, Raycast, VS Code, Itsycal, Monaspace font, and more. When Ghostty is selected, suitup asks whether to initialize it with a reusable preset. Existing `~/.config/ghostty` settings are backed up before the preset is applied.
 
 ### Frontend toolchain
 

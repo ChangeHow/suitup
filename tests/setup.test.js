@@ -175,7 +175,7 @@ describe("Setup simulation in sandbox", () => {
 
   test("quick init uses recommended GUI apps only", () => {
     expect(getRecommendedAppValues()).toEqual([
-      "iterm2",
+      "ghostty",
       "raycast",
       "visual-studio-code",
     ]);
