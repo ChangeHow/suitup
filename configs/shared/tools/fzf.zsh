@@ -34,13 +34,13 @@ export FZF_CTRL_T_OPTS="
   --height 100%
   --header '[C-/] toggle preview | [Alt-j/k] scroll preview'
   --preview 'target={};
-  if [[ \"$target\" != /* ]]; then
-    target=\"${FZF_CTRL_T_PREVIEW_ROOT:-$PWD}/$target\";
+  if [[ \"\$target\" != /* ]]; then
+    target=\"\${FZF_CTRL_T_PREVIEW_ROOT:-\$PWD}/\$target\";
   fi;
-  if [ -f \"$target\" ]; then
-    bat --color=always --style=plain --line-range :300 \"$target\";
-  elif [ -d \"$target\" ]; then
-    eza -L 2 -T --git-ignore \"$target\" 2>/dev/null | head -20;
+  if [ -f \"\$target\" ]; then
+    bat --color=always --style=plain --line-range :300 \"\$target\";
+  elif [ -d \"\$target\" ]; then
+    eza -L 2 -T --git-ignore \"\$target\" 2>/dev/null | head -20;
   fi'
   --preview-window=right:50%:wrap
   --bind 'ctrl-/:toggle-preview'

@@ -219,6 +219,24 @@ describe("Static config templates", () => {
     expect(fzfContent).not.toContain("fzf --zsh");
   });
 
+  test("shared/tools/fzf.zsh defers Ctrl-T preview paths until fzf runs", () => {
+    const fzfOpts = execFileSync(
+      "zsh",
+      ["-f", "-c", 'source "$FZF_CONFIG"; print -r -- "$FZF_CTRL_T_OPTS"'],
+      {
+        encoding: "utf-8",
+        env: {
+          ...process.env,
+          FZF_CONFIG: join(CONFIGS_DIR, "shared", "tools", "fzf.zsh"),
+        },
+      }
+    );
+
+    expect(fzfOpts).toContain('if [[ "$target" != /* ]]');
+    expect(fzfOpts).toContain('target="${FZF_CTRL_T_PREVIEW_ROOT:-$PWD}/$target"');
+    expect(fzfOpts).toContain('bat --color=always --style=plain --line-range :300 "$target"');
+  });
+
   test("shared/tools.zsh is a thin orchestrator that loads tool configs", () => {
     const content = readFileSync(join(CONFIGS_DIR, "shared", "tools.zsh"), "utf-8");
     expect(content).toContain("_load_tool_config");
