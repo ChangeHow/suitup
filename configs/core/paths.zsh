@@ -37,4 +37,12 @@ if [[ -d "$_suitup_fnm_default_bin" && ":${PATH}:" != *":${_suitup_fnm_default_b
 fi
 unset _suitup_fnm_dir _suitup_fnm_default_bin
 
+# Bun's official installer uses ~/.bun by default. Keep its runtime available
+# to interactive and non-interactive shells without relying on installer-added
+# startup snippets.
+export BUN_INSTALL="${BUN_INSTALL:-$HOME/.bun}"
+if [[ -d "$BUN_INSTALL/bin" && ":${PATH}:" != *":${BUN_INSTALL}/bin:"* ]]; then
+  export PATH="${BUN_INSTALL}/bin:${PATH}"
+fi
+
 # Keep this file for user PATH overrides if needed.

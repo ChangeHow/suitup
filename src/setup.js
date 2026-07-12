@@ -261,7 +261,7 @@ export async function runSetup({ defaults = false } = {}) {
           { value: "plugins", label: "Plugin Manager", hint: "recommended zinit or skip" },
           { value: "cli-tools", label: "CLI Tools", hint: "bat, eza, fzf, fd, zoxide, atuin..." },
           { value: "apps", label: "GUI Apps", hint: "Ghostty, Raycast, VS Code..." },
-          { value: "frontend", label: "Frontend Tools", hint: "fnm, Node.js, pnpm, git-cz" },
+          { value: "frontend", label: "Frontend Tools", hint: "fnm, Node.js, pnpm, Bun, git-cz" },
           { value: "aliases", label: "Shell Aliases", hint: "git, eza, fzf shortcuts" },
           { value: "ssh", label: "SSH Key", hint: "generate GitHub SSH key" },
           { value: "vim", label: "Vim Config", hint: "basic vim setup" },

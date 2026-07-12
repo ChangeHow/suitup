@@ -44,6 +44,7 @@ const CHECKS = {
     { cmd: "fnm", label: "fnm" },
     { cmd: "node", label: "Node.js" },
     { cmd: "pnpm", label: "pnpm" },
+    { cmd: "bun", label: "Bun" },
   ],
 };
 

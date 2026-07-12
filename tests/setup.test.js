@@ -186,6 +186,7 @@ describe("Setup simulation in sandbox", () => {
       "fnm",
       "node",
       "pnpm",
+      "bun",
       "git-cz",
     ]);
   });
@@ -243,7 +244,7 @@ describe("Setup simulation in sandbox", () => {
     expect(message).toContain("Suit up!");
   });
 
-  test("detects completed suitup-managed setup steps", () => {
+  test("detects completed suitup-managed setup steps without optional Bun", () => {
     mkdirSync(join(sandbox, ".config", "zsh", "core"), { recursive: true });
     mkdirSync(join(sandbox, ".config", "zsh", "shared"), { recursive: true });
     mkdirSync(join(sandbox, ".config", "zsh", "local"), { recursive: true });

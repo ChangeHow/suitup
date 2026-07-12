@@ -114,7 +114,7 @@ node src/cli.js
 4. **Prompt Preset** — Powerlevel10k（推荐）或基础 zsh prompt
 5. **CLI Tools** — bat、eza、fzf、fd、zoxide、atuin、ripgrep 等
 6. **GUI Apps** — 可选的 Ghostty、Raycast、VS Code、字体等
-7. **Frontend Tools** — 可选 fnm、通过 fnm 安装的 Node.js、pnpm、git-cz
+7. **Frontend Tools** — 可选 fnm、通过 fnm 安装的 Node.js、pnpm、Bun、git-cz
 8. **Shell Aliases** — git、eza、fzf 等快捷命令
 9. **SSH Key** — 生成 GitHub SSH 密钥
 10. **Vim Config** — 基础 Vim 配置
@@ -141,6 +141,7 @@ Bootstrap 细节：
 - suitup 也会生成一个精简的 `~/.zshenv`，保证非交互式 shell 也能加载共享环境变量和 PATH
 - 当 fnm 安装 Node.js 后，suitup 会把 `fnm` 自身和该默认 Node 版本一起放进 PATH，确保交互式/非交互式 shell 下的 `fnm`、`node`、`npm` 和全局 CLI 都能正确解析
 - Frontend 工具安装会使用 `~/.local/` 下的用户级 npm prefix，这样安装 `pnpm` 和 `git-cz` 不需要 sudo，也不会写入系统级 npm 目录
+- suitup 会通过 Bun 官方安装器完成安装，并由托管的 PATH 配置加载 `~/.bun/bin`
 
 ### Append（追加）
 
