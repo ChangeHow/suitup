@@ -193,6 +193,12 @@ describe("Static config templates", () => {
     expect(content).toContain(":${PATH}:");
   });
 
+  test("core/paths.zsh keeps Bun on PATH for non-interactive shells", () => {
+    const content = readFileSync(join(CONFIGS_DIR, "core", "paths.zsh"), "utf-8");
+    expect(content).toContain('export BUN_INSTALL="${BUN_INSTALL:-$HOME/.bun}"');
+    expect(content).toContain('${BUN_INSTALL}/bin:${PATH}');
+  });
+
   test("core/env.zsh does not contain API keys", () => {
     const content = readFileSync(join(CONFIGS_DIR, "core", "env.zsh"), "utf-8");
     for (const pattern of FORBIDDEN_PATTERNS) {

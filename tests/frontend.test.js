@@ -54,6 +54,7 @@ describe("frontend step", () => {
     // Should NOT contain curl fnm install or npm install -g
     expect(calls.some((c) => c.includes("fnm.vercel.app"))).toBe(false);
     expect(calls.some((c) => c.includes("npm install -g pnpm"))).toBe(false);
+    expect(calls.some((c) => c.includes("bun.sh/install"))).toBe(false);
     expect(calls.some((c) => c.includes("npm install -g git-cz"))).toBe(false);
   });
 
@@ -129,6 +130,14 @@ describe("frontend step", () => {
     );
   });
 
+  test("installs Bun when not present", async () => {
+    commandExists.mockImplementation((name) => name !== "bun");
+
+    await installFrontendTools(["bun"], { home: sandbox });
+
+    expect(runStream).toHaveBeenCalledWith("curl -fsSL https://bun.sh/install | bash");
+  });
+
   test("installs git-cz when not present", async () => {
     commandExists.mockImplementation((name) => {
       if (name === "git-cz") return false;
@@ -160,6 +169,7 @@ describe("frontend step", () => {
     expect(calls.some((cmd) => cmd.includes("fnm install"))).toBe(false);
     expect(calls).toContain("npm install -g git-cz");
     expect(calls.some((cmd) => cmd.includes("npm install -g pnpm"))).toBe(false);
+    expect(calls.some((cmd) => cmd.includes("bun.sh/install"))).toBe(false);
   });
 
   test("removes legacy bootstrap node shims when fnm default node exists", async () => {

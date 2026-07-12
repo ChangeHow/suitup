@@ -13,6 +13,7 @@ export const FRONTEND_TOOLS = {
   ],
   packageManagers: [
     { value: "pnpm", label: "pnpm", hint: "fast, disk-efficient package manager" },
+    { value: "bun", label: "Bun", hint: "JavaScript runtime and package manager" },
   ],
   git: [
     { value: "git-cz", label: "git-cz", hint: "Conventional Commits CLI" },
@@ -159,6 +160,21 @@ export async function installFrontendTools(selectedTools = getAllFrontendToolVal
       p.log.success("pnpm installed");
     } catch {
       p.log.warn("Could not install pnpm automatically — try rerunning after ensuring ~/.local/bin is on PATH");
+    }
+  }
+
+  // Bun
+  if (!wanted.has("bun")) {
+    // skip
+  } else if (commandExists("bun")) {
+    p.log.success("Bun is already installed");
+  } else {
+    p.log.step("Installing Bun...");
+    try {
+      await runStream("curl -fsSL https://bun.sh/install | bash");
+      p.log.success("Bun installed");
+    } catch {
+      p.log.warn("Could not install Bun automatically — try rerunning after checking your network connection");
     }
   }
 

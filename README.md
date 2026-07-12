@@ -114,7 +114,7 @@ Interactive step-by-step setup with selectable steps:
 4. **Prompt Preset** — Powerlevel10k (recommended) or a basic zsh prompt
 5. **CLI Tools** — bat, eza, fzf, fd, zoxide, atuin, ripgrep...
 6. **GUI Apps** — optional Ghostty, Raycast, VS Code, fonts...
-7. **Frontend Tools** — choose fnm, Node.js via fnm, pnpm, git-cz
+7. **Frontend Tools** — choose fnm, Node.js via fnm, pnpm, Bun, git-cz
 8. **Shell Aliases** — git, eza, fzf shortcuts
 9. **SSH Key** — generate GitHub SSH key
 10. **Vim Config** — basic vim setup
@@ -141,6 +141,7 @@ Bootstrap details:
 - Suitup now also writes a minimal `~/.zshenv` so non-interactive shells can still load shared env vars and PATH setup
 - When fnm installs Node.js, suitup keeps both the `fnm` binary and the installed default Node version on PATH so `fnm`, `node`, `npm`, and globally installed CLIs resolve correctly in both interactive and non-interactive shells
 - Frontend tool installs use a user-local npm prefix under `~/.local/` so `pnpm` and `git-cz` do not require sudo or writes to system npm directories
+- Suitup installs Bun with its official installer and exposes `~/.bun/bin` through the managed PATH configuration
 
 ### Append
 

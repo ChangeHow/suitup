@@ -186,6 +186,7 @@ describe("Setup simulation in sandbox", () => {
       "fnm",
       "node",
       "pnpm",
+      "bun",
       "git-cz",
     ]);
   });
@@ -270,7 +271,7 @@ describe("Setup simulation in sandbox", () => {
       home: sandbox,
       platform: "darwin",
       commandExistsFn(name) {
-        return ["zsh", "brew", "fnm", "node", "pnpm", "git-cz"].includes(name);
+        return ["zsh", "brew", "fnm", "node", "pnpm", "bun", "git-cz"].includes(name);
       },
     });
 
