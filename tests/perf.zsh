@@ -46,7 +46,7 @@ _run() {
   local label="$1"
   local script="$2"
   local out rc
-  out=$(zsh -c "$script" 2>&1)
+  out=$(zsh -c "unset SUITUP_STARTUP_REPORT_THRESHOLD_MS SUITUP_SHOW_COMPLETION_CACHE_HINT; $script" 2>&1)
   rc=$?
   if (( rc == 0 )); then
     _ok "$label"

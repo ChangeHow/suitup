@@ -112,6 +112,7 @@ import { runSetup } from "../src/setup.js";
 describe("setup flow ordering", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    writeZshrc.mockResolvedValue(undefined);
     mockMultiSelect.mockResolvedValue(["zsh-config", "bootstrap", "cli-tools"]);
     mockSelect.mockResolvedValue("basic");
     mockGroupMultiselect.mockResolvedValue(["bat"]);
@@ -132,6 +133,16 @@ describe("setup flow ordering", () => {
     expect(mockOutro).toHaveBeenCalledWith(
       "Homebrew installed. Rerun suitup to continue with the remaining setup steps."
     );
+  });
+
+  test("stops setup when .zshrc overwrite confirmation is cancelled", async () => {
+    mockMultiSelect.mockResolvedValue(["zsh-config", "bootstrap"]);
+    writeZshrc.mockResolvedValue("cancelled");
+
+    await runSetup();
+
+    expect(writeZshenv).not.toHaveBeenCalled();
+    expect(bootstrap).not.toHaveBeenCalled();
   });
 
   test("continues with later selections when bootstrap does not require a rerun", async () => {

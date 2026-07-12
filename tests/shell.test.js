@@ -52,4 +52,12 @@ describe("shell utilities", () => {
     expect(brewInstall("ghostty", { cask: true })).toBe(true);
     expect(execSync).toHaveBeenCalledWith("brew install --no-ask --cask ghostty", { stdio: "inherit" });
   });
+
+  test("propagates Ctrl-C from Homebrew installs", () => {
+    execSync.mockImplementation(() => {
+      throw Object.assign(new Error("interrupted"), { signal: "SIGINT", status: null });
+    });
+
+    expect(() => brewInstall("jq")).toThrow(expect.objectContaining({ interrupted: true }));
+  });
 });

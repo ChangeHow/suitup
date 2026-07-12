@@ -339,7 +339,9 @@ export async function runSetup({ defaults = false } = {}) {
 
   if (steps.includes("zsh-config")) {
     await setupZshConfig({ promptTheme });
-    await writeZshrc(pluginManager);
+    if (await writeZshrc(pluginManager) === "cancelled") {
+      return;
+    }
     await writeZshenv();
   }
 
