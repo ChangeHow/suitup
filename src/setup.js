@@ -157,7 +157,6 @@ export function detectCompletedSteps({
     commandExistsFn("fnm") &&
     commandExistsFn("node") &&
     commandExistsFn("pnpm") &&
-    commandExistsFn("bun") &&
     commandExistsFn("git-cz")
   ) {
     completed.add("frontend");
