@@ -135,7 +135,7 @@ async function installZshViaManager(manager) {
 
   p.log.step("Installing Zsh...");
   if (manager === "brew") {
-    await runStream("brew install --no-ask zsh");
+    await runStream("env -u HOMEBREW_ASK brew update && brew install --no-ask zsh");
   } else if (manager === "apt-get") {
     await runStream("sudo apt-get update && sudo apt-get install -y zsh");
   } else if (manager === "dnf") {

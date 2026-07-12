@@ -83,6 +83,10 @@ install_with_manager() {
 
   case "${manager}" in
     brew)
+      if [[ "${HOMEBREW_UPDATED:-0}" != "1" ]]; then
+        env -u HOMEBREW_ASK brew update
+        HOMEBREW_UPDATED=1
+      fi
       brew install --no-ask "$@"
       ;;
     apt-get)

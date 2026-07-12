@@ -47,10 +47,12 @@ describe("shell utilities", () => {
 
   test("installs Homebrew packages without prompting", () => {
     expect(brewInstall("jq")).toBe(true);
+    expect(execSync).toHaveBeenCalledWith("env -u HOMEBREW_ASK brew update", { stdio: "inherit" });
     expect(execSync).toHaveBeenCalledWith("brew install --no-ask jq", { stdio: "inherit" });
 
     expect(brewInstall("ghostty", { cask: true })).toBe(true);
     expect(execSync).toHaveBeenCalledWith("brew install --no-ask --cask ghostty", { stdio: "inherit" });
+    expect(execSync.mock.calls.filter(([command]) => command.includes("brew update"))).toHaveLength(1);
   });
 
   test("propagates Ctrl-C from Homebrew installs", () => {
