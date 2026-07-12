@@ -53,13 +53,13 @@ describe("cli main", () => {
     expect(runSetup).toHaveBeenCalledTimes(1);
   });
 
-  test("routes init to non-interactive setup defaults", async () => {
+  test("routes init to interactive setup", async () => {
     const { main } = await import("../src/cli.js");
 
     await main(["node", "src/cli.js", "init"]);
 
     expect(requireZshShell).toHaveBeenCalledWith();
-    expect(runSetup).toHaveBeenCalledWith({ defaults: true });
+    expect(runSetup).toHaveBeenCalledWith();
   });
 
   test("prints help without invoking async commands", async () => {

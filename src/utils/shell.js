@@ -61,7 +61,13 @@ export function brewInstall(name, { cask = false } = {}) {
   try {
     execSync(`brew ${args.join(" ")}`, { stdio: "inherit" });
     return true;
-  } catch {
+  } catch (error) {
+    if (error.signal === "SIGINT" || error.status === 130) {
+      throw new ShellCommandError(`brew ${args.join(" ")}`, {
+        code: error.status,
+        signal: error.signal,
+      });
+    }
     return false;
   }
 }

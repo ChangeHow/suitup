@@ -6,7 +6,7 @@ export function getHelpText(executable = "node src/cli.js") {
 Run suitup from a zsh session.
 
 Commands:
-  init           Non-interactive quick init with recommended defaults
+  init           Interactive guided initialization
   setup          Full interactive environment setup (default)
   append         Append recommended configs to existing .zshrc
   verify         Verify installation and config integrity

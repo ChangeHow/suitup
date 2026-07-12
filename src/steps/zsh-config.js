@@ -154,16 +154,23 @@ export async function writeZshrc(pluginManager = "zinit", { home } = {}) {
       initialValue: false,
     });
 
-    if (p.isCancel(shouldOverwrite) || !shouldOverwrite) {
+    if (p.isCancel(shouldOverwrite)) {
+      p.cancel("Setup cancelled.");
+      return "cancelled";
+    }
+
+    if (!shouldOverwrite) {
       p.log.warn(".zshrc left unchanged. Use 'append' mode to add configs to your existing .zshrc.");
-      return;
+      return "skipped";
     }
 
     writeFile(zshrc, template);
     p.log.success(".zshrc written (backup saved under ~/.config/zsh/backups/)");
+    return "written";
   } else {
     writeFile(zshrc, template);
     p.log.success(".zshrc created");
+    return "written";
   }
 }
 

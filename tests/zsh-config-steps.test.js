@@ -3,16 +3,18 @@ import { existsSync, readFileSync, writeFileSync, mkdirSync, readdirSync, statSy
 import { join } from "node:path";
 import { createSandbox } from "./helpers.js";
 
-const { mockConfirm } = vi.hoisted(() => ({
+const { mockConfirm, mockIsCancel } = vi.hoisted(() => ({
   mockConfirm: vi.fn(),
+  mockIsCancel: vi.fn(() => false),
 }));
 
 vi.mock("@clack/prompts", () => ({
+  cancel: vi.fn(),
   log: { success: vi.fn(), step: vi.fn(), info: vi.fn(), warn: vi.fn(), error: vi.fn() },
   spinner: vi.fn(() => ({ start: vi.fn(), stop: vi.fn() })),
   confirm: mockConfirm,
   text: vi.fn(),
-  isCancel: vi.fn(() => false),
+  isCancel: mockIsCancel,
 }));
 
 import { backupShellRcFiles, setupZshConfig, writeZshrc, writeZshenv } from "../src/steps/zsh-config.js";
@@ -26,6 +28,7 @@ describe("zsh-config step", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockIsCancel.mockReturnValue(false);
     sandbox = createSandbox();
   });
 
@@ -192,6 +195,15 @@ describe("zsh-config step", () => {
     // Since user declined, original content preserved
     const content = readFileSync(join(sandbox.path, ".zshrc"), "utf-8");
     expect(content).toContain("FOO=bar");
+  });
+
+  test("writeZshrc reports cancellation instead of treating Ctrl-C as decline", async () => {
+    writeFileSync(join(sandbox.path, ".zshrc"), "# custom\n", "utf-8");
+    mockIsCancel.mockReturnValue(true);
+
+    expect(await writeZshrc("zinit", { home: sandbox.path })).toBe("cancelled");
+    expect(readFileSync(join(sandbox.path, ".zshrc"), "utf-8")).toBe("# custom\n");
+    expect(p.cancel).toHaveBeenCalledWith("Setup cancelled.");
   });
 
   test("writeZshrc creates backup when user confirms overwrite", async () => {
