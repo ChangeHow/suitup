@@ -17,6 +17,23 @@ export class ShellCommandError extends Error {
   }
 }
 
+let homebrewUpdated = false;
+
+export function brewUpdate() {
+  if (homebrewUpdated) return;
+
+  const cmd = "env -u HOMEBREW_ASK brew update";
+  try {
+    execSync(cmd, { stdio: "inherit" });
+    homebrewUpdated = true;
+  } catch (error) {
+    throw new ShellCommandError(cmd, {
+      code: error.status,
+      signal: error.signal,
+    });
+  }
+}
+
 /**
  * Run a shell command synchronously. Returns stdout as string.
  * Throws on non-zero exit.
@@ -57,13 +74,15 @@ export function brewInstalled(name) {
  * Install a Homebrew formula or cask. Returns true on success.
  */
 export function brewInstall(name, { cask = false } = {}) {
+  brewUpdate();
   const args = cask ? ["install", "--no-ask", "--cask", name] : ["install", "--no-ask", name];
+  const cmd = `brew ${args.join(" ")}`;
   try {
-    execSync(`brew ${args.join(" ")}`, { stdio: "inherit" });
+    execSync(cmd, { stdio: "inherit" });
     return true;
   } catch (error) {
     if (error.signal === "SIGINT" || error.status === 130) {
-      throw new ShellCommandError(`brew ${args.join(" ")}`, {
+      throw new ShellCommandError(cmd, {
         code: error.status,
         signal: error.signal,
       });
