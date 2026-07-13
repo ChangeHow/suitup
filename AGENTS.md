@@ -12,6 +12,17 @@ User-facing setup and installation guidance belongs in `README.md`.
 - `configs/` contains the files copied into the user's home directory.
 - `tests/` contains Vitest coverage for setup flows and generated files.
 
+## CLI Mode Design
+
+`setup` and `init` are intentionally distinct public modes:
+
+- `setup` is interactive. It asks the user to select steps, tools, apps, and configurable presets.
+- `init` is non-interactive. It passes an explicit recommended-defaults option to the shared setup engine, which selects recommended steps and content without prompting.
+- Package installers used by either mode should remain non-interactive once selections have been resolved.
+- `init` must not launch secondary interactive tools such as `p10k configure`. Personalization that cannot be expressed through parameters belongs in a later explicit user action.
+
+Do not turn `init` into an alias for `setup`. New recommended content should be controlled through setup-engine parameters and recommended-value lists, not through prompts in the `init` path.
+
 ## Zsh Architecture
 
 Suitup generates a thin `~/.zshrc` that only orchestrates loading.

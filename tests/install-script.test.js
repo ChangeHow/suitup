@@ -32,7 +32,7 @@ describe("install.sh", () => {
 
     expect(content).toContain("How would you like to run suitup?");
     expect(content).toContain("interactive, choose each step yourself");
-    expect(content).toContain("interactive guided initialization");
+    expect(content).toContain("non-interactive, install recommended defaults");
   });
 
   test("passes init directly to the CLI and validates supported commands", () => {
