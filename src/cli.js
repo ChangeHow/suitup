@@ -29,7 +29,7 @@ export async function main(argv = process.argv) {
       await runSetup();
       break;
     case "init":
-      await runSetup();
+      await runSetup({ defaults: true });
       break;
     case "append":
       await runAppend();

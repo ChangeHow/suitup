@@ -21,7 +21,7 @@ describe("cli command resolution", () => {
 
   test("help text lists init", () => {
     const helpText = getHelpText();
-    expect(helpText).toContain("init");
+    expect(helpText).toContain("init           Non-interactive init with recommended defaults");
   });
 
   test("help text lists migrate-paths", () => {

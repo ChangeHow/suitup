@@ -50,7 +50,7 @@ When you run suitup locally from the repo, use a zsh session. The curl installer
 curl -fsSL https://raw.githubusercontent.com/ChangeHow/suitup/main/install.sh | bash
 ```
 
-The installer bootstraps missing `zsh` and Node.js/npm when possible, downloads a temporary copy of the repo, runs `npm ci`, then asks whether you want `setup` or guided `init` before launching the interactive flow inside `zsh`. Package installation commands themselves run without extra confirmation prompts. On Linux, Node.js bootstrap now uses the official Node.js 20.x binary tarball so it is not tied to a specific distro repository.
+The installer bootstraps missing `zsh` and Node.js/npm when possible, downloads a temporary copy of the repo, runs `npm ci`, then asks whether you want interactive `setup` or non-interactive `init`. Package installation commands themselves run without extra confirmation prompts. On Linux, Node.js bootstrap now uses the official Node.js 20.x binary tarball so it is not tied to a specific distro repository.
 
 You can also pass a command directly to skip the prompt:
 
@@ -58,15 +58,15 @@ You can also pass a command directly to skip the prompt:
 curl -fsSL https://raw.githubusercontent.com/ChangeHow/suitup/main/install.sh | bash -s -- init
 ```
 
-`init` is an interactive guided initialization path. It asks which steps, tools, and apps to install; the underlying package installation commands do not ask for confirmation again:
+`init` is a non-interactive initialization path. The command passes the recommended-defaults option to the setup engine, which selects the recommended steps and content without asking questions:
 
 - bootstrap package manager + zsh when needed
 - install the layered zsh config
 - install zinit + Powerlevel10k preset
-- choose CLI tools and frontend tooling
-- choose GUI apps on macOS
+- install recommended CLI tools and frontend tooling
+- install recommended GUI apps on macOS
 - write shared aliases
-- run `p10k configure` at the end to set up your prompt theme
+- leave Powerlevel10k personalization to a later manual `p10k configure` run
 
 You can also pass any other command:
 
@@ -93,7 +93,7 @@ node src/cli.js
 
 | Command | Description |
 |---------|-------------|
-| `node src/cli.js init` | Interactive guided initialization |
+| `node src/cli.js init` | Non-interactive initialization with recommended defaults |
 | `node src/cli.js` | Full interactive setup (default) |
 | `node src/cli.js setup` | Same as above |
 | `node src/cli.js append` | Append configs to existing `.zshrc` |
